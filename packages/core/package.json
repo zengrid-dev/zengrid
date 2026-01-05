@@ -1,7 +1,7 @@
 {
   "name": "@zengrid/core",
-  "version": "0.1.0",
-  "description": "ZenGrid Core - High-performance data grid library (Community Edition)",
+  "version": "1.0.0",
+  "description": "High-performance data grid library with 14 advanced data structures and virtual scrolling",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -32,13 +32,16 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/zengrid.git",
+    "url": "https://github.com/zengrid-dev/zengrid.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/zengrid/issues"
+    "url": "https://github.com/zengrid-dev/zengrid/issues"
   },
-  "homepage": "https://zengrid.dev",
+  "homepage": "https://github.com/zengrid-dev/zengrid#readme",
+  "dependencies": {
+    "@zengrid/shared": "^1.0.0"
+  },
   "peerDependencies": {},
   "devDependencies": {}
 }

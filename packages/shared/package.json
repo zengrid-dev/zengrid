@@ -1,7 +1,7 @@
 {
   "name": "@zengrid/shared",
-  "version": "0.1.0",
-  "description": "Shared algorithms and data structures for ZenGrid",
+  "version": "1.0.0",
+  "description": "14 advanced data structures and algorithms for high-performance grids",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -42,7 +42,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/zengrid.git",
+    "url": "https://github.com/zengrid-dev/zengrid.git",
     "directory": "packages/shared"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/zengrid-dev/zengrid/issues"
+  },
+  "homepage": "https://github.com/zengrid-dev/zengrid#readme"
 }
