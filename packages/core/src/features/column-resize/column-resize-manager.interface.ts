@@ -19,8 +19,8 @@ export interface ColumnResizeOptions {
   /** Event emitter for grid events */
   events?: EventEmitter<GridEvents>;
 
-  /** Width provider for column widths */
-  widthProvider: WidthProvider;
+  /** Width provider for column widths (legacy, not used in refactored version) */
+  widthProvider?: WidthProvider;
 
   /** Total number of columns */
   colCount: number;

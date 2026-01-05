@@ -10,7 +10,7 @@
  * - Selection queries (isSelected, getSelectedRanges, etc.)
  */
 
-import { IntervalTree, type IntervalData } from '@zengrid/shared';
+import { IntervalTree } from '@zengrid/shared';
 import type { EventEmitter } from '../../events/event-emitter';
 import type { GridEvents } from '../../events/grid-events';
 
@@ -396,7 +396,7 @@ export class SelectionManager {
   private emitSelectionChange(): void {
     this.events?.emit('selection:change', {
       ranges: this.getSelectedRanges(),
-      count: this.selectionCount,
+      previousRanges: [],
     });
   }
 

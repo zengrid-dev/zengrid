@@ -281,6 +281,14 @@ export interface GridEvents {
     message?: string;
   };
 
+  // Undo/Redo events
+  'undo-redo:change': {
+    canUndo: boolean;
+    canRedo: boolean;
+    undoCount: number;
+    redoCount: number;
+  };
+
   'destroy': {
     timestamp: number;
   };

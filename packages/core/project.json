@@ -19,6 +19,11 @@
             "glob": "packages/core/*.md",
             "input": ".",
             "output": "."
+          },
+          {
+            "glob": "**/*.css",
+            "input": "packages/core/src",
+            "output": "./src"
           }
         ],
         "compiler": "tsc",

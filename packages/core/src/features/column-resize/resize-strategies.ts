@@ -13,13 +13,13 @@ export class SingleColumnResizeStrategy implements ResizeStrategy {
   calculateNewWidth(
     state: ResizeState,
     currentX: number,
-    dataSource: ResizableDataSource
+    _dataSource: ResizableDataSource
   ): number {
     const deltaX = currentX - state.startX;
     return state.originalWidth + deltaX;
   }
 
-  getAffectedColumns(column: number, dataSource: ResizableDataSource): number[] {
+  getAffectedColumns(column: number, _dataSource: ResizableDataSource): number[] {
     return [column];
   }
 }
@@ -33,7 +33,7 @@ export class ProportionalResizeStrategy implements ResizeStrategy {
   calculateNewWidth(
     state: ResizeState,
     currentX: number,
-    dataSource: ResizableDataSource
+    _dataSource: ResizableDataSource
   ): number {
     const deltaX = currentX - state.startX;
     return state.originalWidth + deltaX;
@@ -61,7 +61,7 @@ export class SymmetricResizeStrategy implements ResizeStrategy {
   calculateNewWidth(
     state: ResizeState,
     currentX: number,
-    dataSource: ResizableDataSource
+    _dataSource: ResizableDataSource
   ): number {
     const deltaX = currentX - state.startX;
     return state.originalWidth + deltaX;

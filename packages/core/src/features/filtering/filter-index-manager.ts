@@ -8,7 +8,6 @@
 import {
   ColumnStore,
   ColumnType,
-  type ColumnStoreOptions,
 } from '@zengrid/shared/data-structures/column-store';
 
 /**
@@ -16,7 +15,7 @@ import {
  */
 interface ColumnIndexEntry {
   /** ColumnStore instance */
-  store: ColumnStore<any>;
+  store: ColumnStore;
 
   /** Column type */
   type: ColumnType;
@@ -81,7 +80,7 @@ export class FilterIndexManager {
     col: number,
     rowCount: number,
     getValue: (row: number) => any,
-    type: ColumnType = 'number'
+    type: ColumnType = 'float64'
   ): void {
     // Check memory limit
     const estimatedSizeMB = this.estimateColumnSize(rowCount, type);
@@ -96,12 +95,16 @@ export class FilterIndexManager {
     }
 
     // Create column store
-    const store = new ColumnStore<any>({ type, capacity: rowCount });
+    const store = new ColumnStore({
+      rowCount,
+      columns: [{ name: `col_${col}`, type }],
+    });
 
     // Populate store
+    const columnName = `col_${col}`;
     for (let row = 0; row < rowCount; row++) {
       const value = getValue(row);
-      store.set(row, value);
+      store.setValue(row, columnName, value);
     }
 
     // Store index
@@ -129,10 +132,11 @@ export class FilterIndexManager {
     if (!entry) return null;
 
     const { store, type } = entry;
+    const columnName = `col_${col}`;
     const results: number[] = [];
 
     // Only numeric types support vectorized operations
-    if (type !== 'number' && type !== 'int32' && type !== 'float64') {
+    if (type !== 'int32' && type !== 'float64') {
       return null;
     }
 
@@ -140,7 +144,7 @@ export class FilterIndexManager {
     switch (operation.type) {
       case 'gt':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value != null && value > operation.value) {
             results.push(row);
           }
@@ -149,7 +153,7 @@ export class FilterIndexManager {
 
       case 'gte':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value != null && value >= operation.value) {
             results.push(row);
           }
@@ -158,7 +162,7 @@ export class FilterIndexManager {
 
       case 'lt':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value != null && value < operation.value) {
             results.push(row);
           }
@@ -167,7 +171,7 @@ export class FilterIndexManager {
 
       case 'lte':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value != null && value <= operation.value) {
             results.push(row);
           }
@@ -176,7 +180,7 @@ export class FilterIndexManager {
 
       case 'eq':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value === operation.value) {
             results.push(row);
           }
@@ -185,7 +189,7 @@ export class FilterIndexManager {
 
       case 'neq':
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (value !== operation.value) {
             results.push(row);
           }
@@ -198,7 +202,7 @@ export class FilterIndexManager {
           return null;
         }
         for (let row = 0; row < entry.rowCount; row++) {
-          const value = store.get(row);
+          const value = store.getValue(row, columnName);
           if (
             value != null &&
             value >= operation.value &&
@@ -231,7 +235,9 @@ export class FilterIndexManager {
     const entry = this.columnIndexes.get(col);
     if (!entry) return null;
 
-    return entry.store.aggregate(operation);
+    const columnName = `col_${col}`;
+    const result = entry.store.aggregate(columnName, operation);
+    return result.value;
   }
 
   /**
@@ -245,7 +251,8 @@ export class FilterIndexManager {
     const entry = this.columnIndexes.get(col);
     if (!entry) return;
 
-    entry.store.set(row, value);
+    const columnName = `col_${col}`;
+    entry.store.setValue(row, columnName, value);
     entry.lastUpdated = Date.now();
   }
 
@@ -333,14 +340,12 @@ export class FilterIndexManager {
         bytesPerElement = 4;
         break;
       case 'float64':
-      case 'number':
         bytesPerElement = 8;
         break;
       case 'boolean':
         bytesPerElement = 1;
         break;
       case 'string':
-      case 'date':
         // Estimate: average string length of 50 chars
         bytesPerElement = 50 * 2; // 2 bytes per char in JS
         break;

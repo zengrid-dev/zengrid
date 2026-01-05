@@ -126,7 +126,7 @@ export class EventMediator extends Mediator {
   /**
    * Notify all handlers for an event
    */
-  notify(sender: any, event: string, data?: any): void {
+  notify(_sender: any, event: string, data?: any): void {
     const eventHandlers = this.handlers.get(event);
     if (!eventHandlers) return;
 

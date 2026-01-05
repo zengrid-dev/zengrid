@@ -330,7 +330,11 @@ export type FilterOperator =
   | 'greaterThanOrEqual'
   | 'lessThanOrEqual'
   | 'blank'
-  | 'notBlank';
+  | 'notBlank'
+  | 'between'
+  | 'in'
+  | 'notIn'
+  | 'regex';
 
 /**
  * Filter condition

@@ -25,7 +25,7 @@ class DataSourceAdapter implements ResizableDataSource {
     private getColOffset: (col: number) => number,
     private getColWidth: (col: number) => number,
     private setColWidth: (col: number, width: number) => void,
-    private getValue?: (row: number, col: number) => any,
+    private getValueFn?: (row: number, col: number) => any,
     private rowCount?: number
   ) {}
 
@@ -46,7 +46,7 @@ class DataSourceAdapter implements ResizableDataSource {
   }
 
   getValue(row: number, col: number): any {
-    return this.getValue?.(row, col);
+    return this.getValueFn?.(row, col);
   }
 
   getRowCount(): number {
@@ -482,7 +482,7 @@ export class ColumnResizeManager {
   /**
    * Handle touch end
    */
-  private handleTouchEnd(e: TouchEvent): void {
+  private handleTouchEnd(_e: TouchEvent): void {
     if (!this.stateManager.isActive()) return;
 
     const state = this.stateManager.getState();

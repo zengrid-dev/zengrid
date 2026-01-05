@@ -275,7 +275,7 @@ export class LoadingIndicator {
    * Template 4: Skeleton - Skeleton screen shimmer
    * Layout: [====    ] shimmer effect
    */
-  private renderSkeletonTemplate(state: LoadingState): HTMLElement {
+  private renderSkeletonTemplate(_state: LoadingState): HTMLElement {
     const container = document.createElement('div');
     container.className = `zg-loading zg-loading-skeleton`;
 

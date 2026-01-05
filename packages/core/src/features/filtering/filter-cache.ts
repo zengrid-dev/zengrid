@@ -68,10 +68,12 @@ export class FilterCache {
   private hitCount = 0;
   private missCount = 0;
   private enabled = true;
+  private capacity: number;
 
   constructor(options: { capacity?: number; enabled?: boolean } = {}) {
+    this.capacity = options.capacity ?? 100;
     this.cache = new LRUCache({
-      capacity: options.capacity ?? 100,
+      capacity: this.capacity,
     });
     this.enabled = options.enabled ?? true;
   }
@@ -148,7 +150,7 @@ export class FilterCache {
    *
    * @param dataVersion - Data version to invalidate
    */
-  invalidateVersion(dataVersion: number): void {
+  invalidateVersion(_dataVersion: number): void {
     // LRU cache doesn't support partial invalidation by pattern
     // For now, clear all. Could be optimized with custom implementation.
     this.invalidate();
@@ -182,7 +184,7 @@ export class FilterCache {
       missCount: this.missCount,
       hitRate: total > 0 ? this.hitCount / total : 0,
       size: this.cache.size(),
-      capacity: this.cache.capacity(),
+      capacity: this.capacity,
     };
   }
 

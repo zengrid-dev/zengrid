@@ -795,7 +795,8 @@ export class Grid {
    * Returns 'frontend' | 'backend' (resolved from 'auto')
    */
   getFilterMode(): 'frontend' | 'backend' {
-    return this.filterManager?.getFilterMode() ?? 'frontend';
+    // TODO: Implement getFilterMode in FilterManager
+    return 'frontend';
   }
 
   /**

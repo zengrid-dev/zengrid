@@ -8,7 +8,6 @@
 import {
   SegmentTree,
   AggregationType,
-  type SegmentTreeOptions,
 } from '@zengrid/shared/data-structures/segment-tree';
 
 /**
@@ -16,13 +15,13 @@ import {
  */
 interface RangeIndexEntry {
   /** Min segment tree */
-  minTree: SegmentTree;
+  minTree: SegmentTree<number>;
 
   /** Max segment tree */
-  maxTree: SegmentTree;
+  maxTree: SegmentTree<number>;
 
   /** Sum segment tree (for statistics) */
-  sumTree: SegmentTree;
+  sumTree: SegmentTree<number>;
 
   /** Original values */
   values: number[];

@@ -284,6 +284,10 @@ export class FilterExportManager {
       'lessThanOrEqual': 'lte',
       'blank': 'isNull',
       'notBlank': 'isNotNull',
+      'in': 'in',
+      'notIn': 'notIn',
+      'between': 'between',
+      'regex': 'regex',
     };
 
     return mapping[internal] || 'eq';

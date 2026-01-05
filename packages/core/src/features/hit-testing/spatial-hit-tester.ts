@@ -9,7 +9,8 @@
  * - Viewport intersection queries
  */
 
-import { RTree, type Rectangle } from '@zengrid/shared';
+import { RTree } from '@zengrid/shared';
+import type { Rectangle } from '@zengrid/shared/data-structures/rtree';
 
 /**
  * Cell position in the grid
@@ -206,7 +207,7 @@ export class SpatialHitTester {
     }
 
     // Check if this cell is part of any merged cell
-    for (const [key, bounds] of this.mergedCells) {
+    for (const [key, _bounds] of this.mergedCells) {
       const [startRow, startCol, endRow, endCol] = this.parseMergedCellKey(key);
       if (
         row >= startRow &&
@@ -262,7 +263,7 @@ export class SpatialHitTester {
     mergedCells: number;
   } {
     return {
-      indexedCells: this.rtree.size,
+      indexedCells: this.rtree.getStats().size,
       mergedCells: this.mergedCells.size,
     };
   }

@@ -751,13 +751,13 @@ export class FilterManager {
    * @param rowCount - Total row count
    * @param type - Column data type
    */
-  indexColumn(col: number, rowCount: number, type: ColumnType = 'number'): void {
+  indexColumn(col: number, rowCount: number, type: ColumnType = 'float64'): void {
     if (!this.indexManager) return;
 
-    this.indexManager.indexColumn(col, rowCount, this.getValue, type);
+    this.indexManager.indexColumn(col, rowCount, (row) => this.getValue(row, col), type);
 
     // Also index with range optimizer for numeric columns
-    if (this.rangeOptimizer && (type === 'number' || type === 'int32' || type === 'float64')) {
+    if (this.rangeOptimizer && (type === 'int32' || type === 'float64')) {
       const values: number[] = [];
       for (let row = 0; row < rowCount; row++) {
         values.push(this.getValue(row, col));
@@ -826,7 +826,7 @@ export class FilterManager {
    * Try optimized filtering using ColumnStore and SegmentTree
    * Returns null if optimization not applicable
    */
-  private tryOptimizedFilter(rowCount: number): number[] | null {
+  private tryOptimizedFilter(_rowCount: number): number[] | null {
     // Only optimize for single column filters
     if (this.columnFilters.size !== 1) return null;
 
