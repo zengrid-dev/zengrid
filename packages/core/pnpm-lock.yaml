@@ -6,4 +6,17 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      '@zengrid/shared':
+        specifier: ^1.0.4
+        version: 1.0.4
+
+packages:
+
+  '@zengrid/shared@1.0.4':
+    resolution: {integrity: sha512-YetrVW5r9jBmCuWSERH3S+58kXEZJBZo/V/XyqfNfpA65cbtEGIqyAexPvukxj5uKs16SR4u2goaTO4UaVZlzg==}
+
+snapshots:
+
+  '@zengrid/shared@1.0.4': {}

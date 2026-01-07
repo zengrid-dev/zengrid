@@ -8,7 +8,7 @@
 import {
   SegmentTree,
   AggregationType,
-} from '@zengrid/shared/data-structures/segment-tree';
+} from '@zengrid/shared';
 
 /**
  * Column range index entry

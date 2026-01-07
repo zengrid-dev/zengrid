@@ -4,7 +4,7 @@
  * Provides fast substring search ("contains") filtering for grid columns.
  */
 
-import { SuffixArray } from '@zengrid/shared/data-structures/suffix-array';
+import { SuffixArray } from '@zengrid/shared';
 
 /**
  * Mapping from suffix array position to row index

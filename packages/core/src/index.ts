@@ -9,11 +9,11 @@
 export * from './types';
 
 // Data structures (re-exported from shared)
-export { SparseMatrix } from '@zengrid/shared/data-structures/sparse-matrix';
-export type { SparseMatrixOptions, ReadonlySparseMatrix } from '@zengrid/shared/data-structures/sparse-matrix';
+export { SparseMatrix } from '@zengrid/shared';
+export type { SparseMatrixOptions, ReadonlySparseMatrix } from '@zengrid/shared';
 
-export { ColumnStore } from '@zengrid/shared/data-structures/column-store';
-export type { ColumnStoreOptions, ColumnDefinition, ColumnType, AggregateOperation, AggregationResult } from '@zengrid/shared/data-structures/column-store';
+export { ColumnStore } from '@zengrid/shared';
+export type { ColumnStoreOptions, ColumnDefinition, ColumnType, AggregateOperation, AggregationResult } from '@zengrid/shared';
 
 // Rendering - Height and Width Providers
 export type { HeightProvider, HeightProviderOptions } from './rendering/height-provider';
@@ -78,7 +78,7 @@ export { normalizeRange, mergeRanges, containsCell, rangesIntersect } from './se
 export { createHitTester } from './selection/hit-tester';
 
 // Main Grid class
-export { Grid } from './grid';
+export { Grid } from './grid/index';
 
 // TODO: Implement remaining modules
 //

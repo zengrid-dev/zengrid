@@ -1,0 +1,158 @@
+/**
+ * Grid configuration and state types
+ */
+
+import type { RendererCacheConfig } from '../rendering/cache';
+import type { OperationMode } from '@zengrid/shared';
+import type { CellRef, CellRange } from './cell';
+import type { ColumnDef, SortIcons } from './column';
+import type { SortState } from './sort';
+import type { FilterModel, FilterExpression } from './filter';
+import type { DataLoadRequest, DataLoadResponse } from './data';
+import type { PaginationConfig } from './pagination';
+import type { LoadingConfig } from './loading';
+
+/**
+ * Grid options
+ */
+export interface GridOptions {
+  rowCount: number;
+  colCount: number;
+  rowHeight: number | number[]; // Uniform or variable row heights
+  colWidth: number | number[]; // Uniform or variable column widths
+  columns?: ColumnDef[];
+  enableSelection?: boolean;
+  enableMultiSelection?: boolean;
+  enableKeyboardNavigation?: boolean;
+  enableA11y?: boolean;
+  overscanRows?: number;
+  overscanCols?: number;
+  enableCellPooling?: boolean;
+  rendererCache?: RendererCacheConfig;
+  sortIcons?: SortIcons; // Configurable sort icons with defaults
+
+  // Data Operation Modes - unified pattern for frontend/backend operations
+  /**
+   * Data loading mode
+   * - 'frontend': All data loaded in memory (default)
+   * - 'backend': Data loaded on-demand via onDataRequest
+   * - 'auto': Use backend if onDataRequest provided, else frontend
+   */
+  dataMode?: OperationMode;
+
+  /**
+   * Sort mode
+   * - 'frontend': Sort in memory using IndexMap (default)
+   * - 'backend': Delegate sorting to server via onSortRequest
+   * - 'auto': Use backend if onSortRequest provided, else frontend
+   */
+  sortMode?: OperationMode;
+
+  /**
+   * Filter mode
+   * - 'frontend': Filter in memory (default)
+   * - 'backend': Delegate filtering to server via onFilterRequest
+   * - 'auto': Use backend if onFilterRequest provided, else frontend
+   */
+  filterMode?: OperationMode;
+
+  // Callbacks for backend operations
+  /**
+   * Backend data loading callback
+   * Called when dataMode is 'backend' or 'auto' (with callback present)
+   * Application should fetch data based on request parameters
+   */
+  onDataRequest?: (request: DataLoadRequest) => Promise<DataLoadResponse>;
+
+  /**
+   * Backend sorting callback
+   * Called when sortMode is 'backend' or 'auto' (with callback present)
+   * Application should fetch sorted data and call grid.setData()
+   */
+  onSortRequest?: (sortState: SortState[]) => Promise<void> | void;
+
+  /**
+   * Backend filtering callback
+   * Called when filterMode is 'backend' or 'auto' (with callback present)
+   * Application should fetch filtered data and call grid.setData()
+   *
+   * Receives FilterExpression which contains:
+   * - SQL query with parameters (if using SQL-like syntax)
+   * - Filter models (if using traditional approach)
+   *
+   * @example SQL-like filtering
+   * ```typescript
+   * onFilterRequest: async (filter) => {
+   *   if (filter.type === 'sql') {
+   *     // Backend receives: filter.sql = "age > ? AND status = ?"
+   *     // Backend receives: filter.params = [18, 'active']
+   *     const data = await api.get('/data', {
+   *       filter: filter.sql,
+   *       params: filter.params
+   *     });
+   *     grid.setData(data);
+   *   }
+   * }
+   * ```
+   */
+  onFilterRequest?: (filterExpression: FilterExpression) => Promise<void> | void;
+
+  // Pagination
+  /**
+   * Pagination configuration
+   */
+  pagination?: PaginationConfig;
+
+  // Loading indicator
+  /**
+   * Loading indicator configuration
+   */
+  loading?: LoadingConfig;
+
+  // Column Resize
+  /**
+   * Enable column resize feature (default: true)
+   */
+  enableColumnResize?: boolean;
+
+  /**
+   * Column resize configuration
+   */
+  columnResize?: {
+    /** Width of resize handle detection zone in pixels (default: 6) */
+    resizeZoneWidth?: number;
+    /** Default minimum width for all columns (default: 30) */
+    defaultMinWidth?: number;
+    /** Default maximum width for all columns (default: Infinity) */
+    defaultMaxWidth?: number;
+    /** Maximum rows to sample for auto-fit (default: 100) */
+    autoFitSampleSize?: number;
+    /** Padding to add to auto-fit width (default: 16) */
+    autoFitPadding?: number;
+    /** Show visual resize handles (default: true) */
+    showHandles?: boolean;
+    /** Show preview line during drag (default: true) */
+    showPreview?: boolean;
+  };
+
+  // Event callbacks
+  onScroll?: (scrollTop: number, scrollLeft: number) => void;
+  onCellClick?: (row: number, col: number) => void;
+  onCellDoubleClick?: (row: number, col: number) => void;
+  onSelectionChange?: (selection: CellRange[]) => void;
+  onPageChange?: (page: number, pageSize: number) => void;
+  onColumnWidthsChange?: (widths: number[]) => void; // Called when column widths change (for persistence)
+}
+
+/**
+ * Grid state
+ */
+export interface GridState {
+  data: any[][];
+  selection: CellRange[];
+  activeCell: CellRef | null;
+  sortState: SortState[];
+  filterState: FilterModel[];
+  scrollPosition: { top: number; left: number };
+  editingCell: CellRef | null;
+}

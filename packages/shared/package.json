@@ -1,6 +1,6 @@
 {
   "name": "@zengrid/shared",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "14 advanced data structures and algorithms for high-performance grids",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",

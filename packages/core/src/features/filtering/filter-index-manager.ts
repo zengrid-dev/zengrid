@@ -8,7 +8,7 @@
 import {
   ColumnStore,
   ColumnType,
-} from '@zengrid/shared/data-structures/column-store';
+} from '@zengrid/shared';
 
 /**
  * Column index entry

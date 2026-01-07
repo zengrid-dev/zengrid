@@ -120,6 +120,8 @@ export class CellPositioner implements ICellPositioner {
     element.style.top = `${position.y}px`;
     element.style.width = `${position.width}px`;
     element.style.height = `${position.height}px`;
+    element.style.display = ''; // Show the cell (remove display: none from pool)
+    element.setAttribute('data-col', col.toString());
 
     // Get renderer
     const rendererName = column?.renderer || 'text';

@@ -8,7 +8,7 @@ import {
   detectSequence,
   autofill as autofilfillSequence,
   type SequencePattern,
-} from '@zengrid/shared/algorithms/pattern';
+} from '@zengrid/shared';
 
 /**
  * Autofill direction

@@ -1,7 +1,7 @@
 import type { DataSource, DataSourceEvents } from './data-source.interface';
 import type { CellRef } from '../types';
-import { SparseMatrix } from '@zengrid/shared/data-structures/sparse-matrix';
-import { ColumnStore } from '@zengrid/shared/data-structures/column-store';
+import { SparseMatrix } from '@zengrid/shared';
+import { ColumnStore } from '@zengrid/shared';
 import { EventEmitter } from '../events/event-emitter';
 
 /**

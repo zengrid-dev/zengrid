@@ -1,6 +1,6 @@
 {
   "name": "@zengrid/core",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "High-performance data grid library with 14 advanced data structures and virtual scrolling",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
@@ -11,6 +11,7 @@
       "import": "./dist/index.esm.js",
       "require": "./dist/index.cjs"
     },
+    "./dist/styles.css": "./dist/src/styles.css",
     "./styles/*": "./dist/src/*"
   },
   "files": [
@@ -40,8 +41,6 @@
   },
   "homepage": "https://github.com/zengrid-dev/zengrid#readme",
   "dependencies": {
-    "@zengrid/shared": "^1.0.0"
-  },
-  "peerDependencies": {},
-  "devDependencies": {}
+    "@zengrid/shared": "^1.0.4"
+  }
 }

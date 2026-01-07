@@ -92,6 +92,7 @@ export class Grid {
   private viewport: HTMLElement | null = null;
   private canvas: HTMLElement | null = null;
   private scrollContainer: HTMLElement | null = null;
+  private headerContainer: HTMLElement | null = null;
   private paginationTop: HTMLElement | null = null;
   private paginationBottom: HTMLElement | null = null;
 
@@ -105,6 +106,7 @@ export class Grid {
     }
 
     this.container = container;
+    this.container.classList.add('zg-grid');
     this.options = this.validateOptions(options);
 
     // Initialize state
@@ -1387,9 +1389,11 @@ export class Grid {
     }
 
     this.container.innerHTML = '';
+    this.container.classList.remove('zg-grid');
     this.viewport = null;
     this.canvas = null;
     this.scrollContainer = null;
+    this.headerContainer = null;
 
     // Destroy data manager
     if (this.dataManager) {
@@ -1447,9 +1451,13 @@ export class Grid {
     // Create scroll container
     this.scrollContainer = document.createElement('div');
     this.scrollContainer.className = 'zg-scroll-container';
+
+    // Calculate header height if columns are defined
+    const headerHeight = this.options.columns && this.options.columns.length > 0 ? 40 : 0;
+
     this.scrollContainer.style.cssText = `
       position: absolute;
-      top: 0;
+      top: ${headerHeight}px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -1474,6 +1482,11 @@ export class Grid {
       pointer-events: auto;
     `;
 
+    // Create headers if columns are defined
+    if (this.options.columns && this.options.columns.length > 0) {
+      this.createHeaderContainer();
+    }
+
     // Assemble DOM
     this.canvas.appendChild(cellsContainer);
     this.scrollContainer.appendChild(this.canvas);
@@ -1482,6 +1495,65 @@ export class Grid {
 
     // Attach event listeners
     this.scrollContainer.addEventListener('scroll', this.handleScroll);
+  }
+
+  /**
+   * Create header container with column headers
+   */
+  private createHeaderContainer(): void {
+    if (!this.options.columns || this.options.columns.length === 0 || !this.viewport) return;
+
+    this.headerContainer = document.createElement('div');
+    this.headerContainer.className = 'zg-header';
+
+    const headerHeight = 40; // Default header height
+    this.headerContainer.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: ${headerHeight}px;
+      z-index: 10;
+      background: var(--zg-header-bg, #f5f5f5);
+      border-bottom: 1px solid var(--zg-border-color, #d0d0d0);
+      overflow: hidden;
+    `;
+
+    // Create header cells container
+    const headerCellsContainer = document.createElement('div');
+    headerCellsContainer.className = 'zg-header-cells';
+    headerCellsContainer.style.cssText = `
+      position: relative;
+      height: 100%;
+      display: flex;
+    `;
+
+    // Create header cells
+    this.options.columns.forEach((column, index) => {
+      const headerCell = document.createElement('div');
+      headerCell.className = 'zg-header-cell';
+
+      // Get column width
+      const colWidth = Array.isArray(this.options.colWidth)
+        ? this.options.colWidth[index]
+        : this.options.colWidth;
+
+      headerCell.style.cssText = `
+        width: ${colWidth}px;
+        height: ${headerHeight}px;
+        box-sizing: border-box;
+        flex-shrink: 0;
+      `;
+
+      // Set header text - use 'header' property from ColumnDef
+      headerCell.textContent = column.header || `Column ${index}`;
+      headerCellsContainer.appendChild(headerCell);
+    });
+
+    this.headerContainer.appendChild(headerCellsContainer);
+
+    // Insert header as first child of viewport, before scroll container
+    this.viewport.insertBefore(this.headerContainer, this.viewport.firstChild);
   }
 
   /**
@@ -1639,6 +1711,14 @@ export class Grid {
 
     // Update state
     this.state.scrollPosition = { top: scrollTop, left: scrollLeft };
+
+    // Sync header horizontal scroll
+    if (this.headerContainer) {
+      const headerCells = this.headerContainer.querySelector('.zg-header-cells') as HTMLElement;
+      if (headerCells) {
+        headerCells.style.transform = `translateX(-${scrollLeft}px)`;
+      }
+    }
 
     // Throttle render using requestAnimationFrame
     if (this.rafId !== null) {

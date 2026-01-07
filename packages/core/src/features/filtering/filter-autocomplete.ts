@@ -4,7 +4,7 @@
  * Provides fast autocomplete suggestions for column filters.
  */
 
-import { Trie } from '@zengrid/shared/data-structures/trie';
+import { Trie } from '@zengrid/shared';
 
 /**
  * FilterAutocomplete - Column filter autocomplete using Trie

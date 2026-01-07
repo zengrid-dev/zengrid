@@ -1,4 +1,4 @@
-import { PrefixSumArray } from '@zengrid/shared/data-structures/prefix-sum-array';
+import { PrefixSumArray } from '@zengrid/shared';
 import type { WidthProvider } from './width-provider.interface';
 
 /**

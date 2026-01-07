@@ -127,7 +127,7 @@ export class CellPool implements ICellPool {
     // Reset to default state
     element.className = 'zg-cell';
     element.innerHTML = '';
-    element.style.cssText = 'position: absolute;';
+    element.style.cssText = 'position: absolute; display: none;';
     delete element.dataset.cellKey;
   }
 }

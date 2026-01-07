@@ -1,5 +1,5 @@
-import type { Comparator } from '@zengrid/shared/types';
-import { timsortIndices } from '@zengrid/shared/algorithms/sorting';
+import type { Comparator } from '@zengrid/shared';
+import { timsortIndices } from '@zengrid/shared';
 import type { IndexMap } from '../../data/index-map';
 import { createIndexMap, createIdentityIndexMap } from '../../data/index-map';
 import type { DataAccessor } from '../../data/data-accessor';

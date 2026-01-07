@@ -10,7 +10,7 @@
  */
 
 import { RTree } from '@zengrid/shared';
-import type { Rectangle } from '@zengrid/shared/data-structures/rtree';
+import type { RTreeRectangle as Rectangle } from '@zengrid/shared';
 
 /**
  * Cell position in the grid

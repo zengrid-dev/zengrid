@@ -44,12 +44,11 @@ export type {
   ICommandStackOptions,
 } from './data-structures/command-stack';
 
-export { SegmentTree } from './data-structures/segment-tree';
+export { SegmentTree, AggregationType } from './data-structures/segment-tree';
 export type {
   ISegmentTree,
   SegmentTreeOptions,
   AggregateFunction,
-  AggregationType,
 } from './data-structures/segment-tree';
 export { Aggregations, SegmentTreeUtils } from './data-structures/segment-tree';
 
@@ -94,6 +93,7 @@ export type {
   RTreeOptions,
   RTreeSearchResult,
   RTreeStats,
+  Rectangle as RTreeRectangle,
 } from './data-structures/rtree';
 
 export { Trie } from './data-structures/trie';
@@ -132,6 +132,25 @@ export type {
   BinarySearchOptions,
   BinarySearchResult,
 } from './algorithms/search';
+
+export {
+  detectSequence,
+  generateSequence,
+  autofill,
+} from './algorithms/pattern';
+export type {
+  SequenceType,
+  SequencePattern,
+} from './algorithms/pattern';
+
+export { BloomFilter } from './algorithms/filter';
+
+export {
+  timsort,
+  timsortIndices,
+  numericComparator,
+  stringComparator,
+} from './algorithms/sorting';
 
 // Types
 export type {

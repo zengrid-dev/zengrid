@@ -4,7 +4,7 @@
  * Provides fast filter membership checks to skip expensive scans.
  */
 
-import { BloomFilter } from '@zengrid/shared/algorithms/filter';
+import { BloomFilter } from '@zengrid/shared';
 
 /**
  * FilterOptimizer - Quick filter membership tests using Bloom Filter

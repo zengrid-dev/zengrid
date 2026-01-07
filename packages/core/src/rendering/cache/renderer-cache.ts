@@ -1,4 +1,4 @@
-import { LRUCache } from '@zengrid/shared/data-structures/lru-cache';
+import { LRUCache } from '@zengrid/shared';
 import type {
   IRendererCache,
   RendererCacheConfig,

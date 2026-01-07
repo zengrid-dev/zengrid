@@ -5,7 +5,7 @@
  * Automatically invalidates when filter state changes.
  */
 
-import { LRUCache } from '@zengrid/shared/data-structures/lru-cache';
+import { LRUCache } from '@zengrid/shared';
 
 /**
  * Cache key for filter results

@@ -4,7 +4,7 @@
  * Provides fast hit testing for finding cells at mouse/touch coordinates.
  */
 
-import { RTree, type Rectangle } from '@zengrid/shared/data-structures/rtree';
+import { RTree, type RTreeRectangle as Rectangle } from '@zengrid/shared';
 
 /**
  * Cell reference

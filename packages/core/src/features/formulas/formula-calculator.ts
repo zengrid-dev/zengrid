@@ -4,7 +4,7 @@
  * Tracks formula dependencies and calculates cells in correct order.
  */
 
-import { DependencyGraph } from '@zengrid/shared/data-structures/dependency-graph';
+import { DependencyGraph } from '@zengrid/shared';
 
 /**
  * Cell formula information

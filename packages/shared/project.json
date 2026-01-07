@@ -9,11 +9,12 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/shared",
+        "outputPath": "packages/shared/dist",
         "tsConfig": "packages/shared/tsconfig.json",
         "main": "packages/shared/src/index.ts",
         "generateExportsField": true,
         "format": ["cjs", "esm"],
+        "sourcemap": true,
         "assets": [
           {
             "glob": "packages/shared/*.md",

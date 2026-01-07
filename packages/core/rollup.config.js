@@ -23,9 +23,7 @@ module.exports = {
       sourcemap: true,
     },
   ],
-  external: [
-    // No external dependencies for core
-  ],
+  external: ['@zengrid/shared'],
   plugins: [
     nodeResolve({
       browser: true,
@@ -37,6 +35,10 @@ module.exports = {
       declarationDir: './dist',
       rootDir: './src',
       exclude: ['**/*.spec.ts', '**/*.test.ts'],
+      sourceMap: true,
+      compilerOptions: {
+        outDir: './dist',
+      },
     }),
     postcss({
       extract: 'styles.css',

@@ -21,7 +21,8 @@
   --zg-hover-bg: #f0f0f0;
 
   /* Spacing */
-  --zg-cell-padding: 4px 8px;
+  --zg-cell-padding: 8px 12px;
+  --zg-header-padding: 12px;
   --zg-border-width: 1px;
 
   /* Typography */
@@ -54,8 +55,7 @@
 
 /* Scroll container (defines virtual scroll area) */
 .zg-scroll-container {
-  position: relative;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 /* Cell container (holds visible cells) */
@@ -74,10 +74,15 @@
   border-right: var(--zg-border-width) solid var(--zg-border-color);
   border-bottom: var(--zg-border-width) solid var(--zg-border-color);
   background: var(--zg-bg-color);
+  color: var(--zg-text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   user-select: none;
+}
+
+.zg-cell[data-col="0"] {
+  border-left: var(--zg-border-width) solid var(--zg-border-color);
 }
 
 .zg-cell:hover {
@@ -117,24 +122,40 @@
 
 /* Headers */
 .zg-header {
-  position: sticky;
+  position: absolute;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
   background: var(--zg-header-bg);
   color: var(--zg-header-text);
   font-weight: 600;
   border-bottom: 2px solid var(--zg-border-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.zg-header-cells {
+  display: flex;
 }
 
 .zg-header-cell {
-  position: absolute;
   box-sizing: border-box;
-  padding: var(--zg-cell-padding);
+  padding: var(--zg-header-padding);
   border-right: var(--zg-border-width) solid var(--zg-border-color);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   cursor: pointer;
+  background: var(--zg-header-bg);
+  color: var(--zg-header-text);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zg-header-cell:first-child {
+  border-left: var(--zg-border-width) solid var(--zg-border-color);
 }
 
 .zg-header-cell:hover {
