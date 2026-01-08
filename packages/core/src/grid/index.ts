@@ -17,7 +17,14 @@ import { GridSort } from './sort';
 import { GridFilter } from './filter';
 import { GridScroll } from './scroll';
 import { GridResize } from './resize';
+import { GridDrag } from './drag';
 import { GridInit } from './init';
+import { HeaderManager } from './header-manager';
+import type { HeaderRenderer } from '../rendering/headers/header-renderer.interface';
+import { ColumnModel } from '../features/columns/column-model';
+import { ScrollModel } from '../features/viewport/scroll-model';
+import { ViewportModel } from '../features/viewport/viewport-model';
+import type { ViewportEvent } from '../features/viewport/types';
 
 /**
  * Grid - Main grid class that integrates all components
@@ -57,7 +64,23 @@ export class Grid {
   private filterOps: GridFilter;
   private scrollOps: GridScroll;
   private resizeOps: GridResize;
+  private dragOps: GridDrag;
   private init: GridInit;
+  private headerManager: HeaderManager | null = null;
+  private columnModel: ColumnModel | null = null;
+
+  // Reactive viewport models
+  private scrollModel: ScrollModel;
+  private viewportModel: ViewportModel;
+  private viewportSubscription: (() => void) | null = null;
+
+  // Infinite scrolling state
+  private isLoadingMoreRows = false;
+  private hasMoreRows = true;
+
+  // Sliding window state (memory management)
+  private virtualRowOffset = 0; // Number of rows pruned from the beginning
+  private actualRowCount = 0;   // Total rows loaded (including pruned ones)
 
   // Advanced features using new data structures & algorithms
   public spatialHitTester: SpatialHitTester = new SpatialHitTester();
@@ -85,6 +108,10 @@ export class Grid {
 
     this.container = container;
     this.container.classList.add('zg-grid');
+
+    // Initialize reactive viewport models
+    this.scrollModel = new ScrollModel();
+    this.viewportModel = new ViewportModel();
 
     // Initialize state
     this.state = {
@@ -178,9 +205,9 @@ export class Grid {
       this.init.cache,
       this.dataOps.dataAccessor,
       {
-        syncHeaderScroll: (scrollLeft: number) => this.dom.syncHeaderScroll(scrollLeft),
         getSortManager: () => this.sortOps.getSortManager(),
         getCachedVisibleRows: () => this.filterOps.cachedVisibleRows,
+        emitEvent: (event: string, payload: any) => this.events.emit(event as any, payload),
       }
     );
 
@@ -205,8 +232,47 @@ export class Grid {
       }
     );
 
+    // Initialize drag module
+    this.dragOps = new GridDrag(
+      this.options,
+      this.events,
+      this.scrollContainer
+    );
+
     // Initialize pagination module
     this.pagination = new GridPagination(this.options, this.events);
+
+    // Initialize column model and header manager if columns are defined
+    if (this.options.columns && this.options.columns.length > 0) {
+      // Create reactive column model
+      this.columnModel = new ColumnModel(this.options.columns);
+
+      // Pass column model to resize operations for reactive updates
+      this.resizeOps.setColumnModel(this.columnModel);
+
+      // Pass column model to drag operations
+      this.dragOps.setColumnModel(this.columnModel);
+
+      const headerContainer = this.dom.createHeaderContainer();
+      if (headerContainer) {
+        this.headerManager = new HeaderManager({
+          columnModel: this.columnModel,
+          container: headerContainer,
+          eventEmitter: this.events,
+          getSortState: () => this.state.sortState,
+          getFilterState: () => this.state.filterState,
+          headerHeight: 40,
+          enableScrollSync: true,
+          scrollSyncThrottle: 16,
+        });
+        this.headerManager.initialize();
+
+        // Connect header sort clicks to grid sort functionality
+        this.events.on('header:sort:click', (event) => {
+          this.toggleSort(event.columnIndex);
+        });
+      }
+    }
   }
 
   /**
@@ -215,6 +281,15 @@ export class Grid {
    */
   setData(data: any[][]): void {
     this.dataOps.setData(data);
+
+    // Initialize actualRowCount if this is the first data load for infinite scrolling
+    if (this.options.infiniteScrolling?.enabled && this.actualRowCount === 0) {
+      this.actualRowCount = data.length;
+    }
+
+    // Initialize sort manager after data is set - PASS the dataAccessor!
+    this.sortOps.initializeSortManager(data.length, this.dataOps.dataAccessor);
+
     // Update scroller and positioner references after data is set
     this.scrollOps.updateReferences(
       this.scrollOps.getScroller(),
@@ -239,10 +314,29 @@ export class Grid {
       this.scrollOps.updateReferences(this.init.scroller, this.init.positioner, this.dataOps.dataAccessor);
       this.resizeOps.updateScroller(this.init.scroller);
 
+      // Connect reactive viewport models to VirtualScroller
+      if (this.init.scroller) {
+        this.init.scroller.setReactiveModels(this.scrollModel, this.viewportModel);
+      }
+
+      // Subscribe CellPositioner to ViewportModel for reactive rendering
+      if (this.init.positioner) {
+        this.init.positioner.subscribeToViewport(this.viewportModel);
+      }
+
+      // Setup infinite scrolling if enabled
+      this.setupInfiniteScrolling();
+
       // Initialize column resize if configured
       if (this.options.columnResize && this.headerContainer) {
         this.resizeOps.initializeColumnResize();
         this.resizeOps.attachColumnResize(this.headerContainer);
+      }
+
+      // Initialize column drag if configured
+      if (this.options.enableColumnDrag !== false && this.headerContainer && this.columnModel) {
+        this.dragOps.initializeColumnDrag();
+        this.dragOps.attachColumnDrag(this.headerContainer);
       }
     }
 
@@ -253,6 +347,27 @@ export class Grid {
 
     // Update canvas size
     this.dom.updateCanvasSize(this.init.scroller.getTotalWidth(), this.init.scroller.getTotalHeight());
+
+    // Render headers if header manager is initialized
+    if (this.headerManager) {
+      this.headerManager.renderHeaders();
+
+      // Attach column resize to the header managed by HeaderManager
+      if (this.options.columnResize) {
+        const headerContainer = this.headerManager.getHeaderCellsContainer();
+        if (headerContainer) {
+          this.resizeOps.attachColumnResize(headerContainer);
+        }
+      }
+
+      // Attach column drag to the header managed by HeaderManager
+      if (this.options.enableColumnDrag !== false && this.columnModel) {
+        const headerContainer = this.headerManager.getHeaderCellsContainer();
+        if (headerContainer) {
+          this.dragOps.attachColumnDrag(headerContainer);
+        }
+      }
+    }
 
     // Initial render at scroll position 0,0
     this.init.positioner.renderVisibleCells(
@@ -489,6 +604,19 @@ export class Grid {
     return false;
   }
 
+  // Column drag operations
+  attachColumnDrag(headerElement: HTMLElement): void {
+    this.dragOps.attachColumnDrag(headerElement);
+  }
+
+  detachColumnDrag(): void {
+    this.dragOps.detachColumnDrag();
+  }
+
+  isDragging(): boolean {
+    return this.dragOps.isDragging();
+  }
+
   // Event subscriptions
   on<K extends keyof GridEvents>(event: K, handler: (payload: GridEvents[K]) => void): void {
     this.events.on(event, handler);
@@ -499,10 +627,231 @@ export class Grid {
   }
 
   /**
+   * Register a custom header renderer
+   *
+   * @param name - Unique name for the renderer
+   * @param renderer - HeaderRenderer instance
+   *
+   * @example
+   * ```typescript
+   * grid.registerHeaderRenderer('myCustomHeader', new MyCustomHeaderRenderer());
+   * ```
+   */
+  registerHeaderRenderer(name: string, renderer: HeaderRenderer): void {
+    if (!this.headerManager) {
+      throw new Error('Header manager not initialized. Columns must be defined.');
+    }
+    this.headerManager.registerRenderer(name, renderer);
+  }
+
+  /**
+   * Update a specific header cell
+   *
+   * @param columnIndex - Index of the column to update
+   */
+  updateHeader(columnIndex: number): void {
+    if (this.headerManager) {
+      this.headerManager.updateHeader(columnIndex);
+    }
+  }
+
+  /**
+   * Update all header cells
+   *
+   * Call this after changing sort/filter state or column configurations.
+   */
+  updateAllHeaders(): void {
+    if (this.headerManager) {
+      this.headerManager.updateAllHeaders();
+    }
+  }
+
+  /**
+   * Refresh headers (destroy and re-render)
+   *
+   * Use this when columns configuration has changed.
+   */
+  refreshHeaders(): void {
+    if (this.headerManager) {
+      this.headerManager.refreshHeaders();
+    }
+  }
+
+  /**
+   * Setup infinite scrolling subscription
+   * @private
+   */
+  private setupInfiniteScrolling(): void {
+    const infiniteScrollConfig = this.options.infiniteScrolling;
+    if (!infiniteScrollConfig?.enabled || !this.options.onLoadMoreRows) {
+      return;
+    }
+
+    const threshold = infiniteScrollConfig.threshold ?? 20;
+
+    // Subscribe to viewport changes
+    this.viewportSubscription = this.viewportModel.subscribe({
+      onChange: (event: ViewportEvent) => {
+        this.handleViewportChangeForInfiniteScroll(event, threshold);
+      },
+    });
+  }
+
+  /**
+   * Handle viewport change for infinite scrolling
+   * @private
+   */
+  private handleViewportChangeForInfiniteScroll(event: ViewportEvent, threshold: number): void {
+    // Only trigger on row changes or range changes
+    if (event.type !== 'rows' && event.type !== 'range') {
+      return;
+    }
+
+    const { newRange } = event;
+    const totalRows = this.options.rowCount;
+
+    // Check if we're approaching the bottom
+    const isNearBottom = newRange.endRow >= totalRows - threshold;
+
+    if (isNearBottom && !this.isLoadingMoreRows && this.hasMoreRows && this.options.onLoadMoreRows) {
+      this.loadMoreRows();
+    }
+  }
+
+  /**
+   * Load more rows for infinite scrolling
+   * @private
+   */
+  private async loadMoreRows(): Promise<void> {
+    if (!this.options.onLoadMoreRows || this.isLoadingMoreRows) {
+      return;
+    }
+
+    this.isLoadingMoreRows = true;
+
+    try {
+      const currentRowCount = this.options.rowCount;
+      const newRows = await this.options.onLoadMoreRows(currentRowCount);
+
+      if (!newRows || newRows.length === 0) {
+        // No more data to load
+        this.hasMoreRows = false;
+        return;
+      }
+
+      // Append new rows to existing data
+      const currentData = this.state.data;
+      let updatedData = [...currentData, ...newRows];
+
+      // Track actual total rows loaded (including pruned rows)
+      this.actualRowCount += newRows.length;
+
+      // Sliding Window: Prune old rows if enabled
+      const slidingWindowConfig = this.options.infiniteScrolling;
+      if (slidingWindowConfig?.enableSlidingWindow) {
+        const windowSize = slidingWindowConfig.windowSize ?? 1000;
+        const pruneThreshold = slidingWindowConfig.pruneThreshold ?? (windowSize + 200);
+
+        if (updatedData.length > pruneThreshold) {
+          // Calculate how many rows to remove
+          const rowsToRemove = updatedData.length - windowSize;
+
+          // Remove old rows from the beginning
+          const prunedData = updatedData.slice(rowsToRemove);
+
+          // Update virtual offset (how many rows we've removed)
+          this.virtualRowOffset += rowsToRemove;
+
+          console.log(`🗑️  Sliding Window: Pruned ${rowsToRemove} old rows from memory`);
+          console.log(`   Virtual offset: ${this.virtualRowOffset}`);
+          console.log(`   Memory rows: ${prunedData.length} (was ${updatedData.length})`);
+          console.log(`   Actual total: ${this.actualRowCount} rows loaded so far`);
+
+          // Notify user if callback provided
+          if (slidingWindowConfig.onDataPruned) {
+            slidingWindowConfig.onDataPruned(rowsToRemove, this.virtualRowOffset);
+          }
+
+          updatedData = prunedData;
+        }
+      }
+
+      // Update row count
+      this.options.rowCount = updatedData.length;
+
+      // Update grid data
+      this.setData(updatedData);
+
+      // CRITICAL: Update scroller's row count for infinite scrolling
+      if (this.init.scroller) {
+        this.init.scroller.setRowCount(updatedData.length);
+        console.log(`📊 Updated scroller row count to ${updatedData.length}`);
+      }
+
+      // Update canvas size to accommodate new rows
+      if (this.init.scroller && this.canvas) {
+        this.dom.updateCanvasSize(
+          this.init.scroller.getTotalWidth(),
+          this.init.scroller.getTotalHeight()
+        );
+      }
+
+      // Refresh the viewport to show new data
+      this.refresh();
+
+      if (slidingWindowConfig?.enableSlidingWindow) {
+        console.log(`✅ Infinite scroll: appended ${newRows.length} rows, memory: ${updatedData.length}, total loaded: ${this.actualRowCount}`);
+      } else {
+        console.log(`✅ Infinite scroll: appended ${newRows.length} rows, total now: ${updatedData.length}`);
+      }
+    } catch (error) {
+      console.error('Error loading more rows:', error);
+      this.hasMoreRows = false;
+    } finally {
+      this.isLoadingMoreRows = false;
+    }
+  }
+
+  /**
+   * Reset infinite scrolling state
+   * Call this when you want to restart infinite scrolling from the beginning
+   */
+  resetInfiniteScrolling(): void {
+    this.isLoadingMoreRows = false;
+    this.hasMoreRows = true;
+    this.virtualRowOffset = 0;
+    this.actualRowCount = 0;
+  }
+
+  /**
+   * Get sliding window statistics
+   * Useful for debugging and monitoring memory usage
+   */
+  getSlidingWindowStats(): {
+    virtualOffset: number;
+    rowsInMemory: number;
+    totalRowsLoaded: number;
+    prunedRows: number;
+  } {
+    return {
+      virtualOffset: this.virtualRowOffset,
+      rowsInMemory: this.state.data.length,
+      totalRowsLoaded: this.actualRowCount,
+      prunedRows: this.virtualRowOffset,
+    };
+  }
+
+  /**
    * Destroy the grid and clean up resources
    */
   destroy(): void {
     if (this.isDestroyed) return;
+
+    // Unsubscribe from viewport changes (infinite scrolling)
+    if (this.viewportSubscription) {
+      this.viewportSubscription();
+      this.viewportSubscription = null;
+    }
 
     // Destroy scroll module
     this.scrollOps.destroy();
@@ -524,6 +873,16 @@ export class Grid {
 
     // Detach column resize
     this.resizeOps.detachColumnResize();
+
+    // Detach and destroy column drag
+    this.dragOps.detachColumnDrag();
+    this.dragOps.destroy();
+
+    // Cleanup header manager
+    if (this.headerManager) {
+      this.headerManager.cleanup();
+      this.headerManager = null;
+    }
 
     // Clear DOM
     this.container.innerHTML = '';

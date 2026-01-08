@@ -5,6 +5,9 @@ import type {
 import type { CellRef, VisibleRange } from '../../types';
 import type { RenderParams } from '../renderers';
 import { RendererCache } from '../cache';
+import type { ViewportModel } from '../../features/viewport/viewport-model';
+import type { ViewportEvent } from '../../features/viewport/types';
+import type { StateSubscriber } from '@zengrid/shared';
 
 /**
  * CellPositioner - Orchestrates cell rendering
@@ -43,6 +46,9 @@ export class CellPositioner implements ICellPositioner {
   private lastRange: VisibleRange | null = null;
   private renderedCells: Map<string, string> = new Map(); // key -> renderer name
 
+  // Reactive subscription
+  private viewportSubscription: (() => void) | null = null;
+
   constructor(options: CellPositionerOptions) {
     this.scroller = options.scroller;
     this.pool = options.pool;
@@ -56,8 +62,37 @@ export class CellPositioner implements ICellPositioner {
     this.isEditing = options.isEditing ?? (() => false);
   }
 
+  /**
+   * Subscribe to viewport changes (reactive mode)
+   */
+  subscribeToViewport(viewportModel: ViewportModel): () => void {
+    const subscriber: StateSubscriber<ViewportEvent> = {
+      onChange: (event: ViewportEvent) => {
+        this.handleViewportChange(event);
+      },
+    };
+
+    this.viewportSubscription = viewportModel.subscribe(subscriber);
+    return this.viewportSubscription;
+  }
+
+  /**
+   * Handle viewport change reactively
+   */
+  private handleViewportChange(event: ViewportEvent): void {
+    const range = event.newRange;
+    this.renderCellsInRange(range);
+  }
+
   renderVisibleCells(scrollTop: number, scrollLeft: number): void {
     const range = this.scroller.calculateVisibleRange(scrollTop, scrollLeft);
+    this.renderCellsInRange(range);
+  }
+
+  /**
+   * Render cells in a specific range (internal helper)
+   */
+  private renderCellsInRange(range: VisibleRange): void {
     const activeKeys = new Set<string>();
 
     for (let row = range.startRow; row < range.endRow; row++) {
@@ -103,6 +138,12 @@ export class CellPositioner implements ICellPositioner {
   }
 
   destroy(): void {
+    // Unsubscribe from viewport changes
+    if (this.viewportSubscription) {
+      this.viewportSubscription();
+      this.viewportSubscription = null;
+    }
+
     this.pool.clear();
     this.renderedCells.clear();
     this.lastRange = null;
@@ -123,9 +164,25 @@ export class CellPositioner implements ICellPositioner {
     element.style.display = ''; // Show the cell (remove display: none from pool)
     element.setAttribute('data-col', col.toString());
 
-    // Get renderer
-    const rendererName = column?.renderer || 'text';
-    const renderer = this.registry.get(rendererName);
+    // Get renderer - handle both string names and renderer instances
+    let renderer: any;
+    let rendererName: string;
+
+    if (column?.renderer) {
+      // Check if it's a renderer instance (has render method)
+      if (typeof column.renderer === 'object' && 'render' in column.renderer) {
+        renderer = column.renderer;
+        rendererName = renderer.constructor.name || 'custom';
+      } else {
+        // It's a string name - look it up in registry
+        rendererName = column.renderer as string;
+        renderer = this.registry.get(rendererName);
+      }
+    } else {
+      // Default to text renderer
+      rendererName = 'text';
+      renderer = this.registry.get(rendererName);
+    }
 
     // Prepare render params
     const params: RenderParams = {

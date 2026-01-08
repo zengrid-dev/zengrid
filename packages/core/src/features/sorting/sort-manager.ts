@@ -255,6 +255,7 @@ export class SortManager {
 
     // Backend mode - delegate to application
     if (this.sortMode === 'backend') {
+
       this.indexMap = null; // Clear index map for backend sorting
 
       if (this.onSortRequest) {

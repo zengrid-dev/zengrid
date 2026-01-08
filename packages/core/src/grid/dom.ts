@@ -78,62 +78,23 @@ export class GridDOM {
   }
 
   /**
-   * Create header container with column headers
+   * Create header container element
+   *
+   * Note: This only creates the container element. The actual header rendering
+   * is delegated to HeaderManager which will populate this container.
    */
-  createHeaderContainer(): void {
-    if (!this.options.columns || this.options.columns.length === 0 || !this.viewport) return;
+  createHeaderContainer(): HTMLElement | null {
+    if (!this.options.columns || this.options.columns.length === 0 || !this.viewport) {
+      return null;
+    }
 
     this.headerContainer = document.createElement('div');
-    this.headerContainer.className = 'zg-header';
-
-    const headerHeight = 40;
-    this.headerContainer.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: ${headerHeight}px;
-      z-index: 10;
-      background: var(--zg-header-bg, #f5f5f5);
-      border-bottom: 1px solid var(--zg-border-color, #d0d0d0);
-      overflow: hidden;
-    `;
-
-    // Create header cells container
-    const headerCellsContainer = document.createElement('div');
-    headerCellsContainer.className = 'zg-header-cells';
-    headerCellsContainer.style.cssText = `
-      position: relative;
-      height: 100%;
-      display: flex;
-    `;
-
-    // Create header cells
-    this.options.columns.forEach((column, index) => {
-      const headerCell = document.createElement('div');
-      headerCell.className = 'zg-header-cell';
-
-      // Get column width
-      const colWidth = Array.isArray(this.options.colWidth)
-        ? this.options.colWidth[index]
-        : this.options.colWidth;
-
-      headerCell.style.cssText = `
-        width: ${colWidth}px;
-        height: ${headerHeight}px;
-        box-sizing: border-box;
-        flex-shrink: 0;
-      `;
-
-      // Set header text
-      headerCell.textContent = column.header || `Column ${index}`;
-      headerCellsContainer.appendChild(headerCell);
-    });
-
-    this.headerContainer.appendChild(headerCellsContainer);
+    this.headerContainer.className = 'zg-header-container';
 
     // Insert header as first child of viewport
     this.viewport.insertBefore(this.headerContainer, this.viewport.firstChild);
+
+    return this.headerContainer;
   }
 
   /**
@@ -143,18 +104,6 @@ export class GridDOM {
     if (this.canvas) {
       this.canvas.style.width = `${totalWidth}px`;
       this.canvas.style.height = `${totalHeight}px`;
-    }
-  }
-
-  /**
-   * Sync header horizontal scroll position
-   */
-  syncHeaderScroll(scrollLeft: number): void {
-    if (this.headerContainer) {
-      const headerCells = this.headerContainer.querySelector('.zg-header-cells') as HTMLElement;
-      if (headerCells) {
-        headerCells.style.transform = `translateX(-${scrollLeft}px)`;
-      }
     }
   }
 

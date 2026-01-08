@@ -176,6 +176,18 @@ export interface VirtualScroller {
   setViewport(width: number, height: number): void;
 
   /**
+   * Update the total row count (for infinite scrolling)
+   * @param rowCount - New total number of rows
+   */
+  setRowCount(rowCount: number): void;
+
+  /**
+   * Update the total column count
+   * @param colCount - New total number of columns
+   */
+  setColCount(colCount: number): void;
+
+  /**
    * Total number of rows
    */
   readonly rowCount: number;

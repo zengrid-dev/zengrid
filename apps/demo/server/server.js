@@ -1,10 +1,12 @@
 /**
  * Simple Mock Server for Pagination Testing
  * Provides REST API endpoints with pagination, sorting, and filtering
+ * Now with realistic data using Faker.js!
  */
 
 import express from 'express';
 import cors from 'cors';
+import { faker } from '@faker-js/faker';
 
 const app = express();
 const PORT = 3003;
@@ -12,27 +14,53 @@ const PORT = 3003;
 app.use(cors());
 app.use(express.json());
 
-// Generate mock data (10000 employees)
+// Generate realistic mock data using Faker.js
 const generateMockData = (count = 10000) => {
-  const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry', 'Ivy', 'Jack'];
-  const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations', 'Support'];
-  const statuses = ['Active', 'On Leave', 'Remote'];
+  console.log('🎲 Generating realistic data with Faker.js...');
+
+  const departments = [
+    'Engineering',
+    'Sales',
+    'Marketing',
+    'Human Resources',
+    'Finance',
+    'Operations',
+    'Customer Support',
+    'Product Management',
+    'Quality Assurance',
+    'Research & Development',
+    'Legal',
+    'IT & Infrastructure',
+  ];
+
+  const statuses = ['Active', 'On Leave', 'Remote', 'Part-Time', 'Contractor'];
+
+  // Set seed for reproducible data (same data on every restart)
+  faker.seed(12345);
 
   const data = [];
   for (let i = 0; i < count; i++) {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+    const fullName = `${firstName} ${lastName}`;
+    const department = faker.helpers.arrayElement(departments);
+    const status = faker.helpers.arrayElement(statuses);
+
     data.push({
       id: i + 1,
-      name: `${names[i % names.length]} #${i + 1}`,
-      department: departments[i % departments.length],
-      salary: 50000 + (i % 100000),
-      years: 1 + (i % 30),
-      status: statuses[i % statuses.length],
-      email: `user${i + 1}@company.com`,
-      phone: `+1-555-${String(i).padStart(4, '0')}`,
-      score: (i % 100) + 1,
-      notes: `Employee record for ID ${i + 1}`,
+      name: fullName,
+      department: department,
+      salary: faker.number.int({ min: 40000, max: 200000 }),
+      years: faker.number.int({ min: 0, max: 35 }),
+      status: status,
+      email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+      phone: faker.phone.number({ style: 'international' }),
+      score: faker.number.int({ min: 1, max: 100 }),
+      notes: faker.company.catchPhrase(),
     });
   }
+
+  console.log(`✅ Generated ${count.toLocaleString()} realistic employee records`);
   return data;
 };
 

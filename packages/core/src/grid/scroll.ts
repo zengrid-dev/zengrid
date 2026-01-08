@@ -23,9 +23,9 @@ export class GridScroll {
   private rafId: number | null = null;
 
   // Callbacks
-  private syncHeaderScroll: (scrollLeft: number) => void;
   private getSortManager: () => any;
   private getCachedVisibleRows: () => number[] | null;
+  private emitEvent: (event: string, payload: any) => void;
 
   constructor(
     options: GridOptions,
@@ -39,9 +39,9 @@ export class GridScroll {
     cache: RendererCache | null,
     dataAccessor: DataAccessor | null,
     callbacks: {
-      syncHeaderScroll: (scrollLeft: number) => void;
       getSortManager: () => any;
       getCachedVisibleRows: () => number[] | null;
+      emitEvent: (event: string, payload: any) => void;
     }
   ) {
     this.options = options;
@@ -54,9 +54,9 @@ export class GridScroll {
     this.registry = registry;
     this.cache = cache;
     this.dataAccessor = dataAccessor;
-    this.syncHeaderScroll = callbacks.syncHeaderScroll;
     this.getSortManager = callbacks.getSortManager;
     this.getCachedVisibleRows = callbacks.getCachedVisibleRows;
+    this.emitEvent = callbacks.emitEvent;
   }
 
   /**
@@ -82,8 +82,8 @@ export class GridScroll {
 
     this.state.scrollPosition = { top: scrollTop, left: scrollLeft };
 
-    // Sync header horizontal scroll
-    this.syncHeaderScroll(scrollLeft);
+    // Emit scroll event (HeaderManager listens to this for scroll sync)
+    this.emitEvent('scroll', { scrollTop, scrollLeft });
 
     // Throttle render using requestAnimationFrame
     if (this.rafId !== null) {

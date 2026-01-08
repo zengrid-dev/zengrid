@@ -9,6 +9,14 @@ import { RendererCache } from '../rendering/cache';
 import { NumberRenderer } from '../rendering/renderers/number-renderer';
 import { ImageRenderer } from '../rendering/renderers/image-renderer';
 import { AdvancedCellRenderer } from '../rendering/renderers/advanced-cell-renderer';
+import { CheckboxRenderer } from '../rendering/renderers/checkbox-renderer';
+import { ProgressBarRenderer } from '../rendering/renderers/progress-bar-renderer';
+import { LinkRenderer } from '../rendering/renderers/link-renderer';
+import { ButtonRenderer } from '../rendering/renderers/button-renderer';
+import { DateRenderer } from '../rendering/renderers/date-renderer';
+import { SelectRenderer } from '../rendering/renderers/select-renderer';
+import { ChipRenderer } from '../rendering/renderers/chip-renderer';
+import { DropdownRenderer } from '../rendering/renderers/dropdown-renderer';
 import { LoadingIndicator } from '../features/loading';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
 
@@ -60,9 +68,21 @@ export class GridInit {
 
     // Initialize renderer registry
     this.registry = new RendererRegistry();
+
+    // Register built-in renderers
     this.registry.register('number', new NumberRenderer());
     this.registry.register('image', new ImageRenderer());
     this.registry.register('advanced', new AdvancedCellRenderer({ elements: [] }));
+
+    // Register interactive renderers
+    this.registry.register('checkbox', new CheckboxRenderer());
+    this.registry.register('progress', new ProgressBarRenderer());
+    this.registry.register('link', new LinkRenderer());
+    this.registry.register('button', new ButtonRenderer());
+    this.registry.register('date', new DateRenderer());
+    this.registry.register('select', new SelectRenderer());
+    this.registry.register('chip', new ChipRenderer());
+    this.registry.register('dropdown', new DropdownRenderer());
 
     // Initialize renderer cache
     if (this.options.rendererCache?.enabled !== false) {
@@ -153,7 +173,8 @@ export class GridInit {
           dataRow = cachedVisibleRows[row];
         }
 
-        const indexMap = this.getSortManager()?.getIndexMap();
+        const sortManager = this.getSortManager();
+        const indexMap = sortManager?.getIndexMap();
         const mappedRow = indexMap ? indexMap.toDataIndex(dataRow) : dataRow;
 
         return this.getDataAccessor()?.getValue(mappedRow, col);

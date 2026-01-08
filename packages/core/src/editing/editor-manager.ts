@@ -6,6 +6,7 @@ import { TextEditor } from './text-editor';
 import { NumberEditor } from './number-editor';
 import { SelectEditor } from './select-editor';
 import { DateEditor } from './date-editor';
+import { CheckboxEditor } from './checkbox-editor';
 
 /**
  * Editor manager options
@@ -118,6 +119,9 @@ export class EditorManager {
     this.registerEditor('number', NumberEditor);
     this.registerEditor('select', SelectEditor);
     this.registerEditor('date', DateEditor);
+    this.registerEditor('checkbox', CheckboxEditor);
+    // Note: DropdownEditor requires options array and should be registered
+    // manually with: editorManager.registerEditor('dropdown', DropdownEditor)
   }
 
   /**

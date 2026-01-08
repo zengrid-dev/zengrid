@@ -41,7 +41,7 @@ export interface ARIAManagerOptions {
  * ARIA Manager - Accessibility features for screen readers
  *
  * Implements WCAG 2.1 AA compliance through:
- * - Proper ARIA roles (grid, gridcell, rowheader, columnheader)
+ * - Proper ARIA roles (grid, grid cell, header, column header)
  * - Dynamic aria-rowindex and aria-colindex
  * - aria-selected state management
  * - aria-sort for sortable columns
@@ -140,7 +140,7 @@ export class ARIAManager {
    * @param col - Column index (0-based)
    */
   setCellAttributes(element: HTMLElement, row: number, col: number): void {
-    element.setAttribute('role', 'gridcell');
+    element.setAttribute('role', 'grid cell');
     element.setAttribute('aria-rowindex', String(row + 1)); // ARIA uses 1-based indexing
     element.setAttribute('aria-colindex', String(col + 1));
 

@@ -5,6 +5,7 @@
 
 export * from './cell';
 export * from './column';
+export * from './header';
 export * from './sort';
 export * from './filter';
 export * from './pagination';

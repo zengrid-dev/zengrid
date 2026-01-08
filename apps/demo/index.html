@@ -37,17 +37,129 @@
       margin-top: 0.25rem;
     }
 
-    #controls {
-      background: white;
-      padding: 1rem 2rem;
-      border-bottom: 1px solid #ddd;
+    #app-container {
+      flex: 1;
       display: flex;
-      gap: 1rem;
-      align-items: center;
+      overflow: hidden;
     }
 
-    #controls button {
+    /* Left Sidebar Styles */
+    #sidebar {
+      width: 280px;
+      min-width: 280px;
+      max-width: 280px;
+      background: #2c3e50;
+      color: white;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: min-width 0.3s ease-out, max-width 0.3s ease-out, width 0.3s ease-out, margin-left 0.3s ease-out;
+      position: relative;
+    }
+
+    #sidebar.collapsed {
+      width: 0;
+      min-width: 0;
+      max-width: 0;
+      margin-left: 0;
+      box-shadow: none;
+    }
+
+    #sidebar-toggle {
       padding: 0.5rem 1rem;
+      background: #2c3e50;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: all 0.2s;
+      border-radius: 4px;
+      margin-right: 1rem;
+    }
+
+    #sidebar-toggle:hover {
+      background: #34495e;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      background: #34495e;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header h3 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.9;
+    }
+
+    .menu-category {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .category-header {
+      padding: 0.875rem 1rem;
+      background: #34495e;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .category-header:hover {
+      background: #3d5468;
+    }
+
+    .category-header .icon {
+      font-size: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    .category-header .toggle {
+      font-size: 0.75rem;
+      transition: transform 0.2s;
+    }
+
+    .category-header.collapsed .toggle {
+      transform: rotate(-90deg);
+    }
+
+    .category-content {
+      max-height: 500px;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .category-content.collapsed {
+      max-height: 0;
+    }
+
+    .menu-item {
+      padding: 0.75rem 1rem;
+      padding-left: 2.5rem;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-item:hover {
+      background: rgba(255,255,255,0.1);
+      border-left-color: #3498db;
+    }
+
+    .menu-item button {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
       background: #3498db;
       color: white;
       border: none;
@@ -55,46 +167,74 @@
       cursor: pointer;
       font-size: 0.875rem;
       transition: background 0.2s;
+      text-align: left;
     }
 
-    #controls button:hover {
+    .menu-item button:hover {
       background: #2980b9;
     }
 
-    #controls button:active {
+    .menu-item button:active {
       transform: scale(0.98);
     }
 
-    #stats {
-      display: flex;
-      gap: 2rem;
+    .menu-item select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
       font-size: 0.875rem;
-      margin-left: auto;
+      cursor: pointer;
     }
 
-    .stat {
+    #controls {
+      background: white;
+      border-bottom: 1px solid #ddd;
+      position: relative;
+    }
+
+    #controls-header {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid #e9ecef;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    #header-stats {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      font-size: 0.75rem;
+      margin-left: auto;
+      margin-right: 1rem;
+    }
+
+    .header-stat {
       display: flex;
       flex-direction: column;
+      gap: 0.125rem;
     }
 
-    .stat-label {
+    .header-stat-label {
       color: #7f8c8d;
-      font-size: 0.75rem;
+      font-size: 0.625rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
-    .stat-value {
+    .header-stat-value {
       font-weight: 600;
       color: #2c3e50;
-      font-size: 1.125rem;
-      margin-top: 0.25rem;
+      font-size: 0.875rem;
     }
 
     #grid-wrapper {
       flex: 1;
       background: white;
-      margin: 1rem 2rem;
+      margin: 1rem;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
@@ -102,53 +242,78 @@
       flex-direction: column;
     }
 
-    #grid-header {
-      position: relative;
-      height: 32px;
-      background: #f5f5f5;
-      border-bottom: 2px solid #ddd;
-      overflow: hidden;
+    /* ZenGrid Header Styles - Custom styling for headers */
+    .zg-header {
+      background: #f5f5f5 !important;
+      border-bottom: 2px solid #ddd !important;
     }
 
-    #grid-header-canvas {
-      position: relative;
-      height: 100%;
+    .zg-header-cell {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #333 !important;
+      border-right: 1px solid #ddd !important;
+      user-select: none !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
     }
 
-    .grid-header-cell {
-      position: absolute;
-      top: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 8px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #333;
-      border-right: 1px solid #ddd;
-      user-select: none;
-      box-sizing: border-box;
+    .zg-header-content {
+      padding: 0 6px !important;
+      gap: 4px !important;
+      overflow: hidden !important;
     }
 
-    .grid-header-cell.sortable {
-      cursor: pointer;
+    .zg-header-icon {
+      width: 18px !important;
+      min-width: 18px !important;
+      max-width: 18px !important;
+      font-size: 14px !important;
+      flex-shrink: 0 !important;
+      overflow: visible !important;
     }
 
-    .grid-header-cell.sortable:hover {
-      background: #e8e8e8;
+    .zg-header-text {
+      flex: 1 !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
     }
 
-    .grid-header-cell.sorted-asc,
-    .grid-header-cell.sorted-desc {
-      background: #d6eaf8;
-      color: #2196f3;
+    .zg-header-cell.sortable {
+      cursor: pointer !important;
     }
 
-    .sort-indicator {
-      margin-left: 4px;
-      font-size: 10px;
+    .zg-header-cell.sortable:hover {
+      background: #e8e8e8 !important;
+    }
+
+    .zg-header-cell.sorted-asc,
+    .zg-header-cell.sorted-desc {
+      background: #d6eaf8 !important;
+      color: #2196f3 !important;
+    }
+
+    .zg-sort-indicator {
+      margin-left: 2px !important;
+      font-size: 9px !important;
+      width: 14px !important;
+      min-width: 14px !important;
+      max-width: 14px !important;
+      flex-shrink: 0 !important;
       color: #2196f3;
       opacity: 0.8;
+      overflow: visible !important;
+    }
+
+    .zg-filter-trigger {
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      font-size: 8px !important;
+      margin-left: 2px !important;
+      flex-shrink: 0 !important;
     }
 
     /* Column Resize Styles - Imported from library CSS */
@@ -193,16 +358,13 @@
     }
 
     #fps-monitor {
-      position: fixed;
-      top: 80px;
-      right: 2rem;
       background: rgba(0, 0, 0, 0.8);
       color: #0f0;
       padding: 0.5rem 1rem;
       border-radius: 4px;
       font-family: 'Courier New', monospace;
       font-size: 0.875rem;
-      z-index: 1000;
+      margin-left: auto;
     }
 
     #fps-monitor.low-fps {
@@ -460,51 +622,172 @@
   </header>
 
   <div id="controls">
-    <button id="btn-refresh">Refresh Grid</button>
-    <button id="btn-random">Random Data</button>
-    <button id="btn-toggle-filter" class="btn-toggle-filter">🔍 Filters</button>
-    <button id="btn-toggle-pagination" style="background: #e67e22;">📄 Pagination Mode</button>
-    <button id="btn-auto-fit-all" style="background: #27ae60;">↔️ Auto-Fit All</button>
-    <button id="btn-reset-widths" style="background: #95a5a6;">⟲ Reset Widths</button>
-    <button id="btn-scroll-top">Scroll to Top</button>
-    <button id="btn-scroll-bottom">Scroll to Bottom</button>
-    <button id="btn-scroll-middle">Scroll to Middle</button>
-    <button id="btn-toggle-sort-mode">Sort: Frontend</button>
-    <select id="loading-template-select" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.875rem;">
-      <option value="simple">Loading: Simple</option>
-      <option value="animated">Loading: Animated</option>
-      <option value="modern" selected>Loading: Modern</option>
-      <option value="skeleton">Loading: Skeleton</option>
-    </select>
-    <button id="btn-simulate-load" style="background: #9b59b6;">Simulate Load</button>
+    <div id="controls-header">
+      <button id="sidebar-toggle" title="Hide Sidebar">☰</button>
 
-    <div id="stats">
-      <div class="stat">
-        <span class="stat-label">Rows</span>
-        <span class="stat-value" id="stat-rows">0</span>
+      <div id="header-stats">
+        <div class="header-stat">
+          <span class="header-stat-label">Rows</span>
+          <span class="header-stat-value" id="stat-rows">0</span>
+        </div>
+        <div class="header-stat">
+          <span class="header-stat-label">Visible Cells</span>
+          <span class="header-stat-value" id="stat-visible">0</span>
+        </div>
+        <div class="header-stat">
+          <span class="header-stat-label">Pooled DOM</span>
+          <span class="header-stat-value" id="stat-pooled">0/0</span>
+        </div>
+        <div class="header-stat">
+          <span class="header-stat-label">Render Time</span>
+          <span class="header-stat-value" id="stat-render">0ms</span>
+        </div>
+        <div class="header-stat">
+          <span class="header-stat-label">Cache Hit Rate</span>
+          <span class="header-stat-value" id="stat-cache">0%</span>
+        </div>
       </div>
-      <div class="stat">
-        <span class="stat-label">Visible Cells</span>
-        <span class="stat-value" id="stat-visible">0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Pooled DOM</span>
-        <span class="stat-value" id="stat-pooled">0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Render Time</span>
-        <span class="stat-value" id="stat-render">0ms</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Cache Hit Rate</span>
-        <span class="stat-value" id="stat-cache">0%</span>
-      </div>
+
+      <div id="fps-monitor">FPS: --</div>
     </div>
   </div>
 
-  <div id="fps-monitor">FPS: --</div>
+  <div id="app-container">
+    <!-- Left Sidebar Menu -->
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <h3>⚡ ZenGrid Controls</h3>
+      </div>
 
-  <!-- Filter Panel -->
+      <!-- Data Operations -->
+      <div class="menu-category">
+        <div class="category-header" data-category="data">
+          <div>
+            <span class="icon">📊</span>
+            <span>Data Operations</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="data">
+          <div class="menu-item">
+            <button id="btn-refresh">Refresh Grid</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-random">Random Data</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-toggle-filter" class="btn-toggle-filter">🔍 Advanced Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrolling & Navigation -->
+      <div class="menu-category">
+        <div class="category-header" data-category="scrolling">
+          <div>
+            <span class="icon">🔄</span>
+            <span>Scrolling & Navigation</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="scrolling">
+          <div class="menu-item">
+            <button id="btn-toggle-infinite-scroll" style="background: #8e44ad;">♾️ Infinite Scroll</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-toggle-sliding-window" style="background: #16a085;">🪟 Sliding Window: OFF</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-scroll-top">⬆️ Scroll to Top</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-scroll-bottom">⬇️ Scroll to Bottom</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-scroll-middle">↕️ Scroll to Middle</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="menu-category">
+        <div class="category-header" data-category="pagination">
+          <div>
+            <span class="icon">📄</span>
+            <span>Pagination</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="pagination">
+          <div class="menu-item">
+            <button id="btn-toggle-pagination" style="background: #e67e22;">📄 Pagination Mode</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column Management -->
+      <div class="menu-category">
+        <div class="category-header" data-category="columns">
+          <div>
+            <span class="icon">↔️</span>
+            <span>Column Management</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="columns">
+          <div class="menu-item">
+            <button id="btn-auto-fit-all" style="background: #27ae60;">↔️ Auto-Fit All</button>
+          </div>
+          <div class="menu-item">
+            <button id="btn-reset-widths" style="background: #95a5a6;">⟲ Reset Widths</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Modes -->
+      <div class="menu-category">
+        <div class="category-header" data-category="modes">
+          <div>
+            <span class="icon">⚙️</span>
+            <span>View Modes</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="modes">
+          <div class="menu-item">
+            <button id="btn-toggle-sort-mode">Modes: Frontend</button>
+          </div>
+          <div class="menu-item">
+            <select id="loading-template-select">
+              <option value="simple">Loading: Simple</option>
+              <option value="animated">Loading: Animated</option>
+              <option value="modern" selected>Loading: Modern</option>
+              <option value="skeleton">Loading: Skeleton</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Developer Tools -->
+      <div class="menu-category">
+        <div class="category-header" data-category="developer">
+          <div>
+            <span class="icon">🛠️</span>
+            <span>Developer Tools</span>
+          </div>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="category-content" data-content="developer">
+          <div class="menu-item">
+            <button id="btn-simulate-load" style="background: #9b59b6;">⏳ Simulate Load</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div style="flex: 1; display: flex; flex-direction: column; position: relative;">
+      <!-- Filter Panel -->
   <div id="filter-panel">
     <div id="filter-content">
       <div class="filter-header">
@@ -579,9 +862,6 @@
   </div>
 
   <div id="grid-wrapper">
-    <div id="grid-header">
-      <div id="grid-header-canvas"></div>
-    </div>
     <div id="grid-container"></div>
 
     <!-- Pagination Controls -->
@@ -615,6 +895,8 @@
 
           <span id="total-records" style="font-size: 0.875rem; color: #7f8c8d;">Total: 0 records</span>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>

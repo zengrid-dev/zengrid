@@ -10,6 +10,8 @@ import { VariableHeightProvider } from '../height-provider/variable-height-provi
 import { UniformWidthProvider } from '../width-provider/uniform-width-provider';
 import { VariableWidthProvider } from '../width-provider/variable-width-provider';
 import type { VisibleRange } from '../../types';
+import type { ScrollModel } from '../../features/viewport/scroll-model';
+import type { ViewportModel } from '../../features/viewport/viewport-model';
 
 /**
  * VirtualScroller implementation
@@ -41,6 +43,10 @@ export class VirtualScroller implements IVirtualScroller {
   private vpHeight: number;
   private overscanRows: number;
   private overscanCols: number;
+
+  // Reactive models (optional - for reactive mode)
+  private scrollModel: ScrollModel | null = null;
+  private viewportModel: ViewportModel | null = null;
 
   constructor(options: VirtualScrollerOptions) {
     this.rows = options.rowCount;
@@ -75,10 +81,23 @@ export class VirtualScroller implements IVirtualScroller {
     }
   }
 
+  /**
+   * Set reactive models (enables reactive mode)
+   */
+  setReactiveModels(scrollModel: ScrollModel | null, viewportModel: ViewportModel | null): void {
+    this.scrollModel = scrollModel;
+    this.viewportModel = viewportModel;
+  }
+
   calculateVisibleRange(scrollTop: number, scrollLeft: number): VisibleRange {
     // Clamp scroll positions
     scrollTop = Math.max(0, scrollTop);
     scrollLeft = Math.max(0, scrollLeft);
+
+    // Update scroll model (reactive)
+    if (this.scrollModel) {
+      this.scrollModel.setScroll(scrollTop, scrollLeft);
+    }
 
     // Find first visible row (with overscan)
     const firstVisibleRow = this.heightProvider.findIndexAtOffset(scrollTop);
@@ -101,12 +120,19 @@ export class VirtualScroller implements IVirtualScroller {
     const lastVisibleCol = this.widthProvider.findIndexAtOffset(endColOffset);
     const endCol = Math.min(this.cols, lastVisibleCol + this.overscanCols + 1);
 
-    return {
+    const range = {
       startRow,
       endRow,
       startCol,
       endCol,
     };
+
+    // Update viewport model (reactive)
+    if (this.viewportModel) {
+      this.viewportModel.setRange(range, { top: scrollTop, left: scrollLeft });
+    }
+
+    return range;
   }
 
   getCellPosition(row: number, col: number): CellPosition {
@@ -174,6 +200,41 @@ export class VirtualScroller implements IVirtualScroller {
     }
     this.vpWidth = width;
     this.vpHeight = height;
+  }
+
+  /**
+   * Update the row count (for infinite scrolling)
+   * @param rowCount - New total number of rows
+   */
+  setRowCount(rowCount: number): void {
+    if (rowCount < 0) {
+      throw new RangeError('Row count must be non-negative');
+    }
+    this.rows = rowCount;
+
+    // If using UniformHeightProvider, we need to update its row count too
+    if (this.heightProvider instanceof UniformHeightProvider) {
+      // UniformHeightProvider calculates total based on count, so we need to recreate it
+      const rowHeight = this.heightProvider.getHeight(0);
+      this.heightProvider = new UniformHeightProvider(rowHeight, rowCount);
+    }
+  }
+
+  /**
+   * Update the column count
+   * @param colCount - New total number of columns
+   */
+  setColCount(colCount: number): void {
+    if (colCount < 0) {
+      throw new RangeError('Column count must be non-negative');
+    }
+    this.cols = colCount;
+
+    // If using UniformWidthProvider, we need to update its column count too
+    if (this.widthProvider instanceof UniformWidthProvider) {
+      const colWidth = this.widthProvider.getWidth(0);
+      this.widthProvider = new UniformWidthProvider(colWidth, colCount);
+    }
   }
 
   get rowCount(): number {

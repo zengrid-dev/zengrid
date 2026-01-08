@@ -5,6 +5,7 @@ import { ColumnResizeManager } from '../features/column-resize';
 import type { ColumnConstraints } from '../features/column-resize';
 import type { VirtualScroller } from '../rendering/virtual-scroller/virtual-scroller';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
+import type { ColumnModel } from '../features/columns/column-model';
 
 /**
  * GridResize - Handles column resize operations
@@ -15,6 +16,7 @@ export class GridResize {
   private scroller: VirtualScroller | null;
   private dataAccessor: DataAccessor | null;
   private resizeManager: ColumnResizeManager | null = null;
+  private columnModel: ColumnModel | null = null;
 
   // Callbacks
   private scrollContainer: HTMLElement | null;
@@ -42,6 +44,13 @@ export class GridResize {
   }
 
   /**
+   * Set column model for reactive updates
+   */
+  setColumnModel(columnModel: ColumnModel | null): void {
+    this.columnModel = columnModel;
+  }
+
+  /**
    * Initialize column resize manager
    */
   initializeColumnResize(): void {
@@ -66,9 +75,16 @@ export class GridResize {
       getColOffset: (col) => this.scroller!.getColOffset(col),
       getColWidth: (col) => this.scroller!.getColWidth(col),
       onWidthChange: (col, width) => {
+        // Update scroller width (for rendering)
         this.scroller!.updateColWidth(col, width);
         this.updateCanvasSize();
         this.onRefresh();
+
+        // Update column model (for reactive header updates)
+        if (this.columnModel) {
+          const columnId = `col-${col}`;
+          this.columnModel.setWidth(columnId, width);
+        }
       },
       getValue: (row, col) => this.dataAccessor?.getValue(row, col),
       rowCount: this.options.rowCount,
@@ -123,6 +139,12 @@ export class GridResize {
     this.scroller.updateColWidth(col, width);
     this.updateCanvasSize();
     this.onRefresh();
+
+    // Update column model (reactive)
+    if (this.columnModel) {
+      const columnId = `col-${col}`;
+      this.columnModel.setWidth(columnId, width);
+    }
 
     if (oldWidth !== width) {
       this.events.emit('column:resize', {

@@ -100,6 +100,13 @@ export class Grid {
   private isDestroyed = false;
   private rafId: number | null = null;
 
+  // Viewport auto-resize
+  private resizeObserver: ResizeObserver | null = null;
+  private resizeDebounceId: number | null = null;
+  private lastObservedWidth: number = 0;
+  private lastObservedHeight: number = 0;
+  private resizeStartTime: number = 0;
+
   constructor(container: HTMLElement, options: GridOptions) {
     if (!container) {
       throw new Error('Container element is required');
@@ -147,6 +154,9 @@ export class Grid {
 
     // Setup DOM structure
     this.setupDOM();
+
+    // Setup automatic viewport resize tracking
+    this.setupAutoResize();
   }
 
   /**
@@ -803,19 +813,21 @@ export class Grid {
 
   /**
    * Update viewport dimensions and re-render
-   * Call this when container size changes (e.g., panels expand/collapse, window resize)
+   *
+   * Note: This is called automatically when autoResize is enabled (default: true).
+   * Only call manually if you've disabled autoResize or need to force an update.
    *
    * @example
    * ```typescript
-   * // After a panel expands/collapses
+   * // Manual control (when autoResize: false)
    * grid.updateViewport();
    *
-   * // On window resize
+   * // Usually not needed - autoResize handles this automatically
    * window.addEventListener('resize', () => grid.updateViewport());
    * ```
    */
   updateViewport(): void {
-    if (!this.scroller || !this.scrollContainer) {
+    if (!this.scroller || !this.scrollContainer || !this.positioner) {
       console.warn('Grid not fully initialized. Cannot update viewport.');
       return;
     }
@@ -824,13 +836,22 @@ export class Grid {
     const newWidth = this.scrollContainer.clientWidth;
     const newHeight = this.scrollContainer.clientHeight;
 
+    // Validate dimensions
+    if (newWidth <= 0 || newHeight <= 0) {
+      console.warn(`Invalid viewport dimensions: ${newWidth}x${newHeight}px - skipping update`);
+      return;
+    }
+
     console.log(`📐 Updating viewport: ${newWidth}x${newHeight}px`);
 
     // Update scroller viewport
     this.scroller.setViewport(newWidth, newHeight);
 
-    // Re-render with new dimensions
-    this.refresh();
+    // Recalculate visible range with current scroll position and new viewport dimensions
+    // This ensures horizontal resize properly updates visible columns
+    const scrollTop = this.scrollContainer.scrollTop;
+    const scrollLeft = this.scrollContainer.scrollLeft;
+    this.positioner.renderVisibleCells(scrollTop, scrollLeft);
   }
 
   /**
@@ -1372,6 +1393,9 @@ export class Grid {
       this.rafId = null;
     }
 
+    // Clean up auto-resize
+    this.cleanupAutoResize();
+
     // Destroy components
     if (this.positioner) {
       this.positioner.destroy();
@@ -1432,6 +1456,106 @@ export class Grid {
     this.dataAccessor = null;
 
     this.isDestroyed = true;
+  }
+
+  /**
+   * Setup automatic viewport resize tracking
+   */
+  private setupAutoResize(): void {
+    // Check if auto-resize is disabled
+    if (this.options.autoResize === false) {
+      console.log('📐 Auto-resize disabled - call grid.updateViewport() manually');
+      return;
+    }
+
+    // Check for ResizeObserver support
+    if (typeof ResizeObserver === 'undefined') {
+      console.warn('⚠️  ResizeObserver not supported - viewport will not auto-update');
+      console.warn('   Call grid.updateViewport() manually when container size changes');
+      return;
+    }
+
+    // Create ResizeObserver
+    this.resizeObserver = new ResizeObserver((_entries) => {
+      // Get the scroll container dimensions (what we actually care about)
+      if (!this.scrollContainer) return;
+
+      const newWidth = this.scrollContainer.clientWidth;
+      const newHeight = this.scrollContainer.clientHeight;
+
+      // Ignore if dimensions are invalid
+      if (newWidth <= 0 || newHeight <= 0) {
+        console.warn(`📐 ResizeObserver detected invalid dimensions: ${newWidth}x${newHeight}px - ignoring`);
+        return;
+      }
+
+      // Only update if dimensions actually changed
+      if (newWidth === this.lastObservedWidth && newHeight === this.lastObservedHeight) {
+        console.log(`📐 ResizeObserver fired but dimensions unchanged: ${newWidth}x${newHeight}px`);
+        return;
+      }
+
+      console.log(`📐 ResizeObserver detected change: ${this.lastObservedWidth}x${this.lastObservedHeight}px → ${newWidth}x${newHeight}px`);
+
+      // Track when resize started
+      const now = performance.now();
+      if (!this.resizeStartTime) {
+        this.resizeStartTime = now;
+      }
+
+      // Debounce to avoid excessive updates during animations
+      if (this.resizeDebounceId !== null) {
+        clearTimeout(this.resizeDebounceId);
+      }
+
+      // Smart debounce: short delay for instant changes (dev tools, window resize),
+      // longer delay for animated changes (CSS transitions like sidebar)
+      const elapsed = now - this.resizeStartTime;
+
+      // If we're getting multiple rapid updates, it's likely a CSS animation
+      const debounceDelay = elapsed < 50 ? 50 : 150;
+
+      this.resizeDebounceId = window.setTimeout(() => {
+        this.resizeDebounceId = null;
+        this.resizeStartTime = 0;
+
+        // Check dimensions one more time (they might have changed during debounce)
+        const currentWidth = this.scrollContainer!.clientWidth;
+        const currentHeight = this.scrollContainer!.clientHeight;
+
+        if (currentWidth !== this.lastObservedWidth || currentHeight !== this.lastObservedHeight) {
+          this.lastObservedWidth = currentWidth;
+          this.lastObservedHeight = currentHeight;
+          this.updateViewport();
+        }
+      }, debounceDelay);
+    });
+
+    // Initialize last observed dimensions to prevent unnecessary initial trigger
+    if (this.scrollContainer) {
+      this.lastObservedWidth = this.scrollContainer.clientWidth;
+      this.lastObservedHeight = this.scrollContainer.clientHeight;
+
+      // Observe the scroll container - this will detect all layout changes
+      // including parent resizes (sidebar, panels, window, dev tools, etc.)
+      this.resizeObserver.observe(this.scrollContainer);
+      console.log(`📐 Auto-resize enabled - initial dimensions: ${this.lastObservedWidth}x${this.lastObservedHeight}px`);
+    }
+  }
+
+  /**
+   * Cleanup automatic viewport resize tracking
+   */
+  private cleanupAutoResize(): void {
+    if (this.resizeDebounceId !== null) {
+      clearTimeout(this.resizeDebounceId);
+      this.resizeDebounceId = null;
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
   }
 
   /**
@@ -1546,7 +1670,11 @@ export class Grid {
       `;
 
       // Set header text - use 'header' property from ColumnDef
-      headerCell.textContent = column.header || `Column ${index}`;
+      const headerText =
+        typeof column.header === 'string'
+          ? column.header
+          : column.header?.text || `Column ${index}`;
+      headerCell.textContent = headerText;
       headerCellsContainer.appendChild(headerCell);
     });
 
@@ -1773,6 +1901,7 @@ export class Grid {
       overscanRows: options.overscanRows ?? 3,
       overscanCols: options.overscanCols ?? 2,
       enableCellPooling: options.enableCellPooling ?? true,
+      autoResize: options.autoResize ?? true, // Default to auto-resize enabled
     };
   }
 }

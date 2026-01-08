@@ -1,7 +1,18 @@
-import { Grid } from '../../../packages/core/src/grid';
+import { Grid } from '../../../packages/core/src/grid/index';
 import '../../../packages/core/src/features/loading/loading.styles.css';
 import '../../../packages/core/src/features/column-resize/column-resize.styles.css';
+import '../../../packages/core/src/features/column-drag/column-drag.styles.css';
 import { PaginationDemo } from './pagination-demo';
+import {
+  CheckboxRenderer,
+  ProgressBarRenderer,
+  LinkRenderer,
+  ButtonRenderer,
+  DateRenderer,
+  SelectRenderer,
+  ChipRenderer,
+  DropdownRenderer,
+} from '../../../packages/core/src/index';
 
 /**
  * FPS Monitor - Track frames per second during scrolling
@@ -53,14 +64,18 @@ class FPSMonitor {
 }
 
 /**
- * Generate test data - 100K rows x 10 columns
+ * Generate test data - 100K rows x 18 columns (including new renderer showcase columns)
  */
+const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry'];
+const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'];
+const priorities = ['Low', 'Medium', 'High', 'Critical'];
+const categories = ['Category A', 'Category B', 'Category C', 'Category D'];
+const tagOptions = ['Frontend', 'Backend', 'DevOps', 'Design', 'QA', 'Mobile'];
+
 function generateData(rowCount: number, colCount: number): any[][] {
   console.time('Data Generation');
 
   const data: any[][] = [];
-  const names = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank', 'Grace', 'Henry'];
-  const departments = ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'];
 
   for (let row = 0; row < rowCount; row++) {
     const rowData: any[] = [];
@@ -75,25 +90,66 @@ function generateData(rowCount: number, colCount: number): any[][] {
         case 2: // Department
           rowData.push(departments[row % departments.length]);
           break;
-        case 3: // Salary
-          rowData.push(50000 + (row % 100000));
+
+        // NEW RENDERER COLUMNS START HERE
+        case 3: // Active (CheckboxRenderer)
+          rowData.push(row % 2 === 0);
           break;
-        case 4: // Years
-          rowData.push(1 + (row % 30));
-          break;
-        case 5: // Status
-          rowData.push(row % 3 === 0 ? 'Active' : row % 3 === 1 ? 'On Leave' : 'Remote');
-          break;
-        case 6: // Email
-          rowData.push(`user${row}@company.com`);
-          break;
-        case 7: // Phone
-          rowData.push(`+1-555-${String(row).padStart(4, '0')}`);
-          break;
-        case 8: // Score
+        case 4: // Progress (ProgressBarRenderer)
           rowData.push((row % 100) + 1);
           break;
-        case 9: // Notes
+        case 5: // Website (LinkRenderer)
+          rowData.push(`https://example.com/user/${row}`);
+          break;
+        case 6: // Actions (ButtonRenderer) - value doesn't matter, button shows label
+          rowData.push('Actions');
+          break;
+        case 7: // Created Date (DateRenderer)
+          const baseDate = new Date('2020-01-01');
+          const daysOffset = row % 1000;
+          rowData.push(new Date(baseDate.getTime() + daysOffset * 24 * 60 * 60 * 1000));
+          break;
+        case 8: // Priority (SelectRenderer)
+          rowData.push(priorities[row % priorities.length]);
+          break;
+        case 9: // Tags (ChipRenderer) - array of chip objects
+          const tagCount = (row % 3) + 1;
+          const chips = [];
+          for (let i = 0; i < tagCount; i++) {
+            const tagIdx = (row + i) % tagOptions.length;
+            chips.push({
+              label: tagOptions[tagIdx],
+              value: tagOptions[tagIdx].toLowerCase(),
+              color: ['#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec', '#e0f2f1'][tagIdx],
+              textColor: '#000'
+            });
+          }
+          rowData.push(chips);
+          break;
+        case 10: // Category (DropdownRenderer)
+          rowData.push(categories[row % categories.length]);
+          break;
+        // NEW RENDERER COLUMNS END HERE
+
+        case 11: // Salary (was 3)
+          rowData.push(50000 + (row % 100000));
+          break;
+        case 12: // Years (was 4)
+          rowData.push(1 + (row % 30));
+          break;
+        case 13: // Status (was 5)
+          rowData.push(row % 3 === 0 ? 'Active' : row % 3 === 1 ? 'On Leave' : 'Remote');
+          break;
+        case 14: // Email (was 6)
+          rowData.push(`user${row}@company.com`);
+          break;
+        case 15: // Phone (was 7)
+          rowData.push(`+1-555-${String(row).padStart(4, '0')}`);
+          break;
+        case 16: // Score (was 8)
+          rowData.push((row % 100) + 1);
+          break;
+        case 17: // Notes (was 9)
           rowData.push(`Employee record for ID ${row + 1}`);
           break;
         default:
@@ -153,7 +209,7 @@ function main() {
 
   // Configuration
   const ROW_COUNT = 100_000;
-  const COL_COUNT = 10;
+  const COL_COUNT = 18; // Increased from 10 to 18 to include new renderer columns
   const ROW_HEIGHT = 32;
 
   console.log(`🚀 Initializing ZenGrid with ${ROW_COUNT.toLocaleString()} rows...`);
@@ -170,114 +226,343 @@ function main() {
   // Loading template state
   let loadingTemplate: 'simple' | 'animated' | 'modern' | 'skeleton' | 'overlay' = 'modern';
 
-  // Define columns with configurable widths and resize constraints
+  // Define columns with NEW rich HeaderConfig - showcasing all header features!
   const columns = [
-    { field: 'id', header: 'ID', width: 80, renderer: 'number', sortable: true, minWidth: 50, maxWidth: 150 },
-    { field: 'name', header: 'Name', width: 200, renderer: 'text', sortable: true, minWidth: 100, maxWidth: 400 },
-    { field: 'department', header: 'Department', width: 150, renderer: 'text', sortable: true, minWidth: 100 },
-    { field: 'salary', header: 'Salary', width: 120, renderer: 'number', sortable: true, minWidth: 80, maxWidth: 200 },
-    { field: 'years', header: 'Years', width: 80, renderer: 'number', sortable: true, minWidth: 60 },
-    { field: 'status', header: 'Status', width: 100, renderer: 'text', sortable: true, minWidth: 80 },
-    { field: 'email', header: 'Email', width: 220, renderer: 'text', sortable: true, minWidth: 150, maxWidth: 350 },
-    { field: 'phone', header: 'Phone', width: 140, renderer: 'text', sortable: true, minWidth: 100 },
-    { field: 'score', header: 'Score', width: 80, renderer: 'number', sortable: true, minWidth: 60 },
-    { field: 'notes', header: 'Notes', width: 300, renderer: 'text', sortable: true, minWidth: 150, maxWidth: 500 },
+    {
+      field: 'id',
+      header: {
+        text: 'ID',
+        type: 'sortable',
+        leadingIcon: { content: '#️⃣', position: 'leading' },
+        tooltip: { content: 'Employee ID - Click to sort' },
+        className: 'header-id',
+        sortIndicator: { show: true, ascIcon: '↑', descIcon: '↓', position: 'trailing' },
+        interactive: true,
+      },
+      width: 80,
+      renderer: 'number',
+      sortable: true,
+      minWidth: 50,
+      maxWidth: 150,
+    },
+    {
+      field: 'name',
+      header: {
+        text: 'Name',
+        type: 'sortable',
+        leadingIcon: { content: '👤', position: 'leading' },
+        tooltip: { content: 'Employee Name - Click to sort' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 200,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 100,
+      maxWidth: 400,
+    },
+    {
+      field: 'department',
+      header: {
+        text: 'Department',
+        type: 'filterable',
+        leadingIcon: { content: '🏢', position: 'leading' },
+        tooltip: { content: 'Department - Click to sort, use filter button to filter' },
+        sortIndicator: { show: true, position: 'trailing' },
+        filterIndicator: { show: true, icon: '▼', dropdownType: 'list' },
+        interactive: true,
+      },
+      width: 150,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 100,
+    },
+
+    // ==================== NEW RENDERER SHOWCASE COLUMNS ====================
+    {
+      field: 'active',
+      header: {
+        text: 'Active',
+        type: 'sortable',
+        leadingIcon: { content: '✓', position: 'leading' },
+        tooltip: { content: 'Active Status - CheckboxRenderer' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 100,
+      renderer: new CheckboxRenderer({
+        onChange: (value, params) => {
+          console.log(`Checkbox changed: Row ${params.cell.row}, New value: ${value}`);
+        }
+      }),
+      sortable: true,
+      minWidth: 80,
+    },
+    {
+      field: 'progress',
+      header: {
+        text: 'Progress',
+        type: 'sortable',
+        leadingIcon: { content: '📊', position: 'leading' },
+        tooltip: { content: 'Progress (%) - ProgressBarRenderer' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 140,
+      renderer: new ProgressBarRenderer({
+        min: 0,
+        max: 100,
+        showValue: true,
+        colors: [
+          { threshold: 30, color: '#f44336' },   // Red for low
+          { threshold: 70, color: '#ff9800' },   // Orange for medium
+          { threshold: 100, color: '#4caf50' }   // Green for high
+        ]
+      }),
+      sortable: true,
+      minWidth: 100,
+    },
+    {
+      field: 'website',
+      header: {
+        text: 'Website',
+        type: 'text',
+        leadingIcon: { content: '🔗', position: 'leading' },
+        tooltip: { content: 'Website Link - LinkRenderer' },
+      },
+      width: 200,
+      renderer: new LinkRenderer({
+        label: (params) => `Visit ${params.cell.row}`,
+        target: '_blank'
+      }),
+      sortable: true,
+      minWidth: 150,
+    },
+    {
+      field: 'actions',
+      header: {
+        text: 'Actions',
+        type: 'text',
+        leadingIcon: { content: '⚡', position: 'leading' },
+        tooltip: { content: 'Actions - ButtonRenderer' },
+      },
+      width: 120,
+      renderer: new ButtonRenderer({
+        label: 'Delete',
+        variant: 'danger',
+        size: 'small',
+        onClick: (params) => {
+          console.log(`Delete button clicked for row ${params.cell.row}`);
+          alert(`Delete action for:\nID: ${data[params.cell.row][0]}\nName: ${data[params.cell.row][1]}`);
+        }
+      }),
+      sortable: false,
+      minWidth: 100,
+    },
+    {
+      field: 'createdAt',
+      header: {
+        text: 'Created',
+        type: 'sortable',
+        leadingIcon: { content: '📅', position: 'leading' },
+        tooltip: { content: 'Created Date - DateRenderer' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 120,
+      renderer: new DateRenderer({
+        format: 'MM/DD/YYYY',
+        locale: 'en-US'
+      }),
+      sortable: true,
+      minWidth: 100,
+    },
+    {
+      field: 'priority',
+      header: {
+        text: 'Priority',
+        type: 'filterable',
+        leadingIcon: { content: '🎯', position: 'leading' },
+        tooltip: { content: 'Priority Level - SelectRenderer' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 140,
+      renderer: new SelectRenderer({
+        options: [
+          { label: 'Low', value: 'Low' },
+          { label: 'Medium', value: 'Medium' },
+          { label: 'High', value: 'High' },
+          { label: 'Critical', value: 'Critical' }
+        ],
+        onChange: (value, params) => {
+          console.log(`Priority changed: Row ${params.cell.row}, New value: ${value}`);
+        }
+      }),
+      sortable: true,
+      minWidth: 100,
+    },
+    {
+      field: 'tags',
+      header: {
+        text: 'Tags',
+        type: 'text',
+        leadingIcon: { content: '🏷️', position: 'leading' },
+        tooltip: { content: 'Tags - ChipRenderer' },
+      },
+      width: 250,
+      renderer: new ChipRenderer({
+        maxChips: 3,
+        removable: true,
+        onRemove: (chip, params) => {
+          console.log(`Tag removed: "${chip.label}" from row ${params.cell.row}`);
+        },
+        onClick: (chip, params) => {
+          console.log(`Tag clicked: "${chip.label}" on row ${params.cell.row}`);
+        }
+      }),
+      sortable: false,
+      minWidth: 180,
+    },
+    {
+      field: 'category',
+      header: {
+        text: 'Category',
+        type: 'filterable',
+        leadingIcon: { content: '📂', position: 'leading' },
+        tooltip: { content: 'Category - DropdownRenderer' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 160,
+      renderer: new DropdownRenderer({
+        options: [
+          { label: 'Category A', value: 'Category A' },
+          { label: 'Category B', value: 'Category B' },
+          { label: 'Category C', value: 'Category C' },
+          { label: 'Category D', value: 'Category D' }
+        ],
+        searchable: true,
+        onChange: (value, params) => {
+          console.log(`Category changed: Row ${params.cell.row}, New value: ${value}`);
+        }
+      }),
+      sortable: true,
+      minWidth: 120,
+    },
+    // ==================== END NEW RENDERER SHOWCASE COLUMNS ====================
+
+    {
+      field: 'salary',
+      header: {
+        text: 'Salary',
+        type: 'sortable',
+        leadingIcon: { content: '💰', position: 'leading' },
+        tooltip: { content: 'Annual Salary - Click to sort' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 120,
+      renderer: 'number',
+      sortable: true,
+      minWidth: 80,
+      maxWidth: 200,
+    },
+    {
+      field: 'years',
+      header: {
+        text: 'Years',
+        type: 'sortable',
+        leadingIcon: { content: '📅', position: 'leading' },
+        tooltip: { content: 'Years of service - Click to sort' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 80,
+      renderer: 'number',
+      sortable: true,
+      minWidth: 60,
+    },
+    {
+      field: 'status',
+      header: {
+        text: 'Status',
+        type: 'filterable',
+        leadingIcon: { content: '●', position: 'leading' },
+        tooltip: { content: 'Employment Status - Sortable and Filterable' },
+        sortIndicator: { show: true, position: 'trailing' },
+        filterIndicator: { show: true, icon: '▼', dropdownType: 'list' },
+        interactive: true,
+      },
+      width: 100,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 80,
+    },
+    {
+      field: 'email',
+      header: {
+        text: 'Email',
+        type: 'sortable',
+        leadingIcon: { content: '📧', position: 'leading' },
+        tooltip: { content: 'Email Address - Click to sort' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 220,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 150,
+      maxWidth: 350,
+    },
+    {
+      field: 'phone',
+      header: {
+        text: 'Phone',
+        type: 'text',
+        leadingIcon: { content: '📱', position: 'leading' },
+        tooltip: { content: 'Phone Number' },
+      },
+      width: 140,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 100,
+    },
+    {
+      field: 'score',
+      header: {
+        text: 'Score',
+        type: 'sortable',
+        leadingIcon: { content: '⭐', position: 'leading' },
+        tooltip: { content: 'Performance Score (1-100) - Click to sort' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 80,
+      renderer: 'number',
+      sortable: true,
+      minWidth: 60,
+    },
+    {
+      field: 'notes',
+      header: {
+        text: 'Notes',
+        type: 'text',
+        leadingIcon: { content: '📝', position: 'leading' },
+        tooltip: { content: 'Additional Notes' },
+      },
+      width: 300,
+      renderer: 'text',
+      sortable: true,
+      minWidth: 150,
+      maxWidth: 500,
+    },
   ];
 
-  // Extract column widths for variable width provider
+  // Extract column widths for a variable width provider
   const columnWidths = columns.map(col => col.width);
 
-  // Render headers (application level)
-  const headerCanvas = document.getElementById('grid-header-canvas');
-  const headerCells: HTMLElement[] = [];
-
-  if (headerCanvas) {
-    let xOffset = 0;
-    columns.forEach((col, idx) => {
-      const headerCell = document.createElement('div');
-      headerCell.className = 'grid-header-cell';
-      headerCell.style.left = `${xOffset}px`;
-      headerCell.style.width = `${col.width}px`;
-      headerCell.style.height = `${ROW_HEIGHT}px`;
-
-      // Create header content with sort indicator
-      const headerContent = document.createElement('span');
-      headerContent.textContent = col.header;
-      headerCell.appendChild(headerContent);
-
-      const sortIndicator = document.createElement('span');
-      sortIndicator.className = 'sort-indicator';
-      sortIndicator.textContent = '';
-      headerCell.appendChild(sortIndicator);
-
-      if (col.sortable) {
-        headerCell.classList.add('sortable');
-        headerCell.addEventListener('click', () => {
-          console.log(`🔄 Sorting by column: ${col.field} (index: ${idx})`);
-          const start = performance.now();
-
-          // Toggle sort on the grid
-          grid.toggleSort(idx);
-
-          // Update header indicators
-          updateHeaderSortIndicators();
-
-          const time = performance.now() - start;
-          console.log(`✅ Sort completed in ${time.toFixed(2)}ms`);
-          updateStats(grid, time);
-        });
-      }
-
-      headerCanvas.appendChild(headerCell);
-      headerCells.push(headerCell);
-      xOffset += col.width;
-    });
-    headerCanvas.style.width = `${xOffset}px`;
-  }
-
-  // Function to update header sort indicators
-  function updateHeaderSortIndicators() {
-    const sortIcons = grid.getSortIcons();
-
-    headerCells.forEach((headerCell, idx) => {
-      const sortIndicator = headerCell.querySelector('.sort-indicator');
-      if (!sortIndicator) return;
-
-      const sortDirection = grid.getColumnSort(idx);
-
-      // Remove all sort classes
-      headerCell.classList.remove('sorted-asc', 'sorted-desc');
-
-      // Update indicator using configured icons
-      if (sortDirection === 'asc') {
-        sortIndicator.textContent = ` ${sortIcons.asc}`;
-        headerCell.classList.add('sorted-asc');
-      } else if (sortDirection === 'desc') {
-        sortIndicator.textContent = ` ${sortIcons.desc}`;
-        headerCell.classList.add('sorted-desc');
-      } else {
-        sortIndicator.textContent = '';
-      }
-    });
-  }
-
-  // Function to update header widths after column resize
-  function updateHeaderWidths(widths: number[]) {
-    if (!headerCanvas) return;
-
-    let xOffset = 0;
-    headerCells.forEach((headerCell, idx) => {
-      const newWidth = widths[idx];
-      headerCell.style.left = `${xOffset}px`;
-      headerCell.style.width = `${newWidth}px`;
-      xOffset += newWidth;
-    });
-    headerCanvas.style.width = `${xOffset}px`;
-
-    console.log(`📏 Header widths updated:`, widths);
-  }
-
-  // Conditional sort handler - delegates based on current sortMode
+  // Conditional sort handler - delegates based on the current sortMode
   async function handleSortRequest(sortState: any[]): Promise<void> {
     // In frontend mode, this handler won't be called (auto mode detects undefined handler)
     // In backend mode, perform server-side sorting
@@ -326,7 +611,7 @@ function main() {
   // Create grid with variable column widths
   console.time('Grid Initialization');
   let gridRef: Grid | null = null; // Forward reference for scroll handler
-  const grid = new Grid(container, {
+  let grid = new Grid(container, {
     rowCount: ROW_COUNT,
     colCount: COL_COUNT,
     rowHeight: ROW_HEIGHT,
@@ -360,7 +645,7 @@ function main() {
       enabled: true,
       template: loadingTemplate,
       message: 'Loading data...',
-      minDisplayTime: 500, // Show for at least 500ms to prevent flashing
+      minDisplayTime: 500, // Show for at least 500 ms to prevent flashing
       position: 'center',
       showOverlay: true,
       overlayOpacity: 0.5,
@@ -372,15 +657,12 @@ function main() {
       defaultMinWidth: 30,        // Global minimum
       defaultMaxWidth: 600,       // Global maximum
       autoFitSampleSize: 100,     // Sample 100 rows for auto-fit
-      autoFitPadding: 16,         // Add 16px padding to auto-fit
+      autoFitPadding: 16,         // Add 16 px padding to auto-fit
       showHandles: true,          // Show visual resize handles
       showPreview: true,          // Show preview line during drag
     },
-    // Sync header scrolling
+    // Sync scroll - update resize handle positions
     onScroll: (scrollTop, scrollLeft) => {
-      if (headerCanvas) {
-        headerCanvas.style.transform = `translateX(-${scrollLeft}px)`;
-      }
       // Update resize handle positions on scroll
       if (gridRef) {
         gridRef.updateColumnResizeHandles();
@@ -390,7 +672,7 @@ function main() {
     onColumnWidthsChange: (widths) => {
       console.log('💾 Column widths changed:', widths);
       localStorage.setItem('zengrid-column-widths', JSON.stringify(widths));
-      updateHeaderWidths(widths);
+      // Headers are auto-updated by HeaderManager via column:resize event
     },
   });
   gridRef = grid; // Set the reference for the scroll handler
@@ -408,11 +690,9 @@ function main() {
   const renderTime = performance.now() - renderStart;
   console.timeEnd('Initial Render');
 
-  // Attach column resize to header (IMPORTANT: do this AFTER render)
-  if (headerCanvas) {
-    grid.attachColumnResize(headerCanvas);
-    console.log('✅ Column resize attached to header');
-  }
+  // Column resize is now automatically attached to the HeaderManager's header container
+  // No manual attachment needed - the Grid class handles this in render()
+  console.log('✅ Column resize automatically integrated with new header system');
 
   console.log(`✅ Initial render took ${renderTime.toFixed(2)}ms`);
 
@@ -433,6 +713,28 @@ function main() {
   // Column resize event listeners
   grid.on('column:resize', (event) => {
     console.log(`📏 Column ${event.column} resized: ${event.oldWidth}px → ${event.newWidth}px`);
+  });
+
+  // Header event listeners - demonstrating new header system
+  grid.on('header:click', (event) => {
+    console.log(`🖱️ Header clicked: Column ${event.columnIndex} (${event.column.field})`);
+  });
+
+  grid.on('header:sort:click', (event) => {
+    console.log(`🔄 Sort requested: Column ${event.columnIndex}, Direction: ${event.nextDirection}`);
+    // The grid handles sort automatically, this is just for logging
+  });
+
+  grid.on('header:filter:click', (event) => {
+    console.log(`🔍 Filter clicked: Column ${event.columnIndex}, Has active filter: ${event.hasActiveFilter}`);
+    // TODO: Show filter dropdown UI here
+    alert(`Filter UI for "${event.column.field}" column\n\nCurrent filter: ${event.hasActiveFilter ? 'Active' : 'None'}\n\nImplement filter dropdown UI here!`);
+  });
+
+  grid.on('header:hover', (event) => {
+    if (event.isHovering) {
+      console.log(`🔹 Hovering over column ${event.columnIndex} (${event.column.field})`);
+    }
   });
 
   // Initialize Pagination Demo
@@ -593,6 +895,324 @@ BACKEND MODE:
     console.log('✅ Simulated load complete - data restored');
   });
 
+  // Infinite Scrolling Demo State
+  let infiniteScrollEnabled = false;
+  let slidingWindowEnabled = false;
+  let totalRowsLoaded = 0;
+
+  // Infinite Scrolling Demo Button
+  document.getElementById('btn-toggle-infinite-scroll')!.addEventListener('click', async () => {
+    if (infiniteScrollEnabled) {
+      // Disable infinite scrolling - reload with full dataset
+      console.log('🔄 Disabling infinite scrolling...');
+      infiniteScrollEnabled = false;
+      data = generateData(ROW_COUNT, COL_COUNT);
+
+      // Destroy and recreate grid
+      grid.destroy();
+
+      // Clear the container and recreate the grid
+      container.innerHTML = '';
+
+      grid = new Grid(container, {
+        rowCount: ROW_COUNT,
+        colCount: COL_COUNT,
+        rowHeight: ROW_HEIGHT,
+        colWidth: columnWidths,
+        columns,
+        enableSelection: true,
+        enableMultiSelection: true,
+        enableKeyboardNavigation: true,
+        overscanRows: 5,
+        overscanCols: 2,
+        rendererCache: {
+          enabled: true,
+          capacity: 1000,
+          trackStats: true,
+        },
+        dataMode: dataMode,
+        sortMode: sortMode,
+        filterMode: filterMode,
+        onSortRequest: sortMode === 'backend' ? handleSortRequest : undefined,
+        loading: {
+          enabled: true,
+          template: loadingTemplate,
+          message: 'Loading data...',
+          minDisplayTime: 500,
+          position: 'center',
+          showOverlay: true,
+          overlayOpacity: 0.5,
+        },
+        enableColumnResize: true,
+        columnResize: {
+          resizeZoneWidth: 6,
+          defaultMinWidth: 30,
+          defaultMaxWidth: 600,
+          autoFitSampleSize: 100,
+          autoFitPadding: 16,
+          showHandles: true,
+          showPreview: true,
+        },
+        onScroll: (scrollTop, scrollLeft) => {
+          if (grid) {
+            grid.updateColumnResizeHandles();
+          }
+        },
+        onColumnWidthsChange: (widths) => {
+          console.log('💾 Column widths changed:', widths);
+          localStorage.setItem('zengrid-column-widths', JSON.stringify(widths));
+        },
+      });
+
+      grid.setData(data);
+      grid.render();
+
+      totalRowsLoaded = ROW_COUNT;
+
+      alert('Infinite Scrolling: OFF\n\nSwitched back to standard mode with 100K rows.');
+      console.log(`✅ Infinite scrolling disabled. Total rows: ${totalRowsLoaded}`);
+    } else {
+      // Enable infinite scrolling - start with smaller dataset
+      console.log('🔄 Enabling infinite scrolling...');
+      infiniteScrollEnabled = true;
+
+      const INITIAL_ROWS = 100;
+
+      // Fetch initial data from server
+      try {
+        console.log('📥 Fetching initial data from server...');
+        const response = await fetch(
+          `http://localhost:3003/api/employees?page=1&pageSize=${INITIAL_ROWS}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Convert server data to grid format
+        data = result.data.map((emp: any) => [
+          emp.id,
+          emp.name,
+          emp.department,
+          emp.salary,
+          emp.years,
+          emp.status,
+          emp.email,
+          emp.phone,
+          emp.score,
+          emp.notes,
+        ]);
+
+        totalRowsLoaded = data.length;
+
+        console.log(`✅ Fetched ${data.length} initial rows from server`);
+        console.log(`   Total available: ${result.pagination.totalRecords.toLocaleString()}`);
+      } catch (error) {
+        console.error('❌ Failed to fetch initial data from server:', error);
+        console.error('   Falling back to local data generation');
+        alert('Failed to fetch data from server.\n\nMake sure the server is running:\nnpm run server\n\nFalling back to local data generation...');
+
+        // Fallback to local data
+        data = generateData(INITIAL_ROWS, COL_COUNT);
+        totalRowsLoaded = INITIAL_ROWS;
+      }
+
+      // Destroy and recreate grid with infinite scrolling
+      grid.destroy();
+
+      // Clear the container
+      container.innerHTML = '';
+
+      grid = new Grid(container, {
+        rowCount: INITIAL_ROWS,
+        colCount: COL_COUNT,
+        rowHeight: ROW_HEIGHT,
+        colWidth: columnWidths,
+        columns,
+        enableSelection: true,
+        enableMultiSelection: true,
+        enableKeyboardNavigation: true,
+        overscanRows: 5,
+        overscanCols: 2,
+        rendererCache: {
+          enabled: true,
+          capacity: 1000,
+          trackStats: true,
+        },
+        dataMode: dataMode,
+        sortMode: sortMode,
+        filterMode: filterMode,
+        onSortRequest: sortMode === 'backend' ? handleSortRequest : undefined,
+        loading: {
+          enabled: true,
+          template: loadingTemplate,
+          message: 'Loading data...',
+          minDisplayTime: 500,
+          position: 'center',
+          showOverlay: true,
+          overlayOpacity: 0.5,
+        },
+        enableColumnResize: true,
+        columnResize: {
+          resizeZoneWidth: 6,
+          defaultMinWidth: 30,
+          defaultMaxWidth: 600,
+          autoFitSampleSize: 100,
+          autoFitPadding: 16,
+          showHandles: true,
+          showPreview: true,
+        },
+        onScroll: (scrollTop, scrollLeft) => {
+          if (grid) {
+            grid.updateColumnResizeHandles();
+          }
+        },
+        onColumnWidthsChange: (widths) => {
+          console.log('💾 Column widths changed:', widths);
+          localStorage.setItem('zengrid-column-widths', JSON.stringify(widths));
+        },
+        // Infinite scrolling configuration
+        infiniteScrolling: {
+          enabled: true,
+          threshold: 20,
+          initialRowCount: INITIAL_ROWS,
+
+          // Sliding Window (Memory Management)
+          enableSlidingWindow: slidingWindowEnabled,
+          windowSize: 500,      // Keep max 500 rows in memory
+          pruneThreshold: 600,  // Start pruning at 600 rows
+          onDataPruned: (prunedRowCount, virtualOffset) => {
+            console.log(`🗑️  Pruned ${prunedRowCount} old rows`);
+            console.log(`   Virtual offset now: ${virtualOffset}`);
+            console.log(`   Memory saved: ~${(prunedRowCount * 0.01).toFixed(2)} MB`);
+
+            // Update stats display
+            const stats = grid.getSlidingWindowStats?.();
+            if (stats) {
+              console.log(`📊 Sliding Window Stats:`);
+              console.log(`   Rows in memory: ${stats.rowsInMemory}`);
+              console.log(`   Total loaded: ${stats.totalRowsLoaded}`);
+              console.log(`   Pruned: ${stats.prunedRows}`);
+            }
+          },
+        },
+        // Data loading callback - Fetch from server
+        onLoadMoreRows: async (currentRowCount) => {
+          console.log(`📥 Loading more rows from server... (current: ${currentRowCount})`);
+
+          try {
+            const BATCH_SIZE = 100;
+            const page = Math.floor(currentRowCount / BATCH_SIZE) + 1;
+
+            // Fetch from server
+            const response = await fetch(
+              `http://localhost:3003/api/employees?page=${page}&pageSize=${BATCH_SIZE}`
+            );
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            console.log(`✅ Server returned ${result.data.length} rows`);
+            console.log(`   Page: ${result.pagination.page}/${result.pagination.totalPages}`);
+            console.log(`   Has more: ${result.pagination.hasNextPage}`);
+
+            // Check if we've reached the end
+            if (!result.pagination.hasNextPage || result.data.length === 0) {
+              console.log('✅ Reached end of data from server');
+              totalRowsLoaded += result.data.length;
+
+              // Convert server data to grid format (array of arrays)
+              const newRows = result.data.map((emp: any) => [
+                emp.id,
+                emp.name,
+                emp.department,
+                emp.salary,
+                emp.years,
+                emp.status,
+                emp.email,
+                emp.phone,
+                emp.score,
+                emp.notes,
+              ]);
+
+              return newRows;
+            }
+
+            totalRowsLoaded += result.data.length;
+
+            // Convert server data to grid format (array of arrays)
+            const newRows = result.data.map((emp: any) => [
+              emp.id,
+              emp.name,
+              emp.department,
+              emp.salary,
+              emp.years,
+              emp.status,
+              emp.email,
+              emp.phone,
+              emp.score,
+              emp.notes,
+            ]);
+
+            console.log(`✅ Loaded ${newRows.length} more rows (total: ${totalRowsLoaded})`);
+            return newRows;
+          } catch (error) {
+            console.error('❌ Failed to load data from server:', error);
+            console.error('   Make sure the server is running: npm run server');
+            alert('Failed to load data from server.\n\nMake sure the server is running:\nnpm run server\n\nOr use the local data mode instead.');
+            return []; // Stop loading on error
+          }
+        },
+      });
+
+      grid.setData(data);
+      grid.render();
+
+      alert('Infinite Scrolling: ON\n\n✅ Fetching data from server (http://localhost:3003)\n\nStarting with 100 rows.\nScroll to bottom to load more data (100 rows at a time).\n\nTotal available: 10,000 rows from server.\n\n💡 Make sure server is running: npm run server');
+      console.log(`✅ Infinite scrolling enabled. Initial rows: ${totalRowsLoaded}`);
+    }
+  });
+
+  // Sliding Window Toggle Button
+  document.getElementById('btn-toggle-sliding-window')!.addEventListener('click', () => {
+    slidingWindowEnabled = !slidingWindowEnabled;
+    const btn = document.getElementById('btn-toggle-sliding-window')!;
+    btn.textContent = slidingWindowEnabled ? '🪟 Sliding Window: ON' : '🪟 Sliding Window: OFF';
+    btn.style.background = slidingWindowEnabled ? '#27ae60' : '#16a085';
+
+    if (slidingWindowEnabled) {
+      alert(
+        '🪟 Sliding Window: ON\n\n' +
+        '✅ Memory-efficient mode enabled!\n\n' +
+        'Configuration:\n' +
+        '• Max rows in memory: 500\n' +
+        '• Prune threshold: 600 rows\n' +
+        '• Old rows are automatically removed\n\n' +
+        '💡 Enable infinite scrolling and watch the console to see pruning in action!'
+      );
+    } else {
+      alert(
+        '🪟 Sliding Window: OFF\n\n' +
+        '⚠️ Memory will grow indefinitely\n\n' +
+        'All loaded rows stay in memory.\n' +
+        'Good for: Small datasets or when you need to scroll back to the beginning.'
+      );
+    }
+
+    console.log(`🪟 Sliding window ${slidingWindowEnabled ? 'ENABLED' : 'DISABLED'}`);
+    if (slidingWindowEnabled) {
+      console.log('   When infinite scrolling loads > 600 rows:');
+      console.log('   • Old rows will be pruned');
+      console.log('   • Memory stays at ~500 rows');
+      console.log('   • Performance remains stable');
+    }
+  });
+
   // Periodic stats update
   setInterval(() => {
     const stats = grid.getStats();
@@ -632,8 +1252,51 @@ BACKEND MODE:
   console.log('   - Click "Reset Widths" to restore default widths');
   console.log('   - Column widths are persisted to localStorage');
 
+  // ==================== SIDEBAR MENU ====================
+  setupSidebarMenu();
+
   // ==================== FILTER UI ====================
   setupFilterUI(grid, columns);
+}
+
+/**
+ * Setup Sidebar Menu - Collapsible categories and sidebar toggle
+ */
+function setupSidebarMenu() {
+  // Category collapse/expand
+  const categoryHeaders = document.querySelectorAll('.category-header');
+
+  categoryHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+      const category = header.getAttribute('data-category');
+      const content = document.querySelector(`[data-content="${category}"]`);
+
+      if (content && header) {
+        // Toggle collapsed state
+        header.classList.toggle('collapsed');
+        content.classList.toggle('collapsed');
+      }
+    });
+  });
+
+  // Sidebar toggle
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('sidebar');
+
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+
+      // Update button title (icon stays the same)
+      if (sidebar.classList.contains('collapsed')) {
+        sidebarToggle.title = 'Show Sidebar';
+      } else {
+        sidebarToggle.title = 'Hide Sidebar';
+      }
+    });
+  }
+
+  console.log('✅ Sidebar menu initialized with collapsible categories and sidebar toggle');
 }
 
 /**
@@ -676,10 +1339,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
     const isExpanded = filterPanel.classList.contains('expanded');
     btnToggleFilter.textContent = isExpanded ? '🔽 Hide Filters' : '🔍 Filters';
 
-    // Update grid viewport after panel animation completes
-    setTimeout(() => {
-      grid.updateViewport();
-    }, 350); // Wait for CSS transition (300ms + 50ms buffer)
+    // No need to call updateViewport() - autoResize handles it automatically!
   });
 
   // Add logic connector between filters
@@ -759,7 +1419,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
     valueInput.type = 'text';
     valueInput.placeholder = 'Enter value...';
 
-    // Update value input visibility based on operator
+    // Update value input visibility based on the operator
     const updateValueInput = () => {
       const selectedOp = operators.find(op => op.value === operatorSelect.value);
       if (selectedOp && !selectedOp.requiresValue) {
@@ -830,7 +1490,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
     filterRowsContainer.appendChild(filterRow);
   }
 
-  // Add initial filter row
+  // Add an initial filter row
   addFilterRow();
 
   btnAddFilter.addEventListener('click', () => {
@@ -907,7 +1567,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
         ) {
           warnings.push(
             `<strong>${columnName}</strong> cannot be greater than <strong>${current.value}</strong> AND less than <strong>${next.value}</strong>. ` +
-            `<br/>💡 <strong>Suggestion:</strong> Check your values - the range is inverted.`
+            `<br/>💡 <strong>Suggestion:</strong> Check your values—the range is inverted.`
           );
         }
 
@@ -918,7 +1578,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
           logic === 'AND'
         ) {
           warnings.push(
-            `<strong>${columnName}</strong> has duplicate condition: <strong>${current.operator} ${current.value}</strong>. ` +
+            `<strong>${columnName}</strong> has a duplicate condition: <strong>${current.operator} ${current.value}</strong>. ` +
             `<br/>💡 <strong>Suggestion:</strong> Remove one of the duplicate filters.`
           );
         }
@@ -985,7 +1645,7 @@ function setupFilterUI(grid: Grid, columns: any[]) {
     if ((grid as any).filterManager) {
       (grid as any).state.filterState = (grid as any).filterManager.getFilterState();
 
-      // Get visible rows and update cache
+      // Get visible rows and update the cache
       (grid as any).cachedVisibleRows = (grid as any).filterManager.getVisibleRows((grid as any).options.rowCount);
       console.log(`🔍 Filter applied: ${(grid as any).cachedVisibleRows.length} of ${(grid as any).options.rowCount} rows visible`);
 

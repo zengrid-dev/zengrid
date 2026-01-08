@@ -45,6 +45,17 @@ export type {
   ConditionalStyle,
 } from './rendering/renderers';
 
+// Rendering - Headers
+export type { HeaderRenderer, HeaderRenderParams } from './rendering/headers/header-renderer.interface';
+export type { ResolvedHeaderConfig } from './types/header';
+export {
+  TextHeaderRenderer,
+  SortableHeaderRenderer,
+  FilterableHeaderRenderer,
+  CheckboxHeaderRenderer,
+  IconHeaderRenderer,
+} from './rendering/headers/renderers';
+
 // Rendering - Cache
 export type { IRendererCache, RendererCacheConfig, CachedRenderContent } from './rendering/cache';
 export { RendererCache } from './rendering/cache';
@@ -73,6 +84,54 @@ export {
   ResizePreview,
 } from './features/column-resize';
 
+// Features - Column Drag (Drag-and-drop reordering)
+export type {
+  DragState,
+  DragEvent,
+  DropPosition,
+  ColumnDragOptions,
+  AutoScrollOptions,
+  DragStateSnapshot,
+  DropZoneResult,
+  BeforeDragEvent,
+  DuringDragEvent,
+  AfterDragEvent,
+  ColumnDragEvents,
+} from './features/column-drag';
+export {
+  ColumnDragManager,
+  DragVisualFeedback,
+  DragKeyboardHandler,
+  DragTouchHandler,
+  ColumnDragCommand,
+} from './features/column-drag';
+
+// Features - Column Model (Reactive column state management)
+export { ColumnModel } from './features/columns';
+export {
+  ColumnReorderPlugin,
+  ColumnPinPlugin,
+  ColumnVisibilityPlugin,
+} from './features/columns';
+export type {
+  ColumnState,
+  ColumnEvent,
+  ColumnEventType,
+  ColumnPinPosition,
+  ColumnBatchUpdate,
+} from './features/columns';
+
+// Features - Viewport (Reactive scroll and viewport state)
+export { ScrollModel, ViewportModel } from './features/viewport';
+export type {
+  ScrollState,
+  ViewportState,
+  ScrollEvent,
+  ScrollEventType,
+  ViewportEvent,
+  ViewportEventType,
+} from './features/viewport';
+
 // Selection utilities
 export { normalizeRange, mergeRanges, containsCell, rangesIntersect } from './selection/range-utils';
 export { createHitTester } from './selection/hit-tester';
@@ -80,12 +139,86 @@ export { createHitTester } from './selection/hit-tester';
 // Main Grid class
 export { Grid } from './grid/index';
 
+// Interactive Renderers
+export type { CheckboxRendererOptions, createCheckboxRenderer } from './rendering/renderers/checkbox-renderer';
+export { CheckboxRenderer } from './rendering/renderers/checkbox-renderer';
+
+export type { ProgressBarRendererOptions, createProgressBarRenderer } from './rendering/renderers/progress-bar-renderer';
+export { ProgressBarRenderer } from './rendering/renderers/progress-bar-renderer';
+
+export type { LinkRendererOptions, createLinkRenderer } from './rendering/renderers/link-renderer';
+export { LinkRenderer } from './rendering/renderers/link-renderer';
+
+export type { ButtonRendererOptions, createButtonRenderer } from './rendering/renderers/button-renderer';
+export { ButtonRenderer } from './rendering/renderers/button-renderer';
+
+export type { DateRendererOptions, DateFormat as DateRendererFormat, createDateRenderer } from './rendering/renderers/date-renderer';
+export { DateRenderer } from './rendering/renderers/date-renderer';
+
+export type { SelectRendererOptions, SelectOption, createSelectRenderer } from './rendering/renderers/select-renderer';
+export { SelectRenderer } from './rendering/renderers/select-renderer';
+
+export type { ChipRendererOptions, Chip, createChipRenderer } from './rendering/renderers/chip-renderer';
+export { ChipRenderer } from './rendering/renderers/chip-renderer';
+
+export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption, createDropdownRenderer } from './rendering/renderers/dropdown-renderer';
+export { DropdownRenderer } from './rendering/renderers/dropdown-renderer';
+
+// Cell Editors
+export type { CellEditor, EditorParams, ValidationResult as EditorValidationResult } from './editing/cell-editor.interface';
+
+export type { TextEditorOptions, createTextEditor } from './editing/text-editor';
+export { TextEditor } from './editing/text-editor';
+
+export type { CheckboxEditorOptions, createCheckboxEditor } from './editing/checkbox-editor';
+export { CheckboxEditor } from './editing/checkbox-editor';
+
+export type { DateEditorOptions, DateFormat as DateEditorFormat, createDateEditor } from './editing/date-editor';
+export { DateEditor } from './editing/date-editor';
+
+export type { DropdownEditorOptions, DropdownOption, createDropdownEditor } from './editing/dropdown-editor';
+export { DropdownEditor } from './editing/dropdown-editor';
+
+export { EditorManager } from './editing/editor-manager';
+export type { EditorManagerOptions } from './editing/editor-manager';
+
+// Features - Column Groups
+export type {
+  ColumnGroup,
+  ColumnGroupModelConfig,
+  ValidationResult,
+  GroupNode,
+} from './features/column-groups/types';
+export {
+  ColumnGroupManager,
+  ColumnGroupModel,
+  ColumnGroupRenderer,
+  createColumnGroupRenderer,
+  RendererRegistry as ColumnGroupRendererRegistry,
+  globalRendererRegistry as globalColumnGroupRendererRegistry,
+  registerRenderer as registerColumnGroupRenderer,
+  getRenderer as getColumnGroupRenderer,
+  hasRenderer as hasColumnGroupRenderer,
+  createRendererRegistry as createColumnGroupRendererRegistry,
+} from './features/column-groups';
+export type {
+  ColumnGroupRenderParams,
+  ColumnGroupRendererOptions,
+  IRendererRegistry as IColumnGroupRendererRegistry,
+  RendererFactory as ColumnGroupRendererFactory,
+} from './features/column-groups';
+
+// Features - Multi-Column Sorting
+export {
+  MultiColumnSorter,
+  SortStateManager,
+} from './features/sorting';
+
+// Utilities
+export { DependencyGraph } from './utils/dependency-graph';
+export { EventEmitter } from './utils/event-emitter';
+
 // TODO: Implement remaining modules
-//
-// // Editing
-// export type { CellEditor } from './editing/cell-editor.interface';
-// export { TextEditor } from './editing/text-editor';
-// export { EditorManager } from './editing/editor-manager';
 //
 // // Keyboard
 // export { KeyboardNavigator } from './keyboard/keyboard-navigator';
@@ -94,17 +227,10 @@ export { Grid } from './grid/index';
 // export { ARIAManager } from './a11y/aria-manager';
 // export { FocusManager } from './a11y/focus-manager';
 //
-// // Events
-// export { EventEmitter } from './events/event-emitter';
-// export type { GridEvents } from './events/grid-events';
-//
 // // Features
 // export { BasicFilter } from './features/filtering/basic-filter';
 // export { ClipboardManager } from './features/copy-paste/clipboard-manager';
 // export { CSVExporter } from './features/export/csv-exporter';
-//
-// // Utilities
-// export { PerformanceMonitor } from './utils/performance-monitor';
 
 // Version
 export const VERSION = '0.1.0';

@@ -326,6 +326,81 @@ export interface GridEvents {
     column: number;
   };
 
+  // Column drag events
+  'column:dragStart': {
+    columnId: string;
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    nativeEvent: MouseEvent | TouchEvent;
+  };
+
+  'column:drag': {
+    columnId: string;
+    currentX: number;
+    currentY: number;
+    targetColumnId: string | null;
+    targetIndex: number;
+    dropPosition: 'before' | 'after' | null;
+  };
+
+  'column:dragEnd': {
+    columnId: string;
+    fromIndex: number;
+    toIndex: number;
+    cancelled: boolean;
+  };
+
+  'column:dragCancel': {
+    columnId: string;
+    columnIndex: number;
+    reason: 'escape' | 'invalid-drop' | 'programmatic';
+  };
+
+  // Header events
+  'header:click': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    nativeEvent: MouseEvent;
+  };
+
+  'header:doubleClick': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    nativeEvent: MouseEvent;
+  };
+
+  'header:contextMenu': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    nativeEvent: MouseEvent;
+  };
+
+  'header:hover': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    isHovering: boolean;
+  };
+
+  'header:sort:click': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    currentDirection?: 'asc' | 'desc';
+    nextDirection: 'asc' | 'desc' | null;
+  };
+
+  'header:filter:click': {
+    columnIndex: number;
+    column: import('../types').ColumnDef;
+    hasActiveFilter: boolean;
+    dropdownType?: string;
+  };
+
+  'header:checkbox:change': {
+    columnIndex: number;
+    checked: boolean;
+    action: 'select-all' | 'deselect-all';
+  };
+
   // Row events
   'row:insert': {
     index: number;

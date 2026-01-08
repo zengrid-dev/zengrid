@@ -109,6 +109,19 @@ export interface GridOptions {
    */
   loading?: LoadingConfig;
 
+  // Viewport Management
+  /**
+   * Automatically update viewport when container size changes (default: true)
+   * Uses ResizeObserver to detect changes from:
+   * - Window resize
+   * - Dev tools open/close
+   * - Sidebar collapse/expand
+   * - Parent container size changes
+   *
+   * Set to false for manual control via grid.updateViewport()
+   */
+  autoResize?: boolean;
+
   // Column Resize
   /**
    * Enable column resize feature (default: true)
@@ -134,6 +147,73 @@ export interface GridOptions {
     /** Show preview line during drag (default: true) */
     showPreview?: boolean;
   };
+
+  // Column Drag
+  /**
+   * Enable column drag and drop reordering (default: true)
+   */
+  enableColumnDrag?: boolean;
+
+  /**
+   * Column drag configuration
+   */
+  columnDrag?: {
+    /** Drag threshold in pixels before drag starts (default: 5) */
+    dragThreshold?: number;
+    /** Show ghost element during drag (default: true) */
+    showGhost?: boolean;
+    /** Show drop indicator (default: true) */
+    showDropIndicator?: boolean;
+    /** Show adjacent column highlights (default: true) */
+    showAdjacentHighlights?: boolean;
+    /** Enable touch support (default: true) */
+    enableTouch?: boolean;
+    /** Long press duration for touch in ms (default: 500) */
+    touchLongPressDuration?: number;
+    /** Enable keyboard navigation (default: true) */
+    enableKeyboard?: boolean;
+  };
+
+  // Infinite Scrolling
+  /**
+   * Enable infinite scrolling (dynamic data loading)
+   */
+  infiniteScrolling?: {
+    /** Enable infinite scrolling (default: false) */
+    enabled?: boolean;
+    /** Number of rows from the bottom to trigger data loading (default: 20) */
+    threshold?: number;
+    /** Initial row count (will grow as more data loads) */
+    initialRowCount?: number;
+
+    // Sliding Window (Memory Management)
+    /** Enable sliding window to limit memory usage (default: false) */
+    enableSlidingWindow?: boolean;
+    /** Maximum number of rows to keep in memory (default: 1000) */
+    windowSize?: number;
+    /** Row count threshold to trigger pruning old rows (default: windowSize + 200) */
+    pruneThreshold?: number;
+    /** Callback when old rows are pruned from memory */
+    onDataPruned?: (prunedRowCount: number, newVirtualOffset: number) => void;
+  };
+
+  /**
+   * Infinite scrolling data loader callback
+   * Called when user scrolls near the bottom and more data is needed
+   *
+   * @param currentRowCount - Current total rows in the grid
+   * @returns Promise resolving to new rows to append
+   *
+   * @example
+   * ```typescript
+   * onLoadMoreRows: async (currentRowCount) => {
+   *   const response = await fetch(`/api/data?offset=${currentRowCount}&limit=100`);
+   *   const newRows = await response.json();
+   *   return newRows;
+   * }
+   * ```
+   */
+  onLoadMoreRows?: (currentRowCount: number) => Promise<any[][]>;
 
   // Event callbacks
   onScroll?: (scrollTop: number, scrollLeft: number) => void;

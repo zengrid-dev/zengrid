@@ -12,3 +12,7 @@ export { SingleColumnSorter } from './single-column-sorter';
 
 export { SortManager } from './sort-manager';
 export type { SortManagerOptions } from './sort-manager';
+
+export { MultiColumnSorter } from './multi-column-sorter';
+export { SortStateManager } from './sort-state-manager';
+export type { SortDirection, SortColumn, SortModel, MultiColumnSorterOptions } from './types';

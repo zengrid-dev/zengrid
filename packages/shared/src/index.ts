@@ -6,6 +6,8 @@
  */
 
 // Data Structures
+export { RingBuffer } from './data-structures/ring-buffer';
+
 export { SparseMatrix } from './data-structures/sparse-matrix';
 export type {
   ReadonlySparseMatrix,
@@ -214,6 +216,23 @@ export type {
   ResolvedOperationMode,
   OperationModeConfig,
 } from './patterns';
+
+// Reactive Patterns (for scalable performance with 1000s of elements)
+export {
+  ReactiveState,
+  EventDelegator,
+  ObjectPool as ReactiveObjectPool,
+  BatchProcessor,
+} from './reactive';
+
+export type {
+  StateSubscriber,
+  ElementEventHandlers,
+  EventDelegatorOptions,
+  ObjectPoolOptions as ReactiveObjectPoolOptions,
+  ObjectPoolStats as ReactiveObjectPoolStats,
+  BatchProcessorOptions,
+} from './reactive';
 
 // Version
 export const VERSION = '0.1.0';

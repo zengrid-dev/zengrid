@@ -32,12 +32,24 @@ export class GridSort {
     this.dataAccessor = dataAccessor;
     this.onRefresh = onRefresh;
     this.onClearCache = onClearCache;
+
+    // Listen to sort:change to update state immediately
+    this.events.on('sort:change', (payload: any) => {
+      if (payload?.sortState) {
+        this.state.sortState = payload.sortState;
+      }
+    });
   }
 
   /**
    * Initialize sort manager
    */
-  initializeSortManager(rowCount: number): void {
+  initializeSortManager(rowCount: number, dataAccessor?: DataAccessor | null): void {
+    // Update dataAccessor reference if provided
+    if (dataAccessor !== undefined) {
+      this.dataAccessor = dataAccessor;
+    }
+
     if (!this.sortManager) {
       this.sortManager = new SortManager({
         rowCount,
@@ -91,7 +103,11 @@ export class GridSort {
     }
 
     this.sortManager.toggleSort(column, false);
+    // Update state immediately after sort (before cache clear/refresh)
+    // This ensures HeaderManager gets the updated state when sort:change event fires
     this.state.sortState = this.sortManager.getSortState();
+
+    // Update headers BEFORE clearing cache, so they have the new sort state
     this.onClearCache();
     this.onRefresh();
   }
