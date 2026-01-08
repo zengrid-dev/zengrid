@@ -1,0 +1,100 @@
+/**
+ * Column Drag and Drop Styles
+ */
+
+:root {
+  --zg-primary-color: #2196F3;
+  --zg-drag-ghost-opacity: 0.7;
+  --zg-drag-highlight-opacity: 0.1;
+}
+
+/* Ghost element during drag */
+.zg-column-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  opacity: var(--zg-drag-ghost-opacity);
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+  transition: transform 0.1s ease;
+}
+
+/* Drop indicator line */
+.zg-column-drop-indicator {
+  position: fixed;
+  width: 3px;
+  background: var(--zg-primary-color);
+  pointer-events: none;
+  z-index: 10001;
+  box-shadow: 0 0 8px var(--zg-primary-color);
+}
+
+/* Adjacent column highlight */
+.zg-column-drag-highlight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: rgba(33, 150, 243, var(--zg-drag-highlight-opacity));
+  border: 2px solid var(--zg-primary-color);
+}
+
+.zg-drag-highlight-left {
+  border-left-width: 3px;
+}
+
+.zg-drag-highlight-right {
+  border-right-width: 3px;
+}
+
+/* Source column during drag */
+.zg-header-cell--dragging {
+  opacity: 0.5;
+  cursor: grabbing !important;
+}
+
+/* Keyboard reorder mode */
+.zg-header-cell--reorder-mode {
+  outline: 2px solid var(--zg-primary-color);
+  outline-offset: -2px;
+  background: rgba(33, 150, 243, var(--zg-drag-highlight-opacity));
+}
+
+/* Default cursor for draggable headers */
+.zg-header-cell[data-column-id]:not(.zg-header-cell--locked) {
+  cursor: grab;
+}
+
+.zg-header-cell[data-column-id]:not(.zg-header-cell--locked):active {
+  cursor: grabbing;
+}
+
+/* Locked columns (non-draggable) */
+.zg-header-cell--locked {
+  cursor: default !important;
+}
+
+/* Dark theme adjustments */
+.zg-grid.zg-theme-dark {
+  --zg-drag-highlight-opacity: 0.2;
+}
+
+.zg-grid.zg-theme-dark .zg-column-drag-ghost {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .zg-column-drag-ghost {
+    transition: none !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .zg-column-drag-highlight {
+    background: transparent;
+    border-width: 3px;
+  }
+}
