@@ -192,8 +192,7 @@ export class DateRenderer implements CellRenderer {
     this.setAriaAttributes(textSpan, date, params);
 
     // Set data attributes for testing/debugging
-    container.dataset.row = String(params.cell.row);
-    container.dataset.col = String(params.cell.col);
+    // WARNING: data-row/col must ONLY be on .zg-cell elements (set by CellPositioner)
     if (params.column?.field) {
       container.dataset.field = params.column.field;
     }

@@ -16,6 +16,11 @@ export interface ConstraintManagerOptions {
     column: number,
     newWidth: number
   ) => ResizeValidationResult | Promise<ResizeValidationResult>;
+  /**
+   * External constraint provider (e.g., from ColumnModel)
+   * When provided, this takes precedence over internal constraints
+   */
+  constraintProvider?: (column: number) => { minWidth: number; maxWidth: number };
 }
 
 /**
@@ -29,6 +34,7 @@ export class ResizeConstraintManager {
     column: number,
     newWidth: number
   ) => ResizeValidationResult | Promise<ResizeValidationResult>;
+  private constraintProvider?: (column: number) => { minWidth: number; maxWidth: number };
 
   constructor(options: ConstraintManagerOptions = {}) {
     this.defaultConstraints = {
@@ -37,12 +43,25 @@ export class ResizeConstraintManager {
     };
     this.columnConstraints = options.columnConstraints ?? new Map();
     this.onValidateResize = options.onValidateResize;
+    this.constraintProvider = options.constraintProvider;
   }
 
   /**
    * Get effective constraints for a column
+   * If constraintProvider is available (e.g., ColumnModel), uses that as single source of truth
+   * Otherwise falls back to internal constraint storage (legacy mode)
    */
   getConstraints(column: number): ColumnConstraints {
+    // If external provider exists (ColumnModel), use it as single source of truth
+    if (this.constraintProvider) {
+      const provided = this.constraintProvider(column);
+      return {
+        minWidth: provided.minWidth,
+        maxWidth: provided.maxWidth,
+      };
+    }
+
+    // Legacy mode: use internal constraints
     const columnSpecific = this.columnConstraints.get(column);
     return {
       minWidth: columnSpecific?.minWidth ?? this.defaultConstraints.minWidth,

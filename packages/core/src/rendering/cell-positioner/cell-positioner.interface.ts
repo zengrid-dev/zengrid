@@ -3,6 +3,7 @@ import type { VirtualScroller } from '../virtual-scroller';
 import type { CellPool } from '../cell-pool';
 import type { RendererRegistry } from '../renderers';
 import type { IRendererCache } from '../cache';
+import type { RowHeightManager } from '../../features/row-height/row-height-manager';
 
 /**
  * Options for creating a CellPositioner
@@ -60,6 +61,12 @@ export interface CellPositionerOptions {
    * @default () => false
    */
   isEditing?: (row: number, col: number) => boolean;
+
+  /**
+   * RowHeightManager for measuring dynamic row heights (optional)
+   * When provided, rows will be measured after rendering if needed
+   */
+  rowHeightManager?: RowHeightManager;
 }
 
 /**

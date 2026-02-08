@@ -56,13 +56,15 @@ export interface VirtualScrollerOptions {
 
   /**
    * Number of rows to render beyond visible area (buffer)
-   * @default 3
+   * Higher values prevent blank areas during fast scrolling but increase memory usage
+   * @default 10
    */
   overscanRows?: number;
 
   /**
    * Number of columns to render beyond visible area (buffer)
-   * @default 2
+   * Higher values prevent blank areas during fast scrolling but increase memory usage
+   * @default 5
    */
   overscanCols?: number;
 }

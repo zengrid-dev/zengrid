@@ -25,7 +25,7 @@
  * ```
  */
 export class RingBuffer<T> {
-  private buffer: (T | undefined)[];
+  private buffer: T[];
   private head = 0;
   private tail = 0;
   private count = 0;
@@ -34,7 +34,7 @@ export class RingBuffer<T> {
     if (capacity <= 0) {
       throw new Error('RingBuffer capacity must be > 0');
     }
-    this.buffer = new Array(capacity);
+    this.buffer = new Array<T>(capacity);
   }
 
   /**
@@ -92,10 +92,7 @@ export class RingBuffer<T> {
     const result: T[] = [];
     for (let i = 0; i < this.count; i++) {
       const index = (this.head + i) % this.capacity;
-      const item = this.buffer[index];
-      if (item !== undefined) {
-        result.push(item);
-      }
+      result.push(this.buffer[index]);
     }
     return result;
   }
@@ -132,7 +129,6 @@ export class RingBuffer<T> {
    * Clear buffer
    */
   clear(): void {
-    this.buffer = new Array(this.capacity);
     this.head = 0;
     this.tail = 0;
     this.count = 0;
@@ -144,10 +140,40 @@ export class RingBuffer<T> {
   forEach(callback: (item: T, index: number) => void): void {
     for (let i = 0; i < this.count; i++) {
       const index = (this.head + i) % this.capacity;
-      const item = this.buffer[index];
-      if (item !== undefined) {
-        callback(item, i);
-      }
+      callback(this.buffer[index], i);
     }
+  }
+
+  /**
+   * Get item at index with bounds checking
+   * @throws Error if index is out of bounds
+   */
+  at(index: number): T {
+    if (index < 0 || index >= this.count) {
+      throw new Error(`Index ${index} out of bounds for RingBuffer of size ${this.count}`);
+    }
+    
+    const actualIndex = (this.head + index) % this.capacity;
+    return this.buffer[actualIndex];
+  }
+
+  /**
+   * Replace item at index
+   * @throws Error if index is out of bounds
+   */
+  set(index: number, item: T): void {
+    if (index < 0 || index >= this.count) {
+      throw new Error(`Index ${index} out of bounds for RingBuffer of size ${this.count}`);
+    }
+    
+    const actualIndex = (this.head + index) % this.capacity;
+    this.buffer[actualIndex] = item;
+  }
+
+  /**
+   * Get all items as a new array (alternative to toArray)
+   */
+  values(): T[] {
+    return this.toArray();
   }
 }

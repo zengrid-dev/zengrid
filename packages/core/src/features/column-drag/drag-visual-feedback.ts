@@ -58,6 +58,18 @@ export class DragVisualFeedback {
     // Add dragging class to source element
     sourceElement.classList.add('zg-header-cell--dragging');
 
+    // Clean up any orphaned indicators from previous drags
+    const container = this.getHeaderContainer?.();
+    if (container) {
+      const orphanedIndicators = container.querySelectorAll('.zg-column-drop-indicator');
+      orphanedIndicators.forEach((el, index) => {
+        // Keep only the first one, remove others
+        if (index > 0) {
+          el.remove();
+        }
+      });
+    }
+
     // Create and show ghost element
     if (this.showGhost) {
       this.createGhost(sourceElement);
@@ -91,11 +103,11 @@ export class DragVisualFeedback {
     const container = this.getHeaderContainer?.();
     if (!container) return;
 
-    const containerRect = container.getBoundingClientRect();
-    const height = containerRect.height;
+    // Set explicit height to match header container
+    const height = container.offsetHeight;
 
+    // Use position relative to header container, not viewport
     this.dropIndicator.style.left = `${x}px`;
-    this.dropIndicator.style.top = `${containerRect.top}px`;
     this.dropIndicator.style.height = `${height}px`;
     this.dropIndicator.style.display = 'block';
   }
@@ -167,7 +179,7 @@ export class DragVisualFeedback {
       this.ghostElement = null;
     }
 
-    // Hide drop indicator
+    // Hide drop indicator (don't remove, reuse it)
     this.hideDropIndicator();
 
     // Clear highlights
@@ -207,10 +219,21 @@ export class DragVisualFeedback {
   private createDropIndicatorIfNeeded(): void {
     if (this.dropIndicator) return;
 
+    const container = this.getHeaderContainer?.();
+    if (!container) return;
+
+    // Check if an indicator already exists in the container to prevent duplicates
+    const existingIndicator = container.querySelector('.zg-column-drop-indicator') as HTMLElement;
+    if (existingIndicator) {
+      this.dropIndicator = existingIndicator;
+      return;
+    }
+
     const indicator = document.createElement('div');
     indicator.className = 'zg-column-drop-indicator';
     indicator.style.cssText = `
-      position: fixed;
+      position: absolute;
+      top: 0;
       width: 3px;
       background: var(--zg-primary-color, #2196F3);
       pointer-events: none;
@@ -219,7 +242,8 @@ export class DragVisualFeedback {
       box-shadow: 0 0 8px var(--zg-primary-color, #2196F3);
     `;
 
-    document.body.appendChild(indicator);
+    // Append to header container so it scrolls with headers
+    container.appendChild(indicator);
     this.dropIndicator = indicator;
   }
 
@@ -232,7 +256,6 @@ export class DragVisualFeedback {
     highlight.style.cssText = `
       position: absolute;
       top: 0;
-      bottom: 0;
       pointer-events: none;
       z-index: 9999;
       background: rgba(33, 150, 243, 0.1);
@@ -259,8 +282,12 @@ export class DragVisualFeedback {
 
     if (container) {
       const containerRect = container.getBoundingClientRect();
+
+      // Use header cell's exact dimensions and position (Approach 3)
       highlight.style.left = `${rect.left - containerRect.left}px`;
+      highlight.style.top = `${rect.top - containerRect.top}px`;
       highlight.style.width = `${rect.width}px`;
+      highlight.style.height = `${rect.height}px`;
     } else {
       highlight.style.left = `${rect.left}px`;
       highlight.style.top = `${rect.top}px`;
@@ -278,10 +305,10 @@ export class DragVisualFeedback {
     this.endDrag();
 
     // Remove drop indicator
-    if (this.dropIndicator) {
+    if (this.dropIndicator && this.dropIndicator.parentElement) {
       this.dropIndicator.remove();
-      this.dropIndicator = null;
     }
+    this.dropIndicator = null;
 
     // Destroy object pool
     this.highlightPool.destroy();

@@ -65,6 +65,7 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
 
       const state: ColumnState = {
         id,
+        dataIndex: index, // Store original data column index
         field: def.field,
         width,
         actualWidth,
@@ -147,6 +148,62 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
   }
 
   // ============================================
+  // Constraint Management
+  // ============================================
+
+  /**
+   * Get constraints for a column
+   * @param columnId - Column identifier
+   * @returns Constraints or undefined if column doesn't exist
+   */
+  getConstraints(columnId: string): ColumnConstraints | undefined {
+    return this.constraints.get(columnId);
+  }
+
+  /**
+   * Set constraints for a column at runtime
+   * Re-clamps current width if it violates new constraints
+   * @param columnId - Column identifier
+   * @param constraints - New constraints (partial, merged with existing)
+   */
+  setConstraints(columnId: string, newConstraints: Partial<ColumnConstraints>): void {
+    const current = this.constraints.get(columnId);
+    if (!current) return;
+
+    const merged: ColumnConstraints = {
+      minWidth: newConstraints.minWidth ?? current.minWidth,
+      maxWidth: newConstraints.maxWidth ?? current.maxWidth,
+    };
+    this.constraints.set(columnId, merged);
+
+    // Re-apply constraints to current width
+    const state = this.getState(columnId);
+    if (state) {
+      const actualWidth = this.applyConstraints(state.width, merged);
+      if (actualWidth !== state.actualWidth) {
+        this.setState(columnId, { ...state, actualWidth }, {
+          type: 'width',
+          columnId,
+          oldValue: state.actualWidth,
+          newValue: state.width,
+          actualValue: actualWidth,
+          state: { ...state, actualWidth },
+        });
+      }
+    }
+  }
+
+  /**
+   * Check if column allows resize
+   * @param columnId - Column identifier
+   * @returns true if resizable (default), false if explicitly disabled
+   */
+  isResizable(columnId: string): boolean {
+    const state = this.getState(columnId);
+    return state?.definition.resizable !== false;
+  }
+
+  // ============================================
   // Plugin Support (Extensibility)
   // ============================================
 
@@ -194,5 +251,14 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
 
   getCount(): number {
     return this.fieldToId.size;
+  }
+
+  /**
+   * Get columns in visual order (sorted by order property)
+   * Used for mapping visual column index to column state
+   * @returns Columns sorted by visual order
+   */
+  getColumnsInOrder(): ColumnState[] {
+    return this.getColumns().sort((a, b) => a.order - b.order);
   }
 }

@@ -78,6 +78,16 @@ export interface EditorParams {
    * Custom editor options
    */
   options?: Record<string, any>;
+
+  /**
+   * Register a popup element to prevent click-outside close
+   */
+  registerPopup?: (element: HTMLElement) => void;
+
+  /**
+   * Unregister a popup element
+   */
+  unregisterPopup?: (element: HTMLElement) => void;
 }
 
 /**

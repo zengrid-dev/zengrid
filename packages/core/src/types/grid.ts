@@ -25,8 +25,13 @@ export interface GridOptions {
   enableMultiSelection?: boolean;
   enableKeyboardNavigation?: boolean;
   enableA11y?: boolean;
+
+  /** Number of rows to render beyond visible area (default: 10) - prevents blank areas during fast scrolling */
   overscanRows?: number;
+
+  /** Number of columns to render beyond visible area (default: 5) - prevents blank areas during fast scrolling */
   overscanCols?: number;
+
   enableCellPooling?: boolean;
   rendererCache?: RendererCacheConfig;
   sortIcons?: SortIcons; // Configurable sort icons with defaults
@@ -215,6 +220,27 @@ export interface GridOptions {
    */
   onLoadMoreRows?: (currentRowCount: number) => Promise<any[][]>;
 
+  // Row Height Configuration
+  /**
+   * Row height mode
+   * - 'fixed': All rows use fixed height from rowHeight option (default)
+   * - 'auto': Automatically measure and adjust row heights based on content
+   * - 'content-aware': Measure only rows with height-affecting columns
+   */
+  rowHeightMode?: 'fixed' | 'auto' | 'content-aware';
+
+  /**
+   * Row height configuration options
+   * Only applies when rowHeightMode is 'auto' or 'content-aware'
+   */
+  rowHeightConfig?: RowHeightConfig;
+
+  /**
+   * Global cell overflow configuration
+   * Can be overridden per-column via ColumnDef.overflow
+   */
+  cellOverflow?: CellOverflowConfig;
+
   // Event callbacks
   onScroll?: (scrollTop: number, scrollLeft: number) => void;
   onCellClick?: (row: number, col: number) => void;
@@ -235,4 +261,108 @@ export interface GridState {
   filterState: FilterModel[];
   scrollPosition: { top: number; left: number };
   editingCell: CellRef | null;
+}
+
+/**
+ * Row height configuration options
+ */
+export interface RowHeightConfig {
+  /**
+   * Default row height in pixels
+   * Used as initial estimate and fallback
+   * @default 30
+   */
+  defaultHeight?: number;
+
+  /**
+   * Minimum row height constraint in pixels
+   * @default 20
+   */
+  minHeight?: number;
+
+  /**
+   * Maximum row height constraint in pixels
+   * @default 200
+   */
+  maxHeight?: number;
+
+  /**
+   * When to measure row heights (for 'auto' mode)
+   * - 'render': Measure when row enters viewport (lazy, recommended)
+   * - 'scroll-end': Measure after scroll stops (debounced)
+   * - 'on-demand': Only measure via explicit API call
+   * @default 'render'
+   */
+  measureTiming?: 'render' | 'scroll-end' | 'on-demand';
+
+  /**
+   * Number of rows to measure per animation frame
+   * Lower = smoother but slower, Higher = faster but may cause jank
+   * @default 10
+   */
+  measureBatchSize?: number;
+
+  /**
+   * Debounce delay for batch height updates (in milliseconds)
+   * Prevents layout thrashing by batching multiple height changes
+   * @default 16 (approx 1 frame at 60fps)
+   */
+  debounceMs?: number;
+
+  /**
+   * Cache measured heights for performance
+   * Disable if content changes frequently
+   * @default true
+   */
+  cacheHeights?: boolean;
+
+  /**
+   * Columns that can affect row height (for 'content-aware' mode)
+   * Only these columns will be measured
+   * If undefined, all columns are considered
+   */
+  heightAffectingColumns?: string[];
+
+  /**
+   * Custom height calculator function
+   * Overrides automatic measurement
+   * @param row - Row index
+   * @param rowData - Full row data
+   * @returns Height in pixels
+   */
+  heightCalculator?: (row: number, rowData: any) => number;
+
+  /**
+   * Callback when row heights change
+   * Useful for persistence or synchronization
+   * @param heights - Map of row index to height
+   */
+  onHeightsChange?: (heights: Map<number, number>) => void;
+}
+
+/**
+ * Cell overflow configuration
+ */
+export interface CellOverflowConfig {
+  /**
+   * Overflow handling mode
+   * - 'clip': Hide overflow content (default)
+   * - 'ellipsis': Show ellipsis (...) for overflow
+   * - 'wrap': Allow text wrapping (multi-line)
+   * - 'expand': Expand row height to fit content (requires auto row height mode)
+   * - 'scroll': Enable horizontal scrolling
+   */
+  mode: 'clip' | 'ellipsis' | 'wrap' | 'expand' | 'scroll';
+
+  /**
+   * Maximum lines before truncation (only for 'wrap' mode)
+   * @default undefined (no limit)
+   */
+  maxLines?: number;
+
+  /**
+   * Show overflow indicator (e.g., "..." or scroll arrows)
+   * @default true
+   */
+  showIndicator?: boolean;
 }

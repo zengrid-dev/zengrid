@@ -237,6 +237,10 @@ export class ColumnDragManager {
     if (this.container) {
       this.container.removeEventListener('mousedown', this.boundHandleMouseDown);
       this.touchHandler.detach(this.container);
+
+      // Clean up any visual feedback
+      this.visualFeedback.endDrag();
+
       this.container = null;
     }
 
@@ -343,10 +347,14 @@ export class ColumnDragManager {
    */
   private performDrag(x: number, y: number): void {
     const sourceColumnId = this.stateManager.getSourceColumnId();
-    if (!sourceColumnId) return;
+    if (!sourceColumnId || !this.container) return;
 
-    // Detect drop zone
-    const dropZone = this.dropZoneDetector.detect(x, sourceColumnId);
+    // Convert viewport coordinates to container-relative coordinates
+    const containerRect = this.container.getBoundingClientRect();
+    const containerX = x - containerRect.left;
+
+    // Detect drop zone using container-relative coordinates
+    const dropZone = this.dropZoneDetector.detect(containerX, sourceColumnId);
 
     // Update drop target in state
     this.stateManager.updateDropTarget(
@@ -367,31 +375,31 @@ export class ColumnDragManager {
           return document.querySelector(`[data-column-id="${id}"]`) as HTMLElement | null;
         };
         const headerCell = getHeaderCell(dropZone.columnId);
-        if (headerCell) {
-          const rect = headerCell.getBoundingClientRect();
-          const indicatorX = dropZone.position === 'before' ? rect.left : rect.right;
-          this.visualFeedback.showDropIndicatorAt(indicatorX);
+        if (headerCell && this.container) {
+          // Drop zone detector already returns the correct absolute position
+          // within the header container (accounting for scroll)
+          this.visualFeedback.showDropIndicatorAt(dropZone.indicatorX);
 
-          // Highlight adjacent columns
-          const columns = this.columnModel.getColumns().sort((a, b) => a.order - b.order);
-          const targetIndex = targetCell.order;
-          const leftColumn = dropZone.position === 'before'
-            ? columns[targetIndex - 1]
-            : columns[targetIndex];
-          const rightColumn = dropZone.position === 'before'
-            ? columns[targetIndex]
-            : columns[targetIndex + 1];
+          // Highlight adjacent columns - DISABLED by user request
+          // const columns = this.columnModel.getColumns().sort((a, b) => a.order - b.order);
+          // const targetIndex = targetCell.order;
+          // const leftColumn = dropZone.position === 'before'
+          //   ? columns[targetIndex - 1]
+          //   : columns[targetIndex];
+          // const rightColumn = dropZone.position === 'before'
+          //   ? columns[targetIndex]
+          //   : columns[targetIndex + 1];
 
-          this.visualFeedback.highlightAdjacentColumns(
-            leftColumn?.id || null,
-            rightColumn?.id || null,
-            getHeaderCell
-          );
+          // this.visualFeedback.highlightAdjacentColumns(
+          //   leftColumn?.id || null,
+          //   rightColumn?.id || null,
+          //   getHeaderCell
+          // );
         }
       }
     } else {
       this.visualFeedback.hideDropIndicator();
-      this.visualFeedback.clearHighlights();
+      this.visualFeedback.clearHighlights(); // Clear any orphaned highlights
     }
 
     // Emit drag event

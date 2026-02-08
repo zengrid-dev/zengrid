@@ -69,6 +69,7 @@ export class ColumnResizeManager {
   private dataSource: ResizableDataSource;
   private enabled: boolean;
   private getScrollLeftCallback?: () => number;
+  private getHeaderHeightCallback?: () => number;
   private getViewportHeightCallback?: () => number;
 
   // Sub-managers (delegation)
@@ -85,6 +86,9 @@ export class ColumnResizeManager {
   // Lifecycle hooks
   private onBeforeResize?: (event: BeforeResizeEvent) => boolean | Promise<boolean>;
   private onDuringResize?: (event: DuringResizeEvent) => void;
+
+  // Resizable check callback (from ColumnModel)
+  private isColumnResizable?: (col: number) => boolean;
 
   // UI settings
   private showHandles: boolean;
@@ -108,6 +112,7 @@ export class ColumnResizeManager {
     this.showHandles = options.showHandles ?? true;
     this.showPreview = options.showPreview ?? true;
     this.getScrollLeftCallback = options.getScrollLeft;
+    this.getHeaderHeightCallback = options.getHeaderHeight;
     this.getViewportHeightCallback = options.getViewportHeight;
 
     // Create data source adapter
@@ -120,11 +125,15 @@ export class ColumnResizeManager {
       options.rowCount
     );
 
+    // Store resizable check callback
+    this.isColumnResizable = options.isColumnResizable;
+
     // Initialize sub-managers
     this.constraintManager = new ResizeConstraintManager({
       defaultConstraints: options.defaultConstraints,
       columnConstraints: options.columnConstraints,
       onValidateResize: options.onValidateResize,
+      constraintProvider: options.constraintProvider,
     });
 
     this.zoneDetector = new ResizeZoneDetector({
@@ -169,6 +178,16 @@ export class ColumnResizeManager {
   attach(container: HTMLElement): void {
     if (!this.enabled) return;
 
+    // If already attached to a different container, detach first
+    if (this.container && this.container !== container) {
+      this.detach();
+    }
+
+    // If already attached to the same container, do nothing
+    if (this.container === container) {
+      return;
+    }
+
     this.container = container;
 
     // Initialize renderers
@@ -212,9 +231,15 @@ export class ColumnResizeManager {
 
   /**
    * Update handle positions (call after scroll or column changes)
+   * Note: Handles are not updated during active resize to avoid visual glitches
    */
   updateHandles(): void {
     if (!this.handleRenderer || !this.container) return;
+
+    // Don't update handles during active resize to prevent visual artifacts
+    if (this.stateManager.isActive()) {
+      return;
+    }
 
     const visibleCols: number[] = [];
     const colCount = this.dataSource.getColumnCount();
@@ -223,15 +248,16 @@ export class ColumnResizeManager {
     }
 
     const scrollLeft = this.getScrollLeft();
-    const viewportHeight =
-      this.getViewportHeightCallback?.() ?? (this.container.offsetHeight || 32);
+    // Use header height for resize handles, not viewport height
+    // This prevents handles from extending down into the grid body
+    const headerHeight = this.getHeaderHeightCallback?.() ?? 40;
 
     this.handleRenderer.updateHandles(
       visibleCols,
       (col) => this.dataSource.getColumnOffset(col),
       (col) => this.dataSource.getColumnWidth(col),
       scrollLeft,
-      viewportHeight
+      headerHeight
     );
   }
 
@@ -281,6 +307,11 @@ export class ColumnResizeManager {
 
     const zone = this.zoneDetector.detectZone(x, this.dataSource);
     if (zone.inResizeZone) {
+      // Check if column is resizable (via ColumnModel or default to true)
+      if (this.isColumnResizable && !this.isColumnResizable(zone.column)) {
+        return; // Column resize suppressed
+      }
+
       const currentWidth = this.dataSource.getColumnWidth(zone.column);
 
       // Call onBeforeResize hook
@@ -432,6 +463,11 @@ export class ColumnResizeManager {
 
     const zone = this.zoneDetector.detectZone(x, this.dataSource);
     if (zone.inResizeZone) {
+      // Check if column is resizable (via ColumnModel or default to true)
+      if (this.isColumnResizable && !this.isColumnResizable(zone.column)) {
+        return; // Column resize suppressed
+      }
+
       this.stateManager.startResize(
         zone.column,
         touch.clientX,
@@ -607,6 +643,12 @@ export class ColumnResizeManager {
    * Destroy and cleanup
    */
   destroy(): void {
+    // End any active resize operation
+    if (this.stateManager.isActive()) {
+      this.stateManager.endResize();
+      this.previewRenderer?.hide();
+    }
+
     this.detach();
     this.handleRenderer?.destroy();
     this.previewRenderer?.destroy();

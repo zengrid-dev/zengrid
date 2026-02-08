@@ -53,8 +53,9 @@ export class VirtualScroller implements IVirtualScroller {
     this.cols = options.colCount;
     this.vpWidth = options.viewportWidth;
     this.vpHeight = options.viewportHeight;
-    this.overscanRows = options.overscanRows ?? 3;
-    this.overscanCols = options.overscanCols ?? 2;
+    // Increased default overscan to prevent blank areas during fast scrolling
+    this.overscanRows = options.overscanRows ?? 10;
+    this.overscanCols = options.overscanCols ?? 5;
 
     // Auto-select height provider
     if (options.heightProvider) {
@@ -245,19 +246,25 @@ export class VirtualScroller implements IVirtualScroller {
     return this.cols;
   }
 
+  /**
+   * Get the height provider (for external updates/subscriptions)
+   */
+  getHeightProvider(): HeightProvider {
+    return this.heightProvider;
+  }
+
+  /**
+   * Get the width provider (for external updates/subscriptions)
+   */
+  getWidthProvider(): WidthProvider {
+    return this.widthProvider;
+  }
+
   get viewportWidth(): number {
     return this.vpWidth;
   }
 
   get viewportHeight(): number {
     return this.vpHeight;
-  }
-
-  getWidthProvider(): WidthProvider {
-    return this.widthProvider;
-  }
-
-  getHeightProvider(): HeightProvider {
-    return this.heightProvider;
   }
 }

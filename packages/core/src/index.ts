@@ -20,7 +20,7 @@ export type { HeightProvider, HeightProviderOptions } from './rendering/height-p
 export { UniformHeightProvider, VariableHeightProvider } from './rendering/height-provider';
 
 export type { WidthProvider, WidthProviderOptions } from './rendering/width-provider';
-export { UniformWidthProvider, VariableWidthProvider } from './rendering/width-provider';
+export { UniformWidthProvider, VariableWidthProvider, ColumnModelWidthProvider } from './rendering/width-provider';
 
 // Rendering - Virtual Scroller
 export type { VirtualScrollerOptions, CellPosition } from './rendering/virtual-scroller';
@@ -155,6 +155,9 @@ export { ButtonRenderer } from './rendering/renderers/button-renderer';
 export type { DateRendererOptions, DateFormat as DateRendererFormat, createDateRenderer } from './rendering/renderers/date-renderer';
 export { DateRenderer } from './rendering/renderers/date-renderer';
 
+export type { DateRangeRendererOptions, DateRange as RendererDateRange, createDateRangeRenderer } from './rendering/renderers/date-range-renderer';
+export { DateRangeRenderer } from './rendering/renderers/date-range-renderer';
+
 export type { SelectRendererOptions, SelectOption, createSelectRenderer } from './rendering/renderers/select-renderer';
 export { SelectRenderer } from './rendering/renderers/select-renderer';
 
@@ -175,6 +178,12 @@ export { CheckboxEditor } from './editing/checkbox-editor';
 
 export type { DateEditorOptions, DateFormat as DateEditorFormat, createDateEditor } from './editing/date-editor';
 export { DateEditor } from './editing/date-editor';
+
+export type { VanillaDateEditorOptions } from './editing/vanilla-date-editor';
+export { VanillaDateEditor } from './editing/vanilla-date-editor';
+
+export type { DateRangeEditorOptions, DateRange as EditorDateRange } from './editing/date-range-editor';
+export { DateRangeEditor } from './editing/date-range-editor';
 
 export type { DropdownEditorOptions, DropdownOption, createDropdownEditor } from './editing/dropdown-editor';
 export { DropdownEditor } from './editing/dropdown-editor';

@@ -6,6 +6,7 @@ import type { ColumnConstraints } from '../features/column-resize';
 import type { VirtualScroller } from '../rendering/virtual-scroller/virtual-scroller';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
 import type { ColumnModel } from '../features/columns/column-model';
+import type { HeaderManager } from './header-manager';
 
 /**
  * GridResize - Handles column resize operations
@@ -17,6 +18,7 @@ export class GridResize {
   private dataAccessor: DataAccessor | null;
   private resizeManager: ColumnResizeManager | null = null;
   private columnModel: ColumnModel | null = null;
+  private headerManager: HeaderManager | null = null;
 
   // Callbacks
   private scrollContainer: HTMLElement | null;
@@ -51,16 +53,26 @@ export class GridResize {
   }
 
   /**
+   * Set header manager for getting header height
+   */
+  setHeaderManager(headerManager: HeaderManager | null): void {
+    this.headerManager = headerManager;
+  }
+
+  /**
    * Initialize column resize manager
    */
   initializeColumnResize(): void {
     if (!this.scroller) return;
 
-    const columnConstraints = new Map<number, ColumnConstraints>();
-    if (this.options.columns) {
+    // Legacy mode: extract constraints from ColumnDef (only when no ColumnModel)
+    // When ColumnModel exists, constraints are provided via constraintProvider callback
+    let columnConstraints: Map<number, ColumnConstraints> | undefined;
+    if (!this.columnModel && this.options.columns) {
+      columnConstraints = new Map<number, ColumnConstraints>();
       this.options.columns.forEach((col, index) => {
         if (col.minWidth !== undefined || col.maxWidth !== undefined) {
-          columnConstraints.set(index, {
+          columnConstraints!.set(index, {
             minWidth: col.minWidth,
             maxWidth: col.maxWidth,
           });
@@ -75,15 +87,16 @@ export class GridResize {
       getColOffset: (col) => this.scroller!.getColOffset(col),
       getColWidth: (col) => this.scroller!.getColWidth(col),
       onWidthChange: (col, width) => {
-        // Update scroller width (for rendering)
-        this.scroller!.updateColWidth(col, width);
-        this.updateCanvasSize();
-        this.onRefresh();
-
-        // Update column model (for reactive header updates)
         if (this.columnModel) {
+          // Write to ColumnModel only — ColumnModelWidthProvider adapter and
+          // the subscription in Grid handle scroller sync, canvas size, and refresh
           const columnId = `col-${col}`;
           this.columnModel.setWidth(columnId, width);
+        } else {
+          // Legacy mode (no ColumnModel): update scroller directly
+          this.scroller!.updateColWidth(col, width);
+          this.updateCanvasSize();
+          this.onRefresh();
         }
       },
       getValue: (row, col) => this.dataAccessor?.getValue(row, col),
@@ -94,12 +107,30 @@ export class GridResize {
         maxWidth: this.options.columnResize?.defaultMaxWidth,
       },
       columnConstraints,
+      // When ColumnModel exists, read constraints from it (single source of truth)
+      constraintProvider: this.columnModel
+        ? (col: number) => {
+            const columnId = `col-${col}`;
+            return this.columnModel!.getConstraints(columnId) ?? {
+              minWidth: 50,
+              maxWidth: 1000,
+            };
+          }
+        : undefined,
+      // Check if column is resizable via ColumnModel
+      isColumnResizable: this.columnModel
+        ? (col: number) => {
+            const columnId = `col-${col}`;
+            return this.columnModel!.isResizable(columnId);
+          }
+        : undefined,
       autoFitSampleSize: this.options.columnResize?.autoFitSampleSize,
       autoFitPadding: this.options.columnResize?.autoFitPadding,
       showHandles: this.options.columnResize?.showHandles,
       showPreview: this.options.columnResize?.showPreview,
       onColumnWidthsChange: this.options.onColumnWidthsChange,
       getScrollLeft: () => this.scrollContainer?.scrollLeft ?? 0,
+      getHeaderHeight: () => this.headerManager?.getHeaderHeight() ?? 40,
       getViewportHeight: () => this.scrollContainer?.clientHeight ?? 0,
     });
   }
@@ -136,21 +167,26 @@ export class GridResize {
     if (!this.scroller) return;
 
     const oldWidth = this.scroller.getColWidth(col);
-    this.scroller.updateColWidth(col, width);
-    this.updateCanvasSize();
-    this.onRefresh();
 
-    // Update column model (reactive)
     if (this.columnModel) {
+      // Write to ColumnModel only — adapter and subscription handle the rest
       const columnId = `col-${col}`;
       this.columnModel.setWidth(columnId, width);
+    } else {
+      // Legacy mode: update scroller directly
+      this.scroller.updateColWidth(col, width);
+      this.updateCanvasSize();
+      this.onRefresh();
     }
 
-    if (oldWidth !== width) {
+    // Read the actual applied width (may differ due to constraints)
+    const newWidth = this.scroller.getColWidth(col);
+
+    if (oldWidth !== newWidth) {
       this.events.emit('column:resize', {
         column: col,
         oldWidth,
-        newWidth: width,
+        newWidth,
       });
     }
 
@@ -179,9 +215,18 @@ export class GridResize {
 
   /**
    * Set column constraints
+   * When ColumnModel exists, writes to it (single source of truth)
+   * Otherwise falls back to ResizeConstraintManager for legacy mode
    */
   setColumnConstraints(col: number, constraints: ColumnConstraints): void {
-    this.resizeManager?.setColumnConstraints(col, constraints);
+    if (this.columnModel) {
+      // Write to ColumnModel (single source of truth)
+      const columnId = `col-${col}`;
+      this.columnModel.setConstraints(columnId, constraints);
+    } else {
+      // Legacy mode: update ResizeConstraintManager directly
+      this.resizeManager?.setColumnConstraints(col, constraints);
+    }
   }
 
   /**

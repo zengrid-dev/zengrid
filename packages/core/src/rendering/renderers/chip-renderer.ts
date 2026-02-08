@@ -75,6 +75,19 @@ export interface ChipRendererOptions {
    * Default: (count) => `+${count} more`
    */
   overflowText?: (count: number) => string;
+  /**
+   * Chip overflow behavior when chips exceed container width
+   * - 'collapse': Show limited chips with "+N more" indicator (uses maxChips)
+   * - 'wrap': Allow chips to wrap to multiple lines (increases row height)
+   * - 'scroll': Enable horizontal scrolling without visible scrollbar
+   * Default: 'scroll'
+   */
+  overflowMode?: 'collapse' | 'wrap' | 'scroll';
+  /**
+   * Show tooltip with all chips when using collapse or scroll mode
+   * Default: true
+   */
+  showOverflowTooltip?: boolean;
 }
 
 /**
@@ -127,7 +140,7 @@ export interface ChipRendererOptions {
  */
 export class ChipRenderer implements CellRenderer {
   private options: Required<
-    Pick<ChipRendererOptions, 'defaultColor' | 'defaultTextColor' | 'size' | 'removable'>
+    Pick<ChipRendererOptions, 'defaultColor' | 'defaultTextColor' | 'size' | 'removable' | 'overflowMode' | 'showOverflowTooltip'>
   > &
     ChipRendererOptions;
   private eventHandlers: Map<
@@ -146,6 +159,8 @@ export class ChipRenderer implements CellRenderer {
       defaultTextColor: '#333333',
       size: 'medium',
       removable: false,
+      overflowMode: 'scroll',
+      showOverflowTooltip: true,
       overflowText: (count: number) => `+${count} more`,
       ...options,
     };
@@ -160,7 +175,7 @@ export class ChipRenderer implements CellRenderer {
 
     // Create container
     const container = document.createElement('div');
-    container.className = `zg-chip-container zg-chip-container--${this.options.size}`;
+    container.className = `zg-chip-container zg-chip-container--${this.options.size} zg-chip-container--${this.options.overflowMode}`;
     if (this.options.containerClassName) {
       container.className += ` ${this.options.containerClassName}`;
     }
@@ -198,10 +213,19 @@ export class ChipRenderer implements CellRenderer {
     // Store event handlers for this element
     const handlers: Array<{ element: HTMLElement; type: string; handler: EventListener }> = [];
 
-    // Determine how many chips to show
-    const maxChips = this.options.maxChips;
-    const chipsToShow = maxChips && maxChips > 0 ? chips.slice(0, maxChips) : chips;
-    const overflowCount = maxChips && maxChips > 0 ? chips.length - maxChips : 0;
+    // Determine how many chips to show based on overflow mode
+    let chipsToShow: Chip[];
+    let overflowCount = 0;
+
+    if (this.options.overflowMode === 'collapse' && this.options.maxChips && this.options.maxChips > 0) {
+      // Collapse mode: limit to maxChips
+      chipsToShow = chips.slice(0, this.options.maxChips);
+      overflowCount = chips.length - this.options.maxChips;
+    } else {
+      // Wrap or scroll mode: show all chips
+      chipsToShow = chips;
+      overflowCount = 0;
+    }
 
     // Render each chip
     chipsToShow.forEach((chip, index) => {
@@ -216,10 +240,16 @@ export class ChipRenderer implements CellRenderer {
       }
     });
 
-    // Add overflow indicator if needed
+    // Add overflow indicator if needed (collapse mode only)
     if (overflowCount > 0) {
       const overflowElement = this.createOverflowElement(overflowCount);
       container.appendChild(overflowElement);
+    }
+
+    // Add tooltip if enabled and there are chips
+    if (this.options.showOverflowTooltip && chips.length > 0) {
+      const tooltipText = chips.map(chip => chip.label).join(', ');
+      container.setAttribute('title', tooltipText);
     }
 
     // Store all handlers for cleanup

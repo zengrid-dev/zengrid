@@ -25,6 +25,7 @@ import { ColumnModel } from '../features/columns/column-model';
 import { ScrollModel } from '../features/viewport/scroll-model';
 import { ViewportModel } from '../features/viewport/viewport-model';
 import type { ViewportEvent } from '../features/viewport/types';
+import { EditorManager } from '../editing/editor-manager';
 
 /**
  * Grid - Main grid class that integrates all components
@@ -68,6 +69,7 @@ export class Grid {
   private init: GridInit;
   private headerManager: HeaderManager | null = null;
   private columnModel: ColumnModel | null = null;
+  private editorManager: EditorManager | null = null;
 
   // Reactive viewport models
   private scrollModel: ScrollModel;
@@ -96,7 +98,6 @@ export class Grid {
   // DOM element references
   private canvas: HTMLElement | null = null;
   private scrollContainer: HTMLElement | null = null;
-  private headerContainer: HTMLElement | null = null;
 
   // Lifecycle
   private isDestroyed = false;
@@ -136,7 +137,6 @@ export class Grid {
     this.dom.setupDOM();
     this.canvas = this.dom.canvas;
     this.scrollContainer = this.dom.scrollContainer;
-    this.headerContainer = this.dom.headerContainer;
 
     // Initialize init module (component initialization)
     this.init = new GridInit(
@@ -150,6 +150,7 @@ export class Grid {
         getSortManager: () => this.sortOps.getSortManager(),
         getCachedVisibleRows: () => this.filterOps.cachedVisibleRows,
         getDataAccessor: () => this.dataOps.dataAccessor,
+        getColumnModel: () => this.columnModel,
       }
     );
     this.init.setupLoadingListeners();
@@ -207,6 +208,7 @@ export class Grid {
       {
         getSortManager: () => this.sortOps.getSortManager(),
         getCachedVisibleRows: () => this.filterOps.cachedVisibleRows,
+        getColumnModel: () => this.columnModel,
         emitEvent: (event: string, payload: any) => this.events.emit(event as any, payload),
       }
     );
@@ -253,6 +255,34 @@ export class Grid {
       // Pass column model to drag operations
       this.dragOps.setColumnModel(this.columnModel);
 
+      // Subscribe to column model changes for reactive rendering updates.
+      // ColumnModel is the single source of truth for widths; VirtualScroller
+      // reads through ColumnModelWidthProvider (adapter). We only need to
+      // update canvas size and refresh cells when something changes.
+      this.columnModel.subscribeAll({
+        onChange: (event) => {
+          if (event.type === 'width' || event.type === 'reorder') {
+            // Update canvas size (total width may have changed)
+            if (this.init.scroller) {
+              this.dom.updateCanvasSize(
+                this.init.scroller.getTotalWidth(),
+                this.init.scroller.getTotalHeight()
+              );
+            }
+
+            // Refresh visible cells to re-render with new positions/order
+            if (this.init.positioner) {
+              this.init.positioner.refresh();
+            }
+
+            // Update resize handle positions after reorder
+            if (event.type === 'reorder') {
+              this.resizeOps.updateColumnResizeHandles();
+            }
+          }
+        },
+      });
+
       const headerContainer = this.dom.createHeaderContainer();
       if (headerContainer) {
         this.headerManager = new HeaderManager({
@@ -263,9 +293,11 @@ export class Grid {
           getFilterState: () => this.state.filterState,
           headerHeight: 40,
           enableScrollSync: true,
-          scrollSyncThrottle: 16,
         });
         this.headerManager.initialize();
+
+        // Pass header manager to resize operations for getting header height
+        this.resizeOps.setHeaderManager(this.headerManager);
 
         // Connect header sort clicks to grid sort functionality
         this.events.on('header:sort:click', (event) => {
@@ -273,6 +305,84 @@ export class Grid {
         });
       }
     }
+
+    // Initialize editor manager for cell editing
+    this.editorManager = new EditorManager({
+      container: this.container,
+      events: this.events,
+      getValue: (row: number, col: number) => {
+        return this.dataOps.dataAccessor?.getValue(row, col);
+      },
+      setValue: (row: number, col: number, value: any) => {
+        // Update the data directly in the state
+        if (this.state.data && this.state.data[row]) {
+          this.state.data[row][col] = value;
+          // Refresh the cell after editing
+          if (this.init.positioner) {
+            this.init.positioner.refresh();
+          }
+        }
+      },
+      getColumn: (col: number) => {
+        return this.options.columns?.[col];
+      },
+      getCellElement: (row: number, col: number) => {
+        const cellsContainer = this.canvas?.querySelector('.zg-cells') as HTMLElement;
+        if (!cellsContainer) return null;
+        return cellsContainer.querySelector(`.zg-cell[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
+      },
+      onEditStart: (_cell) => {
+        this.state.editingCell = _cell;
+      },
+      onEditEnd: (_cell, _cancelled) => {
+        this.state.editingCell = null;
+      },
+    });
+
+    // Set up editing event listeners
+    this.setupEditingEvents();
+  }
+
+  /**
+   * Set up cell editing event listeners
+   * Handles double-click and Enter key to start editing
+   */
+  private setupEditingEvents(): void {
+    if (!this.scrollContainer || !this.editorManager) return;
+
+    // Handle double-click on cells to start editing
+    this.scrollContainer.addEventListener('dblclick', (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const cell = target.closest('.zg-cell[data-row][data-col]') as HTMLElement;
+
+      if (cell) {
+        const row = parseInt(cell.dataset.row || '0', 10);
+        const col = parseInt(cell.dataset.col || '0', 10);
+
+        // Check if column is editable
+        const column = this.options.columns?.[col];
+        if (column?.editable && column.editor) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.editorManager?.startEdit({ row, col });
+        }
+      }
+    });
+
+    // Handle Enter key on active cell to start editing
+    this.container.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+        const activeCell = this.state.activeCell;
+        if (activeCell && !this.state.editingCell) {
+          const column = this.options.columns?.[activeCell.col];
+          if (column?.editable && column.editor) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.editorManager?.startEdit(activeCell);
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -327,16 +437,14 @@ export class Grid {
       // Setup infinite scrolling if enabled
       this.setupInfiniteScrolling();
 
-      // Initialize column resize if configured
-      if (this.options.columnResize && this.headerContainer) {
+      // Initialize column resize if configured (before attach)
+      if (this.options.columnResize) {
         this.resizeOps.initializeColumnResize();
-        this.resizeOps.attachColumnResize(this.headerContainer);
       }
 
-      // Initialize column drag if configured
-      if (this.options.enableColumnDrag !== false && this.headerContainer && this.columnModel) {
+      // Initialize column drag if configured (before attach)
+      if (this.options.enableColumnDrag !== false && this.columnModel) {
         this.dragOps.initializeColumnDrag();
-        this.dragOps.attachColumnDrag(this.headerContainer);
       }
     }
 
@@ -409,6 +517,39 @@ export class Grid {
     const position = this.init.scroller.getCellPosition(row, col);
     this.scrollContainer.scrollTop = position.y;
     this.scrollContainer.scrollLeft = position.x;
+  }
+
+  /**
+   * Scroll through multiple cells sequentially with smooth animation
+   * @param cells - Array of {row, col} objects to scroll through
+   * @param options - Configuration options
+   * @returns Object with promise and abort function
+   *
+   * @example
+   * ```typescript
+   * // Scroll through cells with default 1 second delay
+   * const { promise, abort } = grid.scrollThroughCells([
+   *   { row: 0, col: 0 },
+   *   { row: 10, col: 5 },
+   *   { row: 20, col: 10 }
+   * ]);
+   *
+   * // Wait for completion
+   * await promise;
+   *
+   * // Or abort early
+   * abort();
+   * ```
+   */
+  scrollThroughCells(
+    cells: Array<{ row: number; col: number }>,
+    options?: {
+      delayMs?: number;
+      smooth?: boolean;
+      onCellReached?: (cell: { row: number; col: number }, index: number) => void;
+    }
+  ): { promise: Promise<void>; abort: () => void } {
+    return this.scrollOps.scrollThroughCells(cells, options);
   }
 
   /**
@@ -884,6 +1025,12 @@ export class Grid {
       this.headerManager = null;
     }
 
+    // Cleanup editor manager
+    if (this.editorManager) {
+      this.editorManager.cancelEdit();
+      this.editorManager = null;
+    }
+
     // Clear DOM
     this.container.innerHTML = '';
     this.container.classList.remove('zg-grid');
@@ -891,7 +1038,6 @@ export class Grid {
     // Clear references
     this.canvas = null;
     this.scrollContainer = null;
-    this.headerContainer = null;
 
     // Clear state
     this.state.data = [];

@@ -21,7 +21,7 @@ export class ResizeHandleRenderer {
     getColOffset: (col: number) => number,
     getColWidth: (col: number) => number,
     scrollLeft: number,
-    viewportHeight: number
+    headerHeight: number
   ): void {
     // Clear existing handles
     this.clearHandles();
@@ -37,7 +37,7 @@ export class ResizeHandleRenderer {
       // Only set dynamic positioning - visual styles come from CSS
       handle.style.left = `${borderX - scrollLeft - 3}px`; // Center 6px handle
       handle.style.top = '0px';
-      handle.style.height = `${viewportHeight}px`;
+      handle.style.height = `${headerHeight}px`; // Only cover header, not entire viewport
       handle.style.display = 'block';
 
       // Store reference
@@ -101,6 +101,8 @@ export class ResizeHandleRenderer {
   private clearHandles(): void {
     for (const handle of this.handles.values()) {
       handle.style.display = 'none';
+      // Remove 'active' class to prevent ghosting when handle is reused
+      handle.classList.remove('active');
       this.handlePool.push(handle);
     }
     this.handles.clear();

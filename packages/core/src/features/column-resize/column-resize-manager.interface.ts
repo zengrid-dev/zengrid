@@ -52,6 +52,18 @@ export interface ColumnResizeOptions {
   /** Per-column constraints (keyed by column index) */
   columnConstraints?: Map<number, ColumnConstraints>;
 
+  /**
+   * External constraint provider (e.g., from ColumnModel)
+   * When provided, takes precedence over defaultConstraints and columnConstraints
+   */
+  constraintProvider?: (col: number) => { minWidth: number; maxWidth: number };
+
+  /**
+   * Check if a column is resizable
+   * Returns true by default if not provided
+   */
+  isColumnResizable?: (col: number) => boolean;
+
   /** Maximum rows to sample for auto-fit (default: 100) */
   autoFitSampleSize?: number;
 
@@ -73,7 +85,10 @@ export interface ColumnResizeOptions {
   /** Get scroll left position (for header that doesn't scroll itself) */
   getScrollLeft?: () => number;
 
-  /** Get viewport height for preview line (defaults to header height) */
+  /** Get header height for resize handles (defaults to 40px) */
+  getHeaderHeight?: () => number;
+
+  /** Get viewport height for preview line (defaults to container height) */
   getViewportHeight?: () => number;
 
   /** Resize strategy (defaults to SingleColumnResizeStrategy) */

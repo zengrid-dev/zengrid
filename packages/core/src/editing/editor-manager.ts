@@ -99,6 +99,10 @@ export class EditorManager {
   private originalValue: any = null;
   private editorContainer: HTMLElement | null = null;
   private boundHandleEditorKeyDown: (event: KeyboardEvent) => void;
+  private boundHandleClickOutside: (event: MouseEvent) => void;
+
+  /** Registry of popup elements that should not trigger click-outside close */
+  private editorPopups: Set<HTMLElement> = new Set();
 
   private editors: Map<string, new () => CellEditor> = new Map();
 
@@ -113,6 +117,7 @@ export class EditorManager {
     this.onEditStart = options.onEditStart;
     this.onEditEnd = options.onEditEnd;
     this.boundHandleEditorKeyDown = this.handleEditorKeyDown.bind(this);
+    this.boundHandleClickOutside = this.handleClickOutside.bind(this);
 
     // Register default editors
     this.registerEditor('text', TextEditor);
@@ -170,27 +175,43 @@ export class EditorManager {
     this.originalValue = currentValue;
     this.editingCell = cell;
 
-    // Create editor container
+    // Create editor container with correct positioning
     this.editorContainer = document.createElement('div');
     this.editorContainer.className = 'zg-editor-container';
+
+    // Get accurate position using getBoundingClientRect
+    const cellRect = cellElement.getBoundingClientRect();
+    const containerRect = this.container.getBoundingClientRect();
+
+    // Calculate position relative to grid container
+    const top = cellRect.top - containerRect.top;
+    const left = cellRect.left - containerRect.left;
+
     this.editorContainer.style.cssText = `
       position: absolute;
-      top: ${cellElement.offsetTop}px;
-      left: ${cellElement.offsetLeft}px;
-      width: ${cellElement.offsetWidth}px;
-      height: ${cellElement.offsetHeight}px;
-      z-index: 1000;
+      top: ${top}px;
+      left: ${left}px;
+      width: ${cellRect.width}px;
+      height: ${cellRect.height}px;
+      z-index: 10002;
+      overflow: visible;
     `;
 
-    // Determine editor type
-    const editorType = column?.editor || this.getDefaultEditor(currentValue);
-    const EditorClass = this.editors.get(editorType);
-
-    if (!EditorClass) {
-      console.warn(`Editor type "${editorType}" not found, using text editor`);
-      this.currentEditor = new TextEditor();
+    // Determine editor - supports both instance and string type
+    if (column?.editor && typeof column.editor === 'object' && typeof column.editor.init === 'function') {
+      // Editor is already an instance - use it directly
+      this.currentEditor = column.editor;
     } else {
-      this.currentEditor = new EditorClass();
+      // Editor is a string type name - look up in registry
+      const editorType = (column?.editor as string) || this.getDefaultEditor(currentValue);
+      const EditorClass = this.editors.get(editorType);
+
+      if (!EditorClass) {
+        console.warn(`Editor type "${editorType}" not found, using text editor`);
+        this.currentEditor = new TextEditor();
+      } else {
+        this.currentEditor = new EditorClass();
+      }
     }
 
     // Initialize editor
@@ -209,9 +230,17 @@ export class EditorManager {
         // Optional: emit change event
       },
       options: column?.editorOptions || {},
+      registerPopup: this.registerEditorPopup.bind(this),
+      unregisterPopup: this.unregisterEditorPopup.bind(this),
     };
 
     const valueToEdit = initialValue !== undefined ? initialValue : currentValue;
+
+    if (!this.editorContainer || !this.currentEditor) {
+      console.error('Editor container or editor is null');
+      return;
+    }
+
     this.currentEditor.init(this.editorContainer, valueToEdit, params);
 
     // Add to DOM
@@ -219,6 +248,9 @@ export class EditorManager {
 
     // Setup keyboard handlers
     this.setupKeyboardHandlers();
+
+    // Setup click outside handler
+    this.setupClickOutsideHandler();
 
     // Emit events
     if (this.events) {
@@ -326,12 +358,14 @@ export class EditorManager {
       this.editorContainer = null;
     }
 
-    // Cleanup keyboard handlers
+    // Cleanup handlers
     this.cleanupKeyboardHandlers();
+    this.cleanupClickOutsideHandler();
 
     // Reset state
     this.editingCell = null;
     this.originalValue = null;
+    this.editorPopups.clear();
   }
 
   /**
@@ -360,6 +394,67 @@ export class EditorManager {
    */
   private cleanupKeyboardHandlers(): void {
     this.editorContainer?.removeEventListener('keydown', this.boundHandleEditorKeyDown);
+  }
+
+  /**
+   * Setup click outside handler to close editor
+   */
+  private setupClickOutsideHandler(): void {
+    // Delay to avoid closing immediately from the click that opened it
+    setTimeout(() => {
+      document.addEventListener('mousedown', this.boundHandleClickOutside);
+    }, 100);
+  }
+
+  /**
+   * Cleanup click outside handler
+   */
+  private cleanupClickOutsideHandler(): void {
+    document.removeEventListener('mousedown', this.boundHandleClickOutside);
+  }
+
+  /**
+   * Handle click outside editor container
+   */
+  private handleClickOutside(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    // Check if click is inside editor container
+    if (this.editorContainer?.contains(target)) {
+      return;
+    }
+
+    // Check if click is inside any registered popup (e.g., calendar)
+    for (const popup of this.editorPopups) {
+      if (popup.contains(target)) {
+        return;
+      }
+    }
+
+    // Fallback: Check for known calendar classes (handles edge cases)
+    if (target.closest('.vanilla-calendar-wrapper') ||
+        target.closest('.date-range-calendar-wrapper') ||
+        target.closest('.vanilla-calendar')) {
+      return;
+    }
+
+    // Click is truly outside - commit the edit
+    this.commitEdit();
+  }
+
+  /**
+   * Register a popup element (e.g., calendar) that belongs to the current editor.
+   * Clicks on registered popups will not trigger click-outside close.
+   */
+  public registerEditorPopup(element: HTMLElement): void {
+    this.editorPopups.add(element);
+  }
+
+  /**
+   * Unregister a popup element.
+   */
+  public unregisterEditorPopup(element: HTMLElement): void {
+    this.editorPopups.delete(element);
   }
 
   /**

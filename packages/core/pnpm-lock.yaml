@@ -11,12 +11,20 @@ importers:
       '@zengrid/shared':
         specifier: ^1.0.4
         version: 1.0.4
+      vanilla-calendar-pro:
+        specifier: ^3.0.5
+        version: 3.0.5
 
 packages:
 
   '@zengrid/shared@1.0.4':
     resolution: {integrity: sha512-YetrVW5r9jBmCuWSERH3S+58kXEZJBZo/V/XyqfNfpA65cbtEGIqyAexPvukxj5uKs16SR4u2goaTO4UaVZlzg==}
 
+  vanilla-calendar-pro@3.0.5:
+    resolution: {integrity: sha512-4X9bmTo1/KzbZrB7B6mZXtvVXIhcKxaVSnFZuaVtps7tshKJDxgaIElkgdia6IjB5qWetWuu7kZ+ZaV1sPxy6w==}
+
 snapshots:
 
   '@zengrid/shared@1.0.4': {}
+
+  vanilla-calendar-pro@3.0.5: {}

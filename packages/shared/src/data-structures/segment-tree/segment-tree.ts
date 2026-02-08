@@ -435,6 +435,77 @@ export class SegmentTree<T> implements ISegmentTree<T> {
   }
 
   /**
+   * Find first index where prefix sum >= target (optimized for SUM aggregation)
+   * Walks the segment tree directly without repeated queries
+   * @param target - Target sum to find
+   * @returns Index where prefix sum reaches/exceeds target
+   * @complexity O(log n)
+   */
+  findIndexAtSum(target: number): number {
+    if (this._type !== AggregationType.SUM) {
+      throw new Error('findIndexAtSum only works with SUM aggregation type');
+    }
+
+    if (this.n === 0 || target <= 0) {
+      return 0;
+    }
+
+    const totalSum = this.total as unknown as number;
+    if (target >= totalSum) {
+      return this.n - 1;
+    }
+
+    // Walk down the tree, accumulating sums
+    return this.findIndexAtSumRecursive(0, 0, this.n - 1, target);
+  }
+
+  /**
+   * Recursive helper for findIndexAtSum
+   * Walks left or right based on accumulated sum
+   */
+  private findIndexAtSumRecursive(
+    node: number,
+    start: number,
+    end: number,
+    targetSum: number
+  ): number {
+    // Push down lazy updates
+    if (this.useLazy) {
+      this.pushDown(node, start, end);
+    }
+
+    // Leaf node - we found it
+    if (start === end) {
+      return start;
+    }
+
+    const mid = SegmentTreeUtils.mid(start, end);
+    const leftChild = SegmentTreeUtils.leftChild(node);
+    const rightChild = SegmentTreeUtils.rightChild(node);
+
+    // Push down lazy updates for children
+    if (this.useLazy) {
+      this.pushDown(leftChild, start, mid);
+      this.pushDown(rightChild, mid + 1, end);
+    }
+
+    const leftSum = this.tree[leftChild] as unknown as number;
+
+    // If target is within left subtree, go left
+    if (targetSum <= leftSum) {
+      return this.findIndexAtSumRecursive(leftChild, start, mid, targetSum);
+    } else {
+      // Otherwise go right with adjusted target
+      return this.findIndexAtSumRecursive(
+        rightChild,
+        mid + 1,
+        end,
+        targetSum - leftSum
+      );
+    }
+  }
+
+  /**
    * Debug: Print tree structure
    */
   toString(): string {

@@ -1,7 +1,9 @@
 import { Grid } from '../../../packages/core/src/grid/index';
+import '../../../packages/core/src/styles.css';
 import '../../../packages/core/src/features/loading/loading.styles.css';
 import '../../../packages/core/src/features/column-resize/column-resize.styles.css';
 import '../../../packages/core/src/features/column-drag/column-drag.styles.css';
+import 'vanilla-calendar-pro/styles/index.css';
 import { PaginationDemo } from './pagination-demo';
 import {
   CheckboxRenderer,
@@ -9,9 +11,12 @@ import {
   LinkRenderer,
   ButtonRenderer,
   DateRenderer,
+  DateRangeRenderer,
   SelectRenderer,
   ChipRenderer,
   DropdownRenderer,
+  VanillaDateEditor,
+  DateRangeEditor,
 } from '../../../packages/core/src/index';
 
 /**
@@ -109,11 +114,29 @@ function generateData(rowCount: number, colCount: number): any[][] {
           const daysOffset = row % 1000;
           rowData.push(new Date(baseDate.getTime() + daysOffset * 24 * 60 * 60 * 1000));
           break;
-        case 8: // Priority (SelectRenderer)
+        case 8: // Date Range (DateRangeRenderer)
+          const startDate = new Date('2024-01-01');
+          const startOffset = row % 365;
+          const rangeStart = new Date(startDate.getTime() + startOffset * 24 * 60 * 60 * 1000);
+          const duration = 7 + (row % 30); // 7 to 37 days duration
+          const rangeEnd = new Date(rangeStart.getTime() + duration * 24 * 60 * 60 * 1000);
+          rowData.push({ start: rangeStart, end: rangeEnd });
+          break;
+        case 9: // Priority (SelectRenderer)
           rowData.push(priorities[row % priorities.length]);
           break;
-        case 9: // Tags (ChipRenderer) - array of chip objects
-          const tagCount = (row % 3) + 1;
+        case 10: // Tags (ChipRenderer) - array of chip objects with varied counts to test auto-height
+          // Create variety: some rows with many tags (will wrap), some with few
+          // Every 5th row gets 5-6 tags to demonstrate wrapping
+          let tagCount;
+          if (row % 5 === 0) {
+            tagCount = 5 + (row % 2); // 5 or 6 tags
+          } else if (row % 3 === 0) {
+            tagCount = 3; // 3 tags
+          } else {
+            tagCount = 1 + (row % 2); // 1 or 2 tags
+          }
+
           const chips = [];
           for (let i = 0; i < tagCount; i++) {
             const tagIdx = (row + i) % tagOptions.length;
@@ -126,30 +149,45 @@ function generateData(rowCount: number, colCount: number): any[][] {
           }
           rowData.push(chips);
           break;
-        case 10: // Category (DropdownRenderer)
+        case 11: // Tags (duplicate for Fixed + Scroll column) - same as case 10
+          // Reuse the same chip data to demonstrate different overflow modes
+          const tagCount2 = row % 5 === 0 ? 5 + (row % 2) : (row % 3 === 0 ? 3 : 1 + (row % 2));
+          const chips2 = [];
+          for (let i = 0; i < tagCount2; i++) {
+            const tagIdx = (row + i) % tagOptions.length;
+            chips2.push({
+              label: tagOptions[tagIdx],
+              value: tagOptions[tagIdx].toLowerCase(),
+              color: ['#e3f2fd', '#f3e5f5', '#e8f5e9', '#fff3e0', '#fce4ec', '#e0f2f1'][tagIdx],
+              textColor: '#000'
+            });
+          }
+          rowData.push(chips2);
+          break;
+        case 12: // Category (DropdownRenderer)
           rowData.push(categories[row % categories.length]);
           break;
         // NEW RENDERER COLUMNS END HERE
 
-        case 11: // Salary (was 3)
+        case 13: // Salary
           rowData.push(50000 + (row % 100000));
           break;
-        case 12: // Years (was 4)
+        case 14: // Years
           rowData.push(1 + (row % 30));
           break;
-        case 13: // Status (was 5)
+        case 15: // Status
           rowData.push(row % 3 === 0 ? 'Active' : row % 3 === 1 ? 'On Leave' : 'Remote');
           break;
-        case 14: // Email (was 6)
+        case 16: // Email
           rowData.push(`user${row}@company.com`);
           break;
-        case 15: // Phone (was 7)
+        case 17: // Phone
           rowData.push(`+1-555-${String(row).padStart(4, '0')}`);
           break;
-        case 16: // Score (was 8)
+        case 18: // Score
           rowData.push((row % 100) + 1);
           break;
-        case 17: // Notes (was 9)
+        case 19: // Notes
           rowData.push(`Employee record for ID ${row + 1}`);
           break;
         default:
@@ -209,7 +247,7 @@ function main() {
 
   // Configuration
   const ROW_COUNT = 100_000;
-  const COL_COUNT = 18; // Increased from 10 to 18 to include new renderer columns
+  const COL_COUNT = 20; // Increased to 20: added Date Range column
   const ROW_HEIGHT = 32;
 
   console.log(`🚀 Initializing ZenGrid with ${ROW_COUNT.toLocaleString()} rows...`);
@@ -365,17 +403,70 @@ function main() {
         text: 'Created',
         type: 'sortable',
         leadingIcon: { content: '📅', position: 'leading' },
-        tooltip: { content: 'Created Date - DateRenderer' },
+        tooltip: { content: 'Created Date - Click to edit with DateEditor' },
         sortIndicator: { show: true, position: 'trailing' },
         interactive: true,
       },
       width: 120,
       renderer: new DateRenderer({
         format: 'MM/DD/YYYY',
-        locale: 'en-US'
+        locale: 'en-US',
+        onClick: (date, params) => {
+          console.log(`📅 Date clicked: ${date} at row ${params.cell.row}`);
+        }
       }),
       sortable: true,
       minWidth: 100,
+      editable: true,
+      editor: new VanillaDateEditor({
+        format: 'DD/MM/YYYY',
+        minDate: new Date('2020-01-01'),
+        maxDate: new Date('2030-12-31'),
+        required: true,
+        placeholder: 'Select a date...',
+        autoFocus: true,
+        theme: 'light',
+      }),
+    },
+    {
+      field: 'dateRange',
+      header: {
+        text: 'Project Duration',
+        type: 'sortable',
+        leadingIcon: { content: '📆', position: 'leading' },
+        tooltip: { content: 'Project Duration - Double-click to edit date range' },
+        sortIndicator: { show: true, position: 'trailing' },
+        interactive: true,
+      },
+      width: 300,
+      renderer: new DateRangeRenderer({
+        format: 'DD/MM/YYYY',
+        showDuration: true,
+        showCalendar: false,
+        separator: ' → ',
+        chipStyle: false,
+        startColor: '#1976d2',
+        endColor: '#7b1fa2',
+        onClick: (range, params) => {
+          if (range && range.start && range.end) {
+            console.log(`📆 Date range clicked at row ${params.cell.row}: ${range.start.toLocaleDateString()} - ${range.end.toLocaleDateString()}`);
+          }
+        }
+      }),
+      sortable: true,
+      minWidth: 250,
+      maxWidth: 500,
+      editable: true,
+      editor: new DateRangeEditor({
+        format: 'DD/MM/YYYY',
+        minDate: new Date('2024-01-01'),
+        maxDate: new Date('2025-12-31'),
+        required: true,
+        placeholder: 'Select project duration...',
+        autoFocus: true,
+        theme: 'light',
+        allowSameDate: true,
+      }),
     },
     {
       field: 'priority',
@@ -405,15 +496,16 @@ function main() {
     {
       field: 'tags',
       header: {
-        text: 'Tags',
+        text: 'Tags (Fixed + Scroll)',
         type: 'text',
-        leadingIcon: { content: '🏷️', position: 'leading' },
-        tooltip: { content: 'Tags - ChipRenderer' },
+        leadingIcon: { content: '📜', position: 'leading' },
+        tooltip: { content: 'Tags with SCROLL mode - Row stays 32px, scroll horizontally to see all' },
       },
       width: 250,
       renderer: new ChipRenderer({
-        maxChips: 3,
+        overflowMode: 'scroll', // Row stays fixed, scroll within cell
         removable: true,
+        showOverflowTooltip: true,
         onRemove: (chip, params) => {
           console.log(`Tag removed: "${chip.label}" from row ${params.cell.row}`);
         },
@@ -423,6 +515,33 @@ function main() {
       }),
       sortable: false,
       minWidth: 180,
+      autoHeight: false, // Fixed height - cell scrolls internally!
+      overflow: { mode: 'scroll' }, // Enable cell-level scrolling
+    },
+    {
+      field: 'tags2', // Unique field name (maps to same data via getData)
+      header: {
+        text: 'Tags (Fixed + Scroll)',
+        type: 'text',
+        leadingIcon: { content: '📜', position: 'leading' },
+        tooltip: { content: 'Tags with SCROLL mode - Row stays 32px, scroll horizontally to see all' },
+      },
+      width: 250,
+      renderer: new ChipRenderer({
+        overflowMode: 'scroll', // Row stays fixed, scroll within cell
+        removable: true,
+        showOverflowTooltip: true,
+        onRemove: (chip, params) => {
+          console.log(`Tag removed: "${chip.label}" from row ${params.cell.row}`);
+        },
+        onClick: (chip, params) => {
+          console.log(`Tag clicked: "${chip.label}" on row ${params.cell.row}`);
+        }
+      }),
+      sortable: false,
+      minWidth: 180,
+      autoHeight: false, // Fixed height - cell scrolls internally!
+      overflow: { mode: 'scroll' }, // Enable cell-level scrolling
     },
     {
       field: 'category',
@@ -622,6 +741,14 @@ function main() {
     enableKeyboardNavigation: true,
     overscanRows: 5,
     overscanCols: 2,
+    // Enable content-aware row height mode - only columns marked with autoHeight will be measured
+    rowHeightMode: 'content-aware',
+    rowHeightConfig: {
+      defaultHeight: ROW_HEIGHT,
+      minHeight: 30,
+      maxHeight: 150,
+      debounceMs: 16,
+    },
     // Enable renderer cache for performance
     rendererCache: {
       enabled: true,
@@ -786,6 +913,82 @@ function main() {
 
   document.getElementById('btn-scroll-middle')!.addEventListener('click', () => {
     grid.scrollToCell(Math.floor(ROW_COUNT / 2), 0);
+  });
+
+  // Auto-height demo button - demonstrates TWO overflow modes side-by-side
+  document.getElementById('btn-demo-autoheight')!.addEventListener('click', async () => {
+    console.log('📏 Two Overflow Modes Demo: Auto-Height vs Fixed+Scroll...');
+
+    const message = `
+📏 TWO OVERFLOW MODES DEMO
+
+Compare TWO ways to handle overflow content:
+
+📦 MODE 1: Auto-Height (WRAP)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Column: "Tags (Auto-Height)"
+• Row EXPANDS to fit all content
+• Content wraps to multiple lines
+• autoHeight: true
+• overflowMode: 'wrap'
+• Best for: Variable content that needs full visibility
+
+📜 MODE 2: Fixed + Scroll
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Column: "Tags (Fixed + Scroll)"
+• Row stays FIXED at 32px
+• Scroll HORIZONTALLY within cell to see all
+• autoHeight: false
+• overflowMode: 'scroll'
+• Best for: Consistent row heights, optional overflow
+
+✨ What You'll See:
+━━━━━━━━━━━━━━━━━━━━━
+Row 0, 5, 10, 15, 20... have 5-6 tags:
+• Left column: Row expands (tall)
+• Right column: Row stays 32px (scroll to see)
+
+🎯 Performance:
+━━━━━━━━━━━━━━━━━━━━━
+• 100K rows
+• 60+ FPS scrolling
+• Choose mode based on UX needs!
+
+Using new scrollThroughCells() API...
+    `.trim();
+
+    alert(message);
+    console.log(message);
+
+    // Define the cells to scroll through (row, col)
+    // Column 9 = "Tags (Auto-Height)" - will expand
+    // Column 10 = "Tags (Fixed + Scroll)" - stays 32px
+    const demoRows = [0, 5, 10, 15, 20, 25, 30, 35, 40];
+    const cells = demoRows.map(row => ({ row, col: 9 })); // Focus on Auto-Height column
+
+    console.log('📏 Scrolling through demo rows using scrollThroughCells API...');
+    console.log('   Compare the TWO Tags columns side-by-side!');
+
+    // Use the new scrollThroughCells API with smooth animation
+    const { promise } = grid.scrollThroughCells(cells, {
+      delayMs: 1500,       // 1.5 seconds between each cell for comparison
+      smooth: true,        // Use smooth scrolling
+      onCellReached: (cell, index) => {
+        const row = cell.row;
+        const tagCount = row % 5 === 0 ? '5-6 tags' : (row % 3 === 0 ? '3 tags' : '1-2 tags');
+        console.log(`   → Row ${row}: ${tagCount}`);
+        console.log(`      Left (Auto-Height): ${row % 5 === 0 ? 'TALL ROW (expanded)' : 'Normal height'}`);
+        console.log(`      Right (Fixed+Scroll): ALWAYS 32px (scroll horizontally)`);
+      }
+    });
+
+    // Wait for the scroll sequence to complete
+    await promise;
+
+    console.log('✅ Two Overflow Modes Demo complete!');
+    console.log('   📦 Left column: Rows expand to fit content');
+    console.log('   📜 Right column: Rows stay fixed, scroll within cell');
+    console.log('   🎯 FPS should stay above 60!');
   });
 
   // Column resize buttons

@@ -19,6 +19,9 @@ import { ChipRenderer } from '../rendering/renderers/chip-renderer';
 import { DropdownRenderer } from '../rendering/renderers/dropdown-renderer';
 import { LoadingIndicator } from '../features/loading';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
+import { RowHeightManager } from '../features/row-height';
+import { SegmentTreeHeightProvider } from '../rendering/height-provider/segment-tree-height-provider';
+import { ColumnModelWidthProvider } from '../rendering/width-provider/column-model-width-provider';
 
 /**
  * GridInit - Handles component initialization and validation
@@ -34,6 +37,7 @@ export class GridInit {
   public registry: RendererRegistry;
   public cache: RendererCache | null = null;
   public loadingIndicator: LoadingIndicator | null = null;
+  public rowHeightManager: RowHeightManager | null = null;
   public scroller: VirtualScroller | null = null;
   public pool: CellPool | null = null;
   public positioner: CellPositioner | null = null;
@@ -42,6 +46,7 @@ export class GridInit {
   private getSortManager: () => any;
   private getCachedVisibleRows: () => number[] | null;
   private getDataAccessor: () => DataAccessor | null;
+  private getColumnModel: () => any;
 
   constructor(
     container: HTMLElement,
@@ -54,6 +59,7 @@ export class GridInit {
       getSortManager: () => any;
       getCachedVisibleRows: () => number[] | null;
       getDataAccessor: () => DataAccessor | null;
+      getColumnModel: () => any;
     }
   ) {
     this.container = container;
@@ -65,6 +71,7 @@ export class GridInit {
     this.getSortManager = callbacks.getSortManager;
     this.getCachedVisibleRows = callbacks.getCachedVisibleRows;
     this.getDataAccessor = callbacks.getDataAccessor;
+    this.getColumnModel = callbacks.getColumnModel;
 
     // Initialize renderer registry
     this.registry = new RendererRegistry();
@@ -134,16 +141,69 @@ export class GridInit {
     const viewportWidth = this.scrollContainer.clientWidth;
     const viewportHeight = this.scrollContainer.clientHeight;
 
+    // Initialize row height system if needed
+    const rowHeightMode = this.options.rowHeightMode ?? 'fixed';
+    let heightProvider;
+
+    if (rowHeightMode !== 'fixed') {
+      // Use SegmentTreeHeightProvider for dynamic heights
+      const defaultHeight = Array.isArray(this.options.rowHeight)
+        ? this.options.rowHeight[0]
+        : this.options.rowHeight;
+
+      heightProvider = new SegmentTreeHeightProvider(
+        this.options.rowCount,
+        defaultHeight
+      );
+
+      // Initialize RowHeightManager
+      this.rowHeightManager = new RowHeightManager({
+        mode: rowHeightMode,
+        config: {
+          defaultHeight,
+          minHeight: this.options.rowHeightConfig?.minHeight,
+          maxHeight: this.options.rowHeightConfig?.maxHeight,
+          heightAffectingColumns: this.options.rowHeightConfig?.heightAffectingColumns,
+          measureTiming: this.options.rowHeightConfig?.measureTiming,
+          measureBatchSize: this.options.rowHeightConfig?.measureBatchSize,
+          debounceMs: this.options.rowHeightConfig?.debounceMs,
+          cacheHeights: this.options.rowHeightConfig?.cacheHeights,
+        },
+        heightProvider,
+        columns: this.options.columns ?? [],
+        onHeightUpdate: (_updates) => {
+          // Update canvas height when row heights change
+          if (this.canvas && this.scroller) {
+            const newTotalHeight = this.scroller.getTotalHeight();
+            this.canvas.style.height = `${newTotalHeight}px`;
+          }
+
+          // CellPositioner now handles re-positioning internally via RAF
+          // No need for manual invalidation or re-rendering
+        },
+      });
+    }
+
+    // Use ColumnModelWidthProvider adapter when ColumnModel exists (single source of truth).
+    // Otherwise fall back to options.colWidth for legacy mode.
+    const columnModel = this.getColumnModel();
+    const widthProvider = columnModel
+      ? new ColumnModelWidthProvider(columnModel)
+      : undefined;
+
     // Initialize VirtualScroller
     this.scroller = new VirtualScroller({
       rowCount: this.options.rowCount,
       colCount: this.options.colCount,
       rowHeight: this.options.rowHeight,
       colWidth: this.options.colWidth,
+      widthProvider, // Adapter reads from ColumnModel; undefined falls back to colWidth
       viewportWidth,
       viewportHeight,
-      overscanRows: this.options.overscanRows ?? 3,
-      overscanCols: this.options.overscanCols ?? 2,
+      heightProvider, // Pass dynamic height provider if available
+      // Increased defaults to prevent blank areas during fast scrolling
+      overscanRows: this.options.overscanRows ?? 10,
+      overscanCols: this.options.overscanCols ?? 5,
     });
 
     // Update canvas size
@@ -164,6 +224,7 @@ export class GridInit {
       pool: this.pool,
       registry: this.registry,
       cache: this.cache ?? undefined,
+      rowHeightManager: this.rowHeightManager ?? undefined,
       getData: (row: number, col: number) => {
         let dataRow = row;
 
@@ -177,9 +238,33 @@ export class GridInit {
         const indexMap = sortManager?.getIndexMap();
         const mappedRow = indexMap ? indexMap.toDataIndex(dataRow) : dataRow;
 
-        return this.getDataAccessor()?.getValue(mappedRow, col);
+        // Map visual column index to data column index
+        // When columns are reordered, col is the visual position, not the data position
+        const columnModel = this.getColumnModel();
+        let dataCol = col;
+        if (columnModel) {
+          const orderedColumns = columnModel.getColumnsInOrder();
+          if (orderedColumns && orderedColumns[col]) {
+            // Get the original data column index from the column definition
+            const columnState = orderedColumns[col];
+            // Extract data column index from column ID (e.g., "col-2" -> 2)
+            dataCol = parseInt(columnState.id.split('-')[1], 10);
+          }
+        }
+
+        return this.getDataAccessor()?.getValue(mappedRow, dataCol);
       },
       getColumn: (col: number) => {
+        // Map visual column index to column definition
+        // When columns are reordered, col is the visual position
+        const columnModel = this.getColumnModel();
+        if (columnModel) {
+          const orderedColumns = columnModel.getColumnsInOrder();
+          if (orderedColumns && orderedColumns[col]) {
+            return orderedColumns[col].definition;
+          }
+        }
+        // Fallback to original index if no column model
         return this.options.columns?.[col];
       },
       isSelected: (row: number, col: number) => {

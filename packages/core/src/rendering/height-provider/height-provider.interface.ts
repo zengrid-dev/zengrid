@@ -45,9 +45,56 @@ export interface HeightProvider {
   setHeight?(index: number, height: number): void;
 
   /**
+   * Batch update multiple row heights efficiently (optional)
+   * More efficient than calling setHeight multiple times
+   * @param updates - Map of row index to new height
+   * @complexity Varies by implementation
+   */
+  batchSetHeight?(updates: Map<number, number>): void;
+
+  /**
+   * Subscribe to height changes (optional)
+   * @param callback - Function called when any height changes
+   * @returns Unsubscribe function
+   */
+  subscribe?(callback: (row: number, height: number) => void): () => void;
+
+  /**
    * Total number of rows
    */
   readonly length: number;
+}
+
+/**
+ * Callback for height changes
+ */
+export type HeightChangeCallback = (row: number, height: number) => void;
+
+/**
+ * Extended interface for dynamic height providers
+ * Supports invalidation and measurement status
+ */
+export interface DynamicHeightProvider extends HeightProvider {
+  /**
+   * Mark a row for re-measurement
+   * @param row - Row index to invalidate
+   */
+  invalidate(row: number): void;
+
+  /**
+   * Mark all rows for re-measurement
+   */
+  invalidateAll(): void;
+
+  /**
+   * Get current measurement status
+   * @returns Object with measured, pending, and total counts
+   */
+  getMeasurementStatus(): {
+    measured: number;
+    pending: number;
+    total: number;
+  };
 }
 
 /**

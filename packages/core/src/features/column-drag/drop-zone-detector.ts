@@ -69,7 +69,9 @@ export class DropZoneDetector {
           columnId: column.id,
           columnIndex: column.order,
           position,
-          indicatorX: indicatorX - scrollLeft,
+          // Return absolute position within full header content (not adjusted for scroll)
+          // Drop indicator uses position:absolute within scrollable header container
+          indicatorX: indicatorX,
         };
       }
 
@@ -88,7 +90,8 @@ export class DropZoneDetector {
         columnId: lastColumn.id,
         columnIndex: lastColumn.order,
         position: 'after',
-        indicatorX: cumulativeX - scrollLeft,
+        // Return absolute position within full header content (not adjusted for scroll)
+        indicatorX: cumulativeX,
       };
     }
 

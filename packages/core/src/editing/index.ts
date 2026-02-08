@@ -18,3 +18,9 @@ export type { SelectEditorOptions } from './select-editor';
 
 export { DateEditor } from './date-editor';
 export type { DateEditorOptions } from './date-editor';
+
+export { VanillaDateEditor } from './vanilla-date-editor';
+export type { VanillaDateEditorOptions } from './vanilla-date-editor';
+
+export { DateRangeEditor } from './date-range-editor';
+export type { DateRangeEditorOptions, DateRange as EditorDateRange } from './date-range-editor';

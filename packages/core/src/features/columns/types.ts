@@ -42,6 +42,13 @@ export interface ColumnState {
   id: string;
 
   /**
+   * Original data column index (0-based)
+   * Used to map visual column position back to data column
+   * Stable even when columns are reordered
+   */
+  dataIndex: number;
+
+  /**
    * Data field name (from ColumnDef)
    */
   field: string;
