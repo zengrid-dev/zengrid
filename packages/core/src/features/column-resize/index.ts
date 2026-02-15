@@ -5,6 +5,8 @@ export { ColumnResizeManager } from './column-resize-manager';
 export { ResizeConstraintManager } from './resize-constraint-manager';
 export { ResizeZoneDetector } from './resize-zone-detector';
 export { ResizeStateManager } from './resize-state-manager';
+export { DataSourceAdapter } from './data-source-adapter';
+export { EventHandlers } from './event-handlers';
 
 // Renderers
 export { AutoFitCalculator } from './auto-fit-calculator';
@@ -41,3 +43,4 @@ export type { AutoFitCalculatorOptions } from './auto-fit-calculator';
 export type { ConstraintManagerOptions } from './resize-constraint-manager';
 export type { ZoneDetectorOptions } from './resize-zone-detector';
 export type { StateManagerOptions, ResizeHistoryEntry } from './resize-state-manager';
+export type { EventHandlerConfig } from './event-handlers';

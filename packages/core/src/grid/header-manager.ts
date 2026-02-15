@@ -23,62 +23,33 @@
  */
 
 import { BaseCoordinator } from '@zengrid/shared';
-import type { StateSubscriber } from '@zengrid/shared';
-import type { ColumnDef, SortState, FilterModel } from '../types';
-import type { EventEmitter } from '../events/event-emitter';
-import type { GridEvents } from '../events/grid-events';
+import type { HeaderManagerConfig, HeaderCellMetadata } from './header-types';
+import type { HeaderRenderer } from '../rendering/headers/header-renderer.interface';
 import { HeaderRendererRegistry } from '../rendering/headers/header-registry';
-import { resolveHeaderConfig } from '../rendering/headers/header-config-resolver';
-import type {
-  HeaderRenderer,
-  HeaderRenderParams,
-} from '../rendering/headers/header-renderer.interface';
+import { registerDefaultRenderers } from './header-registry-setup';
 import {
-  TextHeaderRenderer,
-  SortableHeaderRenderer,
-  FilterableHeaderRenderer,
-  CheckboxHeaderRenderer,
-  IconHeaderRenderer,
-} from '../rendering/headers/renderers';
-import type { ColumnModel } from '../features/columns/column-model';
-import type { ColumnEvent } from '../features/columns/types';
-
-/**
- * Configuration for HeaderManager
- */
-export interface HeaderManagerConfig {
-  /** Reactive column model */
-  columnModel: ColumnModel;
-
-  /** Header container element */
-  container: HTMLElement;
-
-  /** Event emitter for grid events */
-  eventEmitter: EventEmitter<GridEvents>;
-
-  /** Get current sort state */
-  getSortState?: () => SortState[];
-
-  /** Get current filter state */
-  getFilterState?: () => FilterModel[];
-
-  /** Header height in pixels (default: 40) */
-  headerHeight?: number;
-
-  /** Enable horizontal scroll sync (default: true) */
-  enableScrollSync?: boolean;
-}
-
-/**
- * Header cell metadata
- */
-interface HeaderCellMetadata {
-  element: HTMLElement;
-  renderer: HeaderRenderer;
-  columnId: string;
-  columnIndex: number;
-  lastParams?: HeaderRenderParams;
-}
+  createHeaderCellsContainer,
+  destroyHeaders,
+  syncHorizontalScroll,
+} from './header-dom-operations';
+import {
+  setupEventListeners,
+  removeEventListeners,
+  handleSortChange,
+  handleFilterChange,
+  handleScroll,
+  type EventHandlerCallbacks,
+} from './header-event-handlers';
+import {
+  renderAllHeaders,
+  updateHeaderByColumnId,
+  updateHeaderByIndex,
+  updateAllHeaders,
+} from './header-rendering';
+import {
+  subscribeToColumnChanges,
+  type SubscriptionCallbacks,
+} from './header-reactive-subscription';
 
 /**
  * HeaderManager - Manages grid header lifecycle
@@ -118,7 +89,7 @@ export class HeaderManager extends BaseCoordinator {
    */
   protected onInitialize(): void {
     // Register default renderers
-    this.registerDefaultRenderers();
+    registerDefaultRenderers(this.registry);
 
     // Setup event listeners
     this.setupEventListeners();
@@ -166,53 +137,21 @@ export class HeaderManager extends BaseCoordinator {
 
     // Create header cells container if not exists
     if (!this.headerCellsContainer) {
-      this.createHeaderCellsContainer();
+      this.headerCellsContainer = createHeaderCellsContainer(
+        this.config.container,
+        this.getHeaderHeight()
+      );
     }
 
-    // Get visible columns in order from column model
-    const columns = this.config.columnModel.getColumns()
-      .filter(col => col.visible)
-      .sort((a, b) => a.order - b.order);
-
-    // Render each column header
-    columns.forEach((columnState, visualIndex) => {
-      this.renderHeaderCell(
-        columnState.definition,
-        columnState.id,
-        visualIndex,
-        columnState.actualWidth
-      );
-    });
-  }
-
-  /**
-   * Update a specific header by column ID (reactive)
-   */
-  private updateHeaderByColumnId(columnId: string): void {
-    this.assertInitialized();
-
-    const metadata = this.headerCells.get(columnId);
-    if (!metadata || !metadata.lastParams) return;
-
-    // Get updated column state
-    const columnState = this.config.columnModel.getColumn(columnId);
-    if (!columnState) return;
-
-    const sortState = this.config.getSortState?.() ?? [];
-    const filterState = this.config.getFilterState?.() ?? [];
-
-    // Update params
-    const params = this.buildRenderParams(
-      metadata.lastParams.column,
-      metadata.columnIndex,
-      columnState.actualWidth,
-      sortState,
-      filterState
+    // Render all headers
+    renderAllHeaders(
+      this.config.columnModel,
+      this.headerCellsContainer,
+      this.headerCells,
+      this.registry,
+      this.config,
+      this.getHeaderHeight()
     );
-
-    // Update the renderer
-    metadata.renderer.update(metadata.element, params);
-    metadata.lastParams = params;
   }
 
   /**
@@ -220,16 +159,13 @@ export class HeaderManager extends BaseCoordinator {
    */
   updateHeader(columnIndex: number): void {
     this.assertInitialized();
-
-    // Find column ID by index
-    const columns = this.config.columnModel.getColumns()
-      .filter(col => col.visible)
-      .sort((a, b) => a.order - b.order);
-
-    if (columnIndex >= 0 && columnIndex < columns.length) {
-      const columnId = columns[columnIndex].id;
-      this.updateHeaderByColumnId(columnId);
-    }
+    updateHeaderByIndex(
+      columnIndex,
+      this.config.columnModel,
+      this.headerCells,
+      this.config,
+      this.getHeaderHeight()
+    );
   }
 
   /**
@@ -237,10 +173,12 @@ export class HeaderManager extends BaseCoordinator {
    */
   updateAllHeaders(): void {
     this.assertInitialized();
-
-    for (const columnId of this.headerCells.keys()) {
-      this.updateHeaderByColumnId(columnId);
-    }
+    updateAllHeaders(
+      this.headerCells,
+      this.config.columnModel,
+      this.config,
+      this.getHeaderHeight()
+    );
   }
 
   /**
@@ -257,7 +195,7 @@ export class HeaderManager extends BaseCoordinator {
     // Direct synchronous update - no throttling to prevent visual lag
     // The transform is lightweight and must happen in the same frame as body scroll
     if (this.config.enableScrollSync !== false) {
-      this.syncHorizontalScroll(scrollLeft);
+      syncHorizontalScroll(this.headerCellsContainer, scrollLeft);
     }
   }
 
@@ -283,261 +221,93 @@ export class HeaderManager extends BaseCoordinator {
   }
 
   /**
-   * Register default header renderers
-   */
-  private registerDefaultRenderers(): void {
-    this.registry.register('text', () => new TextHeaderRenderer());
-    this.registry.register('sortable', () => new SortableHeaderRenderer());
-    this.registry.register('filterable', () => new FilterableHeaderRenderer());
-    this.registry.register('checkbox', () => new CheckboxHeaderRenderer());
-    this.registry.register('icon', () => new IconHeaderRenderer());
-  }
-
-  /**
    * Subscribe to column model changes (reactive)
    */
   private subscribeToColumnChanges(): void {
-    const subscriber: StateSubscriber<ColumnEvent> = {
-      onChange: (event: ColumnEvent) => {
-        this.handleColumnChange(event);
+    const callbacks: SubscriptionCallbacks = {
+      onWidthChange: (columnId: string) => {
+        updateHeaderByColumnId(
+          columnId,
+          this.headerCells,
+          this.config.columnModel,
+          this.config,
+          this.getHeaderHeight()
+        );
+      },
+      onVisibilityChange: () => {
+        this.refreshHeaders();
+      },
+      onReorderChange: () => {
+        this.refreshHeaders();
+      },
+      onOtherChange: (columnId: string) => {
+        updateHeaderByColumnId(
+          columnId,
+          this.headerCells,
+          this.config.columnModel,
+          this.config,
+          this.getHeaderHeight()
+        );
       },
     };
 
-    // Subscribe to all column changes globally
-    this.columnSubscription = this.config.columnModel.subscribeAll(subscriber);
-  }
-
-  /**
-   * Handle column model changes reactively
-   */
-  private handleColumnChange(event: ColumnEvent): void {
-    const { type, columnId } = event;
-
-    // Update the specific header based on event type
-    switch (type) {
-      case 'width':
-      case 'resize':
-        // Width changed - update header width
-        this.updateHeaderByColumnId(columnId);
-        break;
-
-      case 'visibility':
-        // Visibility changed - re-render all headers
-        this.refreshHeaders();
-        break;
-
-      case 'reorder':
-      case 'pin':
-      case 'unpin':
-        // Order changed - re-render all headers
-        this.refreshHeaders();
-        break;
-
-      default:
-        // Unknown event - update specific header
-        this.updateHeaderByColumnId(columnId);
-    }
+    this.columnSubscription = subscribeToColumnChanges(
+      this.config.columnModel,
+      callbacks
+    );
   }
 
   /**
    * Setup event listeners
    */
   private setupEventListeners(): void {
-    // Subscribe to grid events
-    this.config.eventEmitter.on('sort:change', (payload: any) => {
-      this.boundHandlers.sortChange(payload);
-    });
-    this.config.eventEmitter.on(
-      'filter:change',
-      this.boundHandlers.filterChange
-    );
-    this.config.eventEmitter.on('scroll', this.boundHandlers.scroll);
+    const callbacks: EventHandlerCallbacks = {
+      onSortChange: this.boundHandlers.sortChange,
+      onFilterChange: this.boundHandlers.filterChange,
+      onScroll: this.boundHandlers.scroll,
+    };
+
+    setupEventListeners(this.config.eventEmitter, callbacks);
   }
 
   /**
    * Remove event listeners
    */
   private removeEventListeners(): void {
-    this.config.eventEmitter.off('sort:change', this.boundHandlers.sortChange);
-    this.config.eventEmitter.off(
-      'filter:change',
-      this.boundHandlers.filterChange
-    );
-    this.config.eventEmitter.off('scroll', this.boundHandlers.scroll);
-  }
-
-  /**
-   * Create header cells container
-   */
-  private createHeaderCellsContainer(): void {
-    const headerHeight = this.getHeaderHeight();
-
-    // Clear container
-    this.config.container.innerHTML = '';
-    this.config.container.className = 'zg-header';
-    this.config.container.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: ${headerHeight}px;
-      z-index: 10;
-      background: var(--zg-header-bg, #f5f5f5);
-      border-bottom: 1px solid var(--zg-border-color, #d0d0d0);
-      overflow: hidden;
-    `;
-
-    // Create cells container
-    this.headerCellsContainer = document.createElement('div');
-    this.headerCellsContainer.className = 'zg-header-cells';
-    this.headerCellsContainer.style.cssText = `
-      position: relative;
-      height: 100%;
-      display: flex;
-    `;
-
-    this.config.container.appendChild(this.headerCellsContainer);
-  }
-
-  /**
-   * Render a single header cell
-   */
-  private renderHeaderCell(
-    column: ColumnDef,
-    columnId: string,
-    columnIndex: number,
-    width: number
-  ): void {
-    if (!this.headerCellsContainer) return;
-
-    // Resolve header config
-    const config = resolveHeaderConfig(column.header, column);
-
-    // Get renderer
-    const rendererName = config.renderer || config.type;
-    const renderer = this.registry.get(rendererName);
-
-    // Create header cell element
-    const element = document.createElement('div');
-    element.dataset.columnId = columnId;
-    element.dataset.columnIndex = String(columnIndex);
-
-    // Build render params
-    const sortState = this.config.getSortState?.() ?? [];
-    const filterState = this.config.getFilterState?.() ?? [];
-    const params = this.buildRenderParams(
-      column,
-      columnIndex,
-      width,
-      sortState,
-      filterState
-    );
-
-    // Render
-    renderer.render(element, params);
-
-    // Add to container
-    this.headerCellsContainer.appendChild(element);
-
-    // Store metadata by column ID (for reactive updates)
-    this.headerCells.set(columnId, {
-      element,
-      renderer,
-      columnId,
-      columnIndex,
-      lastParams: params,
-    });
-  }
-
-  /**
-   * Build HeaderRenderParams
-   */
-  private buildRenderParams(
-    column: ColumnDef,
-    columnIndex: number,
-    width: number,
-    sortState: SortState[],
-    filterState: FilterModel[]
-  ): HeaderRenderParams {
-    const config = resolveHeaderConfig(column.header, column);
-    const headerHeight = this.getHeaderHeight();
-
-    // Find sort state for this column
-    const columnSort = sortState.find((s) => s.column === columnIndex);
-    const sortDirection = columnSort?.direction;
-    const sortPriority =
-      sortState.length > 1
-        ? sortState.findIndex((s) => s.column === columnIndex) + 1
-        : undefined;
-
-    // Check if column has active filter
-    const hasFilter = filterState.some((f) => f.column === columnIndex);
-
-    return {
-      columnIndex,
-      column,
-      config,
-      width,
-      height: headerHeight,
-      sortDirection,
-      sortPriority,
-      hasFilter,
-      emit: (event: string, payload: any) => {
-        // Emit header events through grid event emitter
-        this.config.eventEmitter.emit(event as keyof GridEvents, payload);
-      },
+    const callbacks: EventHandlerCallbacks = {
+      onSortChange: this.boundHandlers.sortChange,
+      onFilterChange: this.boundHandlers.filterChange,
+      onScroll: this.boundHandlers.scroll,
     };
+
+    removeEventListeners(this.config.eventEmitter, callbacks);
   }
 
   /**
    * Destroy all headers
    */
   private destroyHeaders(): void {
-    for (const metadata of this.headerCells.values()) {
-      metadata.renderer.destroy(metadata.element);
-    }
-    this.headerCells.clear();
-
-    if (this.headerCellsContainer) {
-      this.headerCellsContainer.innerHTML = '';
-    }
+    destroyHeaders(this.headerCells, this.headerCellsContainer);
   }
 
   /**
    * Handle sort state change
    */
   private handleSortChange(payload?: any): void {
-    console.log('🔄 HeaderManager.handleSortChange() - updating all headers');
-    // Use sortState from event payload (more reliable than getSortState)
-    const sortState = payload?.sortState ?? this.config.getSortState?.() ?? [];
-    console.log('   → Current sortState from payload:', sortState);
-    this.updateAllHeaders();
+    handleSortChange(payload, this.config.getSortState, () => this.updateAllHeaders());
   }
 
   /**
    * Handle filter state change
    */
   private handleFilterChange(): void {
-    this.updateAllHeaders();
+    handleFilterChange(() => this.updateAllHeaders());
   }
 
   /**
    * Handle scroll event
    */
   private handleScroll(payload: any): void {
-    if (payload.scrollLeft !== undefined) {
-      this.syncScroll(payload.scrollLeft);
-    }
-  }
-
-  /**
-   * Sync horizontal scroll (actual implementation)
-   * Called synchronously on every scroll event to ensure header stays in sync with body
-   * Uses CSS transform for GPU-accelerated, high-performance updates
-   */
-  private syncHorizontalScroll(scrollLeft: number): void {
-    if (this.headerCellsContainer) {
-      this.headerCellsContainer.style.transform = `translateX(-${scrollLeft}px)`;
-    }
+    handleScroll(payload, (scrollLeft: number) => this.syncScroll(scrollLeft));
   }
 }

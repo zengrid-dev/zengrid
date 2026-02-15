@@ -281,3 +281,25 @@ export interface VisualFeedbackOptions {
   /** Get header container element */
   getHeaderContainer?: () => HTMLElement | null;
 }
+
+/**
+ * Callbacks for mouse handler to communicate with manager
+ */
+export interface DragMouseEventCallbacks {
+  /** Check if column can be dragged */
+  canDragColumn: (columnId: string) => boolean;
+  /** Get column by ID */
+  getColumn: (columnId: string) => { definition: ColumnDef; order: number } | null;
+  /** Get current drag state */
+  getState: () => DragState;
+  /** Get drag distance */
+  getDragDistance: () => number;
+  /** Called on mousedown */
+  onMouseDown: (columnId: string, columnIndex: number, x: number, y: number) => void;
+  /** Called on mousemove */
+  onMouseMove: (x: number, y: number) => void;
+  /** Called on mouseup */
+  onMouseUp: () => void;
+  /** Called when drag starts (threshold met) */
+  onDragStart: (event: MouseEvent, target: HTMLElement) => void;
+}

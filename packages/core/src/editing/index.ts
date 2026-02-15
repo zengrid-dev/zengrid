@@ -24,3 +24,6 @@ export type { VanillaDateEditorOptions } from './vanilla-date-editor';
 
 export { DateRangeEditor } from './date-range-editor';
 export type { DateRangeEditorOptions, DateRange as EditorDateRange } from './date-range-editor';
+
+export { CheckboxEditor, createCheckboxEditor } from './checkbox-editor';
+export type { CheckboxEditorOptions } from './checkbox-editor';

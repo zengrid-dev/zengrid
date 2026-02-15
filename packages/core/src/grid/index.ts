@@ -12,5 +12,6 @@ export { GridResize } from './resize';
 export { GridDrag } from './drag';
 export { GridInit } from './init';
 export { HeaderManager } from './header-manager';
+export type { HeaderManagerConfig, HeaderCellMetadata } from './header-types';
 export { GridEditing } from './grid-editing';
 export { GridInfiniteScroll } from './grid-infinite-scroll';

@@ -79,3 +79,46 @@ export interface GroupNode {
   /** Depth in hierarchy (0 for root) */
   depth: number;
 }
+
+/**
+ * Event payloads for ColumnGroupManager events
+ */
+export interface GroupAddedEvent {
+  group: ColumnGroup;
+  timestamp: number;
+}
+
+export interface GroupRemovedEvent {
+  groupId: string;
+  group: ColumnGroup;
+  timestamp: number;
+}
+
+export interface GroupUpdatedEvent {
+  groupId: string;
+  oldGroup: ColumnGroup;
+  newGroup: ColumnGroup;
+  timestamp: number;
+}
+
+export interface GroupToggledEvent {
+  groupId: string;
+  expanded: boolean;
+  timestamp: number;
+}
+
+export interface HierarchyChangedEvent {
+  affectedGroupIds: string[];
+  timestamp: number;
+}
+
+/**
+ * Event map for ColumnGroupManager
+ */
+export interface ColumnGroupManagerEvents {
+  groupAdded: GroupAddedEvent;
+  groupRemoved: GroupRemovedEvent;
+  groupUpdated: GroupUpdatedEvent;
+  groupToggled: GroupToggledEvent;
+  hierarchyChanged: HierarchyChangedEvent;
+}

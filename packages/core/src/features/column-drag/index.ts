@@ -14,6 +14,8 @@ export { DropZoneDetector } from './drop-zone-detector';
 export { DragVisualFeedback } from './drag-visual-feedback';
 export { DragKeyboardHandler } from './drag-keyboard-handler';
 export { DragTouchHandler } from './drag-touch-handler';
+export { DragMouseHandler } from './drag-mouse-handler';
+export { createDragStateMachine } from './drag-state-machine';
 export { ColumnDragCommand } from './column-drag-command';
 
 // Types and interfaces
@@ -33,4 +35,5 @@ export type {
   KeyboardHandlerOptions,
   TouchHandlerOptions,
   VisualFeedbackOptions,
+  DragMouseEventCallbacks,
 } from './column-drag-manager.interface';

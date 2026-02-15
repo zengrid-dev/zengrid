@@ -17,13 +17,15 @@ export {
 } from './column-group-manager';
 export type {
   ColumnGroupManagerOptions,
+} from './manager-options';
+export type {
   ColumnGroupManagerEvents,
   GroupAddedEvent,
   GroupRemovedEvent,
   GroupUpdatedEvent,
   GroupToggledEvent,
   HierarchyChangedEvent,
-} from './column-group-manager';
+} from './types';
 export type {
   ColumnGroup,
   ColumnGroupModelConfig,
