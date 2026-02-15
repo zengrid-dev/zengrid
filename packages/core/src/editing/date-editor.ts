@@ -367,28 +367,34 @@ export class DateEditor implements CellEditor<Date | null> {
   /**
    * Format Date object for HTML5 input based on type
    *
+   * Uses LOCAL time for all formats (datetime-local and time inputs expect local time)
+   *
    * @param date - The Date object to format
    * @returns Formatted date string
    */
   private formatDateForInput(date: Date): string {
     const type = this.options.type;
 
+    // Get local time components (not UTC)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
     if (type === 'date') {
       // YYYY-MM-DD
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     } else if (type === 'datetime-local') {
-      // YYYY-MM-DDTHH:MM
-      return date.toISOString().slice(0, 16);
+      // YYYY-MM-DDTHH:MM (local time, not UTC)
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     } else if (type === 'time') {
-      // HH:MM
-      return date.toISOString().slice(11, 16);
+      // HH:MM (local time, not UTC)
+      return `${hours}:${minutes}`;
     }
 
     // Default to date format
-    return date.toISOString().split('T')[0];
+    return `${year}-${month}-${day}`;
   }
 
   /**

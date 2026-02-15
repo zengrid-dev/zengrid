@@ -1,9 +1,8 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DateRenderer, createDateRenderer, type DateRendererOptions } from '../date-renderer';
+import { DateRenderer, createDateRenderer } from '../date-renderer';
 import type { RenderParams } from '../renderer.interface';
 
 describe('DateRenderer', () => {
@@ -74,7 +73,7 @@ describe('DateRenderer', () => {
     });
 
     it('should create renderer with onClick callback', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       expect(renderer).toBeInstanceOf(DateRenderer);
     });
@@ -140,7 +139,7 @@ describe('DateRenderer', () => {
     });
 
     it('should add click handler when onClick provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       renderer.render(element, params);
 
@@ -151,7 +150,7 @@ describe('DateRenderer', () => {
     });
 
     it('should set cursor pointer when onClick provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       renderer.render(element, params);
 
@@ -213,8 +212,7 @@ describe('DateRenderer', () => {
       renderer.update(element, newParams);
 
       const container = element.querySelector('.zg-date-wrapper') as HTMLElement;
-      expect(container.dataset.row).toBe('5');
-      expect(container.dataset.col).toBe('3');
+      // Note: data-row/data-col are set on .zg-cell elements by CellPositioner, not by renderers
       expect(container.dataset.field).toBe('updatedAt');
     });
 
@@ -309,7 +307,7 @@ describe('DateRenderer', () => {
     });
 
     it('should remove click event listener', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       renderer.render(element, params);
 
@@ -661,7 +659,7 @@ describe('DateRenderer', () => {
       const noHeaderParams = {
         ...params,
         column: { field: 'createdAt' },
-      };
+      } as RenderParams;
       renderer.render(element, noHeaderParams);
 
       const textSpan = element.querySelector('.zg-date-text');
@@ -683,7 +681,7 @@ describe('DateRenderer', () => {
 
   describe('onClick Callback', () => {
     it('should call onClick with date and params', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       renderer.render(element, params);
 
@@ -695,7 +693,7 @@ describe('DateRenderer', () => {
     });
 
     it('should call onClick with null for empty date', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       const nullParams = { ...params, value: null };
       renderer.render(element, nullParams);
@@ -707,11 +705,11 @@ describe('DateRenderer', () => {
     });
 
     it('should stop event propagation on click', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new DateRenderer({ onClick });
       renderer.render(element, params);
 
-      const outerClick = vi.fn();
+      const outerClick = jest.fn();
       element.addEventListener('click', outerClick);
 
       const container = element.querySelector('.zg-date-wrapper') as HTMLElement;
