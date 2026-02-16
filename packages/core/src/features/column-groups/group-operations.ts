@@ -3,11 +3,6 @@ import type { ColumnGroupModel } from './column-group-model';
 import type {
   ColumnGroup,
   ValidationResult,
-  GroupAddedEvent,
-  GroupRemovedEvent,
-  GroupUpdatedEvent,
-  GroupToggledEvent,
-  HierarchyChangedEvent,
   ColumnGroupManagerEvents,
 } from './types';
 

@@ -28,7 +28,6 @@ export class DragOperations {
     private onDuringDrag: ColumnDragOptions['onDuringDrag'],
     private onAfterDrag: ColumnDragOptions['onAfterDrag'],
     private getContainer: () => HTMLElement | null,
-    private dragThresholdMetGetter: () => boolean,
     private dragThresholdMetSetter: (value: boolean) => void
   ) {}
 

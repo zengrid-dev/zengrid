@@ -85,6 +85,7 @@ export function createGridConfig(options: GridConfigOptions) {
       autoFitPadding: 16,
       showHandles: true,
       showPreview: true,
+      autoFitOnLoad: true,
     },
     // Sync scroll - update resize handle positions
     onScroll,

@@ -147,10 +147,14 @@ export interface GridOptions {
     autoFitSampleSize?: number;
     /** Padding to add to auto-fit width (default: 16) */
     autoFitPadding?: number;
+    /** Skip header width when auto-fitting columns (default: false - headers included) */
+    skipHeaderOnAutoSize?: boolean;
     /** Show visual resize handles (default: true) */
     showHandles?: boolean;
     /** Show preview line during drag (default: true) */
     showPreview?: boolean;
+    /** Auto-fit all columns on initial load (default: false) */
+    autoFitOnLoad?: boolean;
   };
 
   // Column Drag

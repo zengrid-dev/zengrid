@@ -15,3 +15,7 @@ export type {
   CompositeElement,
   ConditionalStyle,
 } from './advanced-cell-renderer';
+
+// Date Picker
+export { DatePickerRenderer, createDatePickerRenderer } from './date-picker';
+export type { DatePickerRendererOptions } from './date-picker';

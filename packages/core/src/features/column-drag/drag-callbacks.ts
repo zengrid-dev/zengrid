@@ -30,8 +30,11 @@ export function createMouseCallbacks(
 ): DragMouseEventCallbacks {
   return {
     canDragColumn: (columnId: string) => dropZoneDetector.canDragColumn(columnId),
-    getColumn: (columnId: string) => columnModel.getColumn(columnId),
-    getState: () => stateMachine.current as DragState,
+    getColumn: (columnId: string) => {
+      const col = columnModel.getColumn(columnId);
+      return col || null;
+    },
+    getState: () => stateMachine.state as DragState,
     getDragDistance: () => stateManager.getDragDistance(),
     onMouseDown: (columnId: string, columnIndex: number, x: number, y: number) => {
       stateManager.startDrag(columnId, columnIndex, x, y);

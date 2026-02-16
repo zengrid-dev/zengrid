@@ -1,5 +1,5 @@
 import type { CellRenderer, RenderParams } from './renderer.interface';
-import type { DropdownOption, DropdownRendererOptions } from './dropdown-types';
+import type { DropdownRendererOptions } from './dropdown-types';
 import {
   createDropdownTrigger,
   createDropdownMenu,
@@ -84,7 +84,9 @@ export class DropdownRenderer implements CellRenderer {
   private eventManager: DropdownEventManager;
 
   constructor(options: DropdownRendererOptions = {}) {
-    if (!options.options || options.options.length === 0) {
+    // Warn if no options provided (but not for default registry instances)
+    const hasConfig = options.searchable !== undefined || options.onChange || options.placeholder;
+    if (hasConfig && (!options.options || options.options.length === 0)) {
       console.warn(
         'DropdownRenderer: No options provided. Please provide options array in column definition.'
       );

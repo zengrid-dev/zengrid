@@ -70,6 +70,15 @@ export interface ColumnResizeOptions {
   /** Padding to add to auto-fit width (default: 16) */
   autoFitPadding?: number;
 
+  /** Get header text for a column (for including header in auto-fit) */
+  getHeaderText?: (col: number) => string | undefined;
+
+  /** Get full header width including icons and indicators (for accurate auto-fit) */
+  getFullHeaderWidth?: (col: number) => number | undefined;
+
+  /** Skip header width when auto-fitting (default: false - headers included) */
+  skipHeaderOnAutoSize?: boolean;
+
   /** Enable visual resize handles (default: true) */
   showHandles?: boolean;
 

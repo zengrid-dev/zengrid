@@ -164,8 +164,11 @@ export { SelectRenderer } from './rendering/renderers/select-renderer';
 export type { ChipRendererOptions, Chip, createChipRenderer } from './rendering/renderers/chip-renderer';
 export { ChipRenderer } from './rendering/renderers/chip-renderer';
 
-export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption, createDropdownRenderer } from './rendering/renderers/dropdown-renderer';
-export { DropdownRenderer } from './rendering/renderers/dropdown-renderer';
+export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption } from './rendering/renderers/dropdown-types';
+export { DropdownRenderer, createDropdownRenderer } from './rendering/renderers/dropdown-renderer';
+
+export type { DatePickerRendererOptions } from './rendering/renderers/date-picker';
+export { DatePickerRenderer, createDatePickerRenderer } from './rendering/renderers/date-picker';
 
 // Cell Editors
 export type { CellEditor, EditorParams, ValidationResult as EditorValidationResult } from './editing/cell-editor.interface';

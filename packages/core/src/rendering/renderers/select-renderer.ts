@@ -96,8 +96,9 @@ export class SelectRenderer implements CellRenderer {
    * Creates a new SelectRenderer instance
    */
   constructor(options: SelectRendererOptions = {}) {
-    // Warn if no options provided
-    if (!options.options || options.options.length === 0) {
+    // Warn if no options provided (but not for default registry instances)
+    const hasConfig = options.placeholder || options.onChange;
+    if (hasConfig && (!options.options || options.options.length === 0)) {
       console.warn(
         'SelectRenderer: No options provided. Please provide options array in column definition.'
       );

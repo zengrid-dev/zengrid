@@ -58,8 +58,11 @@ export function initializeComponents(
     autoFitCalculator = new AutoFitCalculator({
       getValue: options.getValue,
       rowCount: options.rowCount,
+      getHeaderText: options.getHeaderText,
+      getFullHeaderWidth: options.getFullHeaderWidth,
       sampleSize: options.autoFitSampleSize ?? 100,
       padding: options.autoFitPadding ?? 16,
+      skipHeaderOnAutoSize: options.skipHeaderOnAutoSize ?? false,
     });
   }
 

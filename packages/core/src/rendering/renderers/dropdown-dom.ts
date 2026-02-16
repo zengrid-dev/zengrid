@@ -1,5 +1,5 @@
 import type { RenderParams } from './renderer.interface';
-import type { DropdownOption, DropdownRendererOptions } from './dropdown-types';
+import type { DropdownOption } from './dropdown-types';
 import { deepEqual } from './renderer-utils';
 
 /**

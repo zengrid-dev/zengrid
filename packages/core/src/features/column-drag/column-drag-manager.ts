@@ -115,7 +115,6 @@ export class ColumnDragManager {
       options.onDuringDrag,
       options.onAfterDrag,
       () => this.lifecycle.getContainer(),
-      () => this.dragThresholdMet,
       (value) => { this.dragThresholdMet = value; }
     );
 

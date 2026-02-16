@@ -406,6 +406,11 @@ export class Grid {
       this.state.scrollPosition.top,
       this.state.scrollPosition.left
     );
+
+    // Auto-fit columns on load if enabled
+    if (this.options.columnResize?.autoFitOnLoad) {
+      this.resizeOps.autoFitAllColumns();
+    }
   }
 
   /**

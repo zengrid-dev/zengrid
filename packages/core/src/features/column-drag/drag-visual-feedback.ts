@@ -44,7 +44,7 @@ export class DragVisualFeedback {
         el.style.display = 'none';
         el.classList.remove('zg-drag-highlight-left', 'zg-drag-highlight-right');
       },
-      initialSize: 2,
+      initialSize: 0, // Don't prewarm - lifecycle not yet initialized
       maxSize: 4, // Max 2 adjacent columns highlighted at once
     });
   }
