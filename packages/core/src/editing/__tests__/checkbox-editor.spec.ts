@@ -1,13 +1,12 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   CheckboxEditor,
   createCheckboxEditor,
   type CheckboxEditorOptions,
-} from '../checkbox-editor';
+} from '../checkbox';
 import type { EditorParams } from '../cell-editor.interface';
 
 describe('CheckboxEditor', () => {
@@ -22,8 +21,8 @@ describe('CheckboxEditor', () => {
       cell: { row: 0, col: 1 },
       column: { field: 'active', header: 'Active' },
       rowData: { id: 1, active: true },
-      onComplete: vi.fn(),
-      onChange: vi.fn(),
+      onComplete: jest.fn(),
+      onChange: jest.fn(),
     };
   });
 
@@ -256,77 +255,77 @@ describe('CheckboxEditor', () => {
     });
 
     it('should normalize undefined to null when indeterminate allowed', () => {
-      editor.init(container, undefined, params);
+      editor.init(container, undefined as any, params);
       expect(editor.getValue()).toBe(null);
     });
 
     it('should normalize string "true" to true', () => {
-      editor.init(container, 'true', params);
+      editor.init(container, 'true' as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize string "false" to false', () => {
-      editor.init(container, 'false', params);
+      editor.init(container, 'false' as any, params);
       expect(editor.getValue()).toBe(false);
     });
 
     it('should normalize string "1" to true', () => {
-      editor.init(container, '1', params);
+      editor.init(container, '1' as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize string "0" to false', () => {
-      editor.init(container, '0', params);
+      editor.init(container, '0' as any, params);
       expect(editor.getValue()).toBe(false);
     });
 
     it('should normalize string "yes" to true', () => {
-      editor.init(container, 'yes', params);
+      editor.init(container, 'yes' as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize string "no" to false', () => {
-      editor.init(container, 'no', params);
+      editor.init(container, 'no' as any, params);
       expect(editor.getValue()).toBe(false);
     });
 
     it('should normalize string "on" to true', () => {
-      editor.init(container, 'on', params);
+      editor.init(container, 'on' as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize string "off" to false', () => {
-      editor.init(container, 'off', params);
+      editor.init(container, 'off' as any, params);
       expect(editor.getValue()).toBe(false);
     });
 
     it('should normalize string "null" to null', () => {
-      editor.init(container, 'null', params);
+      editor.init(container, 'null' as any, params);
       expect(editor.getValue()).toBe(null);
     });
 
     it('should normalize string "indeterminate" to null', () => {
-      editor.init(container, 'indeterminate', params);
+      editor.init(container, 'indeterminate' as any, params);
       expect(editor.getValue()).toBe(null);
     });
 
     it('should normalize number 1 to true', () => {
-      editor.init(container, 1, params);
+      editor.init(container, 1 as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize number 0 to false', () => {
-      editor.init(container, 0, params);
+      editor.init(container, 0 as any, params);
       expect(editor.getValue()).toBe(false);
     });
 
     it('should normalize number -1 to true', () => {
-      editor.init(container, -1, params);
+      editor.init(container, -1 as any, params);
       expect(editor.getValue()).toBe(true);
     });
 
     it('should normalize unknown types to false', () => {
-      editor.init(container, {}, params);
+      editor.init(container, {} as any, params);
       expect(editor.getValue()).toBe(false);
     });
   });
@@ -396,7 +395,7 @@ describe('CheckboxEditor', () => {
     });
 
     it('should commit on Enter key', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const params2 = { ...params, onComplete };
       editor.init(container, true, params2);
       const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -405,7 +404,7 @@ describe('CheckboxEditor', () => {
     });
 
     it('should cancel on Escape key and restore initial value', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const params2 = { ...params, onComplete };
       editor.init(container, true, params2);
 
@@ -449,7 +448,7 @@ describe('CheckboxEditor', () => {
     it('should stop propagation for all keys', () => {
       editor.init(container, true, params);
       const event = new KeyboardEvent('keydown', { key: 'a' });
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
+      const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
       editor.onKeyDown(event);
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
@@ -464,7 +463,7 @@ describe('CheckboxEditor', () => {
     it('should prevent default on Enter', () => {
       editor.init(container, true, params);
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
       editor.onKeyDown(event);
       expect(preventDefaultSpy).toHaveBeenCalled();
     });
@@ -472,7 +471,7 @@ describe('CheckboxEditor', () => {
     it('should prevent default on Escape', () => {
       editor.init(container, true, params);
       const event = new KeyboardEvent('keydown', { key: 'Escape' });
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
       editor.onKeyDown(event);
       expect(preventDefaultSpy).toHaveBeenCalled();
     });
@@ -587,7 +586,7 @@ describe('CheckboxEditor', () => {
     });
 
     it('should prevent blur handler after destroy', (done) => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const editor = new CheckboxEditor({ stopOnBlur: true });
       editor.init(container, true, { ...params, onComplete });
 
@@ -605,7 +604,7 @@ describe('CheckboxEditor', () => {
 
   describe('Blur Handling', () => {
     it('should commit on blur when stopOnBlur is true', (done) => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const editor = new CheckboxEditor({ stopOnBlur: true });
       editor.init(container, true, { ...params, onComplete });
 
@@ -620,7 +619,7 @@ describe('CheckboxEditor', () => {
     });
 
     it('should not commit on blur when stopOnBlur is false', (done) => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const editor = new CheckboxEditor({ stopOnBlur: false });
       editor.init(container, false, { ...params, onComplete });
 
@@ -637,7 +636,7 @@ describe('CheckboxEditor', () => {
 
   describe('onChange Callback', () => {
     it('should call onChange when checkbox is clicked', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const editor = new CheckboxEditor();
       editor.init(container, false, { ...params, onChange });
 
@@ -648,7 +647,7 @@ describe('CheckboxEditor', () => {
     });
 
     it('should call onChange when label is clicked', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const editor = new CheckboxEditor({ label: 'Test' });
       editor.init(container, false, { ...params, onChange });
 
@@ -675,7 +674,7 @@ describe('CheckboxEditor', () => {
 
       const checkbox = container.querySelector('input') as HTMLInputElement;
       const event = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
+      const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
 
       checkbox.dispatchEvent(event);
       expect(stopPropagationSpy).toHaveBeenCalled();
@@ -687,7 +686,7 @@ describe('CheckboxEditor', () => {
 
       const checkbox = container.querySelector('input') as HTMLInputElement;
       const event = new MouseEvent('mousedown', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
+      const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
 
       checkbox.dispatchEvent(event);
       expect(stopPropagationSpy).toHaveBeenCalled();

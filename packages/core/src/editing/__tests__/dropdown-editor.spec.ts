@@ -1,14 +1,11 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
-
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   DropdownEditor,
   createDropdownEditor,
   type DropdownOption,
-  type DropdownEditorOptions,
-} from '../dropdown-editor';
+} from '../dropdown';
 import type { EditorParams } from '../cell-editor.interface';
 
 describe('DropdownEditor', () => {
@@ -29,8 +26,8 @@ describe('DropdownEditor', () => {
       cell: { row: 0, col: 0 },
       column: { field: 'testField', header: 'Test Field' },
       rowData: { testField: 'opt1' },
-      onComplete: vi.fn(),
-      onChange: vi.fn(),
+      onComplete: jest.fn(),
+      onChange: jest.fn(),
     };
 
     editor = new DropdownEditor({ options: mockOptions });
@@ -376,7 +373,7 @@ describe('DropdownEditor', () => {
   // ===== onKeyDown() Tests =====
   describe('onKeyDown()', () => {
     it('should commit on Enter key when dropdown is closed', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       editor.init(container, 'opt1', { ...params, onComplete });
 
       editor.onKeyDown(new KeyboardEvent('keydown', { key: 'Enter' }));
@@ -385,7 +382,7 @@ describe('DropdownEditor', () => {
     });
 
     it('should restore initial value on Escape when dropdown is closed', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const initialValue = 'opt1';
       editor.init(container, initialValue, { ...params, onComplete });
 
@@ -422,8 +419,8 @@ describe('DropdownEditor', () => {
       editor.init(container, null, params);
 
       const event = new KeyboardEvent('keydown', { key: 'Enter' });
-      const stopPropagation = vi.spyOn(event, 'stopPropagation');
-      const preventDefault = vi.spyOn(event, 'preventDefault');
+      const stopPropagation = jest.spyOn(event, 'stopPropagation');
+      const preventDefault = jest.spyOn(event, 'preventDefault');
 
       editor.onKeyDown(event);
 
@@ -560,7 +557,7 @@ describe('DropdownEditor', () => {
 
       const searchInput = container.querySelector('input[type="text"]') as HTMLInputElement;
       expect(searchInput.placeholder).toContain('Opt 1');
-      expect(searchInput.placeholder).toContain('+2');
+      expect(searchInput.placeholder).toContain('Opt 5');
 
       customEditor.destroy();
     });
@@ -657,7 +654,7 @@ describe('DropdownEditor', () => {
       editor.init(container, null, params);
 
       const searchInput = container.querySelector('input[type="text"]') as HTMLInputElement;
-      const inputSpy = vi.fn();
+      const inputSpy = jest.fn();
       searchInput.addEventListener('input', inputSpy);
 
       editor.destroy();
@@ -677,7 +674,7 @@ describe('DropdownEditor', () => {
   // ===== Blur Handling Tests =====
   describe('Blur Handling', () => {
     it('should commit on blur by default', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       editor.init(container, 'opt1', { ...params, onComplete });
 
       const searchInput = container.querySelector('input[type="text"]') as HTMLInputElement;
@@ -696,7 +693,7 @@ describe('DropdownEditor', () => {
         options: mockOptions,
         stopOnBlur: false,
       });
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       customEditor.init(container, 'opt1', { ...params, onComplete });
 
       const searchInput = container.querySelector('input[type="text"]') as HTMLInputElement;
@@ -715,7 +712,7 @@ describe('DropdownEditor', () => {
   // ===== onChange Callback Tests =====
   describe('onChange Callback', () => {
     it('should call onChange callback when selection changes in multi-select', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const customEditor = new DropdownEditor({
         options: mockOptions,
         multiSelect: true,

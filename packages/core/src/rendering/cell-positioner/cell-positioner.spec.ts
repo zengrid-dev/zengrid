@@ -72,8 +72,8 @@ describe('CellPositioner', () => {
   it('should release cells not in visible range', () => {
     positioner.renderVisibleCells(0, 0);
 
-    // Scroll down so first row is no longer visible
-    positioner.renderVisibleCells(300, 0);
+    // Scroll far enough to move past the overscan buffer (10 rows * 30px = 300px)
+    positioner.renderVisibleCells(900, 0);
 
     // Some cells should have been released
     expect(pool.stats.pooled).toBeGreaterThan(0);

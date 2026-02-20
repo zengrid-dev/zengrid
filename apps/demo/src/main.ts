@@ -4,6 +4,7 @@ import '../../../packages/core/src/features/loading/loading.styles.css';
 import '../../../packages/core/src/features/column-resize/column-resize.styles.css';
 import '../../../packages/core/src/features/column-drag/column-drag.styles.css';
 import 'vanilla-calendar-pro/styles/index.css';
+import '../../../packages/core/src/datetime-core/theming/datetime.css';
 import { PaginationDemo } from './pagination-demo';
 
 // Import configurations

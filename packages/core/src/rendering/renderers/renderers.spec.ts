@@ -1,7 +1,7 @@
-import { TextRenderer } from './text-renderer';
-import { NumberRenderer } from './number-renderer';
-import { ImageRenderer } from './image-renderer';
-import { AdvancedCellRenderer } from './advanced-cell-renderer';
+import { TextRenderer } from './text';
+import { NumberRenderer } from './number';
+import { ImageRenderer } from './image';
+import { AdvancedCellRenderer } from './advanced-cell';
 import { RendererRegistry } from './renderer-registry';
 import type { RenderParams } from './renderer.interface';
 

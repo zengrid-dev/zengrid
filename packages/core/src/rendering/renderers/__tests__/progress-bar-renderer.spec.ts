@@ -1,11 +1,10 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ProgressBarRenderer, createProgressBarRenderer } from '../progress-bar-renderer';
+import { ProgressBarRenderer, createProgressBarRenderer } from '../progress-bar';
 import type { RenderParams } from '../renderer.interface';
-import type { ProgressColorThreshold } from '../progress-bar-renderer';
+import type { ProgressColorThreshold } from '../progress-bar';
 
 describe('ProgressBarRenderer', () => {
   let renderer: ProgressBarRenderer;
@@ -34,7 +33,7 @@ describe('ProgressBarRenderer', () => {
     });
 
     it('should accept custom options', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ProgressBarRenderer({
         min: 0,
         max: 200,
@@ -119,7 +118,7 @@ describe('ProgressBarRenderer', () => {
     });
 
     it('should attach click event listener when onClick is provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new ProgressBarRenderer({ onClick });
 
       renderer.render(element, params);
@@ -131,7 +130,7 @@ describe('ProgressBarRenderer', () => {
     });
 
     it('should set cursor pointer when onClick is provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new ProgressBarRenderer({ onClick });
 
       renderer.render(element, params);
@@ -195,7 +194,7 @@ describe('ProgressBarRenderer', () => {
 
   describe('destroy()', () => {
     it('should remove event listeners', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new ProgressBarRenderer({ onClick });
 
       renderer.render(element, params);
@@ -490,7 +489,7 @@ describe('ProgressBarRenderer', () => {
 
   describe('onClick callback', () => {
     it('should call onClick with value and params', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new ProgressBarRenderer({ onClick });
 
       params.value = 75;
@@ -503,8 +502,8 @@ describe('ProgressBarRenderer', () => {
     });
 
     it('should stop event propagation', () => {
-      const onClick = vi.fn();
-      const elementClickHandler = vi.fn();
+      const onClick = jest.fn();
+      const elementClickHandler = jest.fn();
       element.addEventListener('click', elementClickHandler);
 
       renderer = new ProgressBarRenderer({ onClick });

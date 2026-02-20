@@ -82,9 +82,9 @@ describe('RowHeightManager', () => {
 
     it('should return true for content-aware mode with autoHeight columns', () => {
       const columns: ColumnDef[] = [
-        { field: 'name', width: 100 },
-        { field: 'description', width: 200, autoHeight: true },
-        { field: 'value', width: 100 },
+        { field: 'name', header: 'name', width: 100 },
+        { field: 'description', header: 'description', width: 200, autoHeight: true },
+        { field: 'value', header: 'value', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -99,8 +99,8 @@ describe('RowHeightManager', () => {
 
     it('should return false for content-aware mode without autoHeight columns', () => {
       const columns: ColumnDef[] = [
-        { field: 'name', width: 100 },
-        { field: 'value', width: 100 },
+        { field: 'name', header: 'name', width: 100 },
+        { field: 'value', header: 'value', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -115,9 +115,9 @@ describe('RowHeightManager', () => {
 
     it('should check heightAffectingColumns config', () => {
       const columns: ColumnDef[] = [
-        { field: 'name', width: 100 },
-        { field: 'description', width: 200 },
-        { field: 'value', width: 100 },
+        { field: 'name', header: 'name', width: 100 },
+        { field: 'description', header: 'description', width: 200 },
+        { field: 'value', header: 'value', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -139,14 +139,14 @@ describe('RowHeightManager', () => {
         mode: 'content-aware',
         config: {},
         heightProvider: createMockHeightProvider(),
-        columns: [{ field: 'name', width: 100 }],
+        columns: [{ field: 'name', header: 'name', width: 100 }],
       });
 
       expect(manager.needsMeasurement(0)).toBe(false);
 
       manager.updateColumns([
-        { field: 'name', width: 100 },
-        { field: 'description', width: 200, autoHeight: true },
+        { field: 'name', header: 'name', width: 100 },
+        { field: 'description', header: 'description', width: 200, autoHeight: true },
       ]);
 
       expect(manager.needsMeasurement(0)).toBe(true);
@@ -158,7 +158,7 @@ describe('RowHeightManager', () => {
         config: {},
         heightProvider: createMockHeightProvider(),
         columns: [
-          { field: 'name', width: 100, autoHeight: true },
+          { field: 'name', header: 'name', width: 100, autoHeight: true },
         ],
       });
 
@@ -166,7 +166,7 @@ describe('RowHeightManager', () => {
       expect(statsBefore.heightAffectingColumns).toBe(1);
 
       manager.updateColumns([
-        { field: 'name', width: 100 },
+        { field: 'name', header: 'name', width: 100 },
       ]);
 
       const statsAfter = manager.getStats();
@@ -194,7 +194,7 @@ describe('RowHeightManager', () => {
 
     it('should not rebuild if mode unchanged', () => {
       const columns: ColumnDef[] = [
-        { field: 'name', width: 100, autoHeight: true },
+        { field: 'name', header: 'name', width: 100, autoHeight: true },
       ];
 
       const manager = new RowHeightManager({
@@ -217,8 +217,8 @@ describe('RowHeightManager', () => {
 
     it('should rebuild indices when switching to content-aware', () => {
       const columns: ColumnDef[] = [
-        { field: 'name', width: 100, autoHeight: true },
-        { field: 'value', width: 100 },
+        { field: 'name', header: 'name', width: 100, autoHeight: true },
+        { field: 'value', header: 'value', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -238,9 +238,9 @@ describe('RowHeightManager', () => {
   describe('getStats', () => {
     it('should return correct statistics', () => {
       const columns: ColumnDef[] = [
-        { field: 'a', width: 100, autoHeight: true },
-        { field: 'b', width: 100, autoHeight: true },
-        { field: 'c', width: 100 },
+        { field: 'a', header: 'a', width: 100, autoHeight: true },
+        { field: 'b', header: 'b', width: 100, autoHeight: true },
+        { field: 'c', header: 'c', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -265,9 +265,9 @@ describe('RowHeightManager', () => {
 
     it('should count all columns for auto mode', () => {
       const columns: ColumnDef[] = [
-        { field: 'a', width: 100 },
-        { field: 'b', width: 100 },
-        { field: 'c', width: 100 },
+        { field: 'a', header: 'a', width: 100 },
+        { field: 'b', header: 'b', width: 100 },
+        { field: 'c', header: 'c', width: 100 },
       ];
 
       const manager = new RowHeightManager({
@@ -284,10 +284,10 @@ describe('RowHeightManager', () => {
 
   describe('mode behavior', () => {
     const columns: ColumnDef[] = [
-      { field: 'name', width: 100 },
-      { field: 'description', width: 200, autoHeight: true },
-      { field: 'tags', width: 150, autoHeight: true },
-      { field: 'value', width: 100 },
+      { field: 'name', header: 'name', width: 100 },
+      { field: 'description', header: 'description', width: 200, autoHeight: true },
+      { field: 'tags', header: 'tags', width: 150, autoHeight: true },
+      { field: 'value', header: 'value', width: 100 },
     ];
 
     const modes: RowHeightMode[] = ['fixed', 'auto', 'content-aware'];

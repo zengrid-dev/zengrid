@@ -114,7 +114,17 @@ export function getDisplayText(
  */
 export function getPlaceholderText(
   selectedValues: Set<any>,
-  placeholder: string
+  placeholder: string,
+  options?: DropdownEditorNormalizedOptions,
+  allOptions?: DropdownOption[]
 ): string {
-  return selectedValues.size === 0 ? placeholder : '';
+  if (selectedValues.size === 0) {
+    return placeholder;
+  }
+
+  if (options && allOptions && options.multiSelect) {
+    return getDisplayText(selectedValues, options, allOptions);
+  }
+
+  return '';
 }

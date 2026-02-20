@@ -7,7 +7,6 @@
  * Run with: pnpm test -- invariants.test.ts
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 
 // Import your actual implementations
 // import { HeightProvider } from '../src/rendering/height-provider';

@@ -5,7 +5,7 @@
  */
 
 import { MultiColumnSorter } from '../multi-column-sorter';
-import { SortModel, Comparators, SortColumn } from '../types';
+import { SortModel, Comparators } from '../types';
 
 describe('MultiColumnSorter', () => {
   let sorter: MultiColumnSorter;

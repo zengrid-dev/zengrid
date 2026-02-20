@@ -43,14 +43,10 @@ describe('Core Types', () => {
         rowHeight: 30,
         colWidth: 100,
         enableSelection: true,
-        enableEditing: true,
         enableA11y: true,
-        locale: 'en-US',
-        direction: 'ltr',
       };
 
       expect(options.enableSelection).toBe(true);
-      expect(options.locale).toBe('en-US');
     });
   });
 });

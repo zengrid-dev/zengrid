@@ -1,14 +1,12 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   ChipRenderer,
   createChipRenderer,
-  type ChipRendererOptions,
   type Chip,
-} from '../chip-renderer';
+} from '../chip';
 import type { RenderParams } from '../renderer.interface';
 
 describe('ChipRenderer', () => {
@@ -57,7 +55,8 @@ describe('ChipRenderer', () => {
         { label: 'Chip 2', value: '2' },
       ];
       const renderer = new ChipRenderer({ chips: staticChips });
-      renderer.render(element, params);
+      const staticParams = { ...params, value: 'non-array-value' };
+      renderer.render(element, staticParams);
 
       const chips = element.querySelectorAll('.zg-chip:not(.zg-chip--overflow)');
       expect(chips.length).toBe(2);
@@ -101,7 +100,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
-        onRemove: vi.fn(),
+        onRemove: jest.fn(),
       });
       renderer.render(element, params);
 
@@ -113,6 +112,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 2,
+        overflowMode: 'collapse',
       });
       renderer.render(element, params);
 
@@ -124,7 +124,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should accept onClick handler', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -206,16 +206,22 @@ describe('ChipRenderer', () => {
     });
 
     it('should handle empty chips array', () => {
+      const renderer2 = new ChipRenderer({
+        chips: (params) => params.value || [],
+      });
       const params2 = { ...params, value: [] };
-      renderer.render(element, params2);
+      renderer2.render(element, params2);
 
       const container = element.querySelector('.zg-chip-container');
       expect(container?.children.length).toBe(0);
     });
 
     it('should handle null value', () => {
+      const renderer2 = new ChipRenderer({
+        chips: (params) => params.value || [],
+      });
       const params2 = { ...params, value: null };
-      renderer.render(element, params2);
+      renderer2.render(element, params2);
 
       const container = element.querySelector('.zg-chip-container');
       expect(container?.children.length).toBe(0);
@@ -348,7 +354,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should clean up event handlers', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -365,7 +371,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should clean up remove button handlers', () => {
-      const onRemove = vi.fn();
+      const onRemove = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
@@ -422,7 +428,8 @@ describe('ChipRenderer', () => {
         chips: [{ label: 'Static', value: 'static' }],
       });
 
-      const cssClass = renderer.getCellClass(params);
+      const staticParams = { ...params, value: 'non-array-value' };
+      const cssClass = renderer.getCellClass(staticParams);
       expect(cssClass).toBe('zg-chip-single');
     });
   });
@@ -432,7 +439,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
-        onRemove: vi.fn(),
+        onRemove: jest.fn(),
       });
       renderer.render(element, params);
 
@@ -452,7 +459,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should call onRemove when remove button clicked', () => {
-      const onRemove = vi.fn();
+      const onRemove = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
@@ -471,7 +478,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
-        onRemove: vi.fn(),
+        onRemove: jest.fn(),
       });
       renderer.render(element, params);
 
@@ -480,8 +487,8 @@ describe('ChipRenderer', () => {
     });
 
     it('should stop propagation on remove button click', () => {
-      const onRemove = vi.fn();
-      const onClick = vi.fn();
+      const onRemove = jest.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
@@ -507,7 +514,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: chipsWithOverride,
         removable: false, // Global setting
-        onRemove: vi.fn(),
+        onRemove: jest.fn(),
       });
       const params2 = { ...params, value: chipsWithOverride };
       renderer.render(element, params2);
@@ -517,8 +524,8 @@ describe('ChipRenderer', () => {
     });
 
     it('should handle errors in onRemove gracefully', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const onRemove = vi.fn().mockImplementation(() => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const onRemove = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -539,7 +546,7 @@ describe('ChipRenderer', () => {
 
   describe('Clickable Chips', () => {
     it('should make chips clickable when onClick provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -555,7 +562,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should call onClick when chip clicked', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -570,7 +577,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should support keyboard interaction (Enter)', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -585,7 +592,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should support keyboard interaction (Space)', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         onClick,
@@ -600,8 +607,8 @@ describe('ChipRenderer', () => {
     });
 
     it('should not trigger onClick when remove button clicked', () => {
-      const onClick = vi.fn();
-      const onRemove = vi.fn();
+      const onClick = jest.fn();
+      const onRemove = jest.fn();
       const renderer = new ChipRenderer({
         chips: defaultChips,
         removable: true,
@@ -618,8 +625,8 @@ describe('ChipRenderer', () => {
     });
 
     it('should handle errors in onClick gracefully', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const onClick = vi.fn().mockImplementation(() => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const onClick = jest.fn().mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -642,6 +649,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 2,
+        overflowMode: 'collapse',
       });
       renderer.render(element, params);
 
@@ -657,6 +665,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 3,
+        overflowMode: 'collapse',
       });
       renderer.render(element, params);
 
@@ -681,6 +690,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 1,
+        overflowMode: 'collapse',
         overflowText: (count) => `and ${count} others`,
       });
       renderer.render(element, params);
@@ -693,6 +703,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 2,
+        overflowMode: 'collapse',
       });
       renderer.render(element, params);
 
@@ -704,6 +715,7 @@ describe('ChipRenderer', () => {
       const renderer = new ChipRenderer({
         chips: defaultChips,
         maxChips: 2,
+        overflowMode: 'collapse',
         size: 'large',
       });
       renderer.render(element, params);
@@ -784,7 +796,7 @@ describe('ChipRenderer', () => {
         { label: 'With Data', value: 'data', data: { id: 123, type: 'custom' } },
       ];
 
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({ chips, onClick });
       const params2 = { ...params, value: chips };
       renderer.render(element, params2);
@@ -939,7 +951,7 @@ describe('ChipRenderer', () => {
     });
 
     it('should clean up handlers between updates', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ChipRenderer({
         chips: (params) => params.value || [],
         onClick,
@@ -1088,7 +1100,7 @@ describe('ChipRenderer', () => {
         chips: defaultChips,
         size: 'large',
         removable: true,
-        onRemove: vi.fn(),
+        onRemove: jest.fn(),
       });
       renderer.render(element, params);
 

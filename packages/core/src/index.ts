@@ -140,56 +140,116 @@ export { createHitTester } from './selection/hit-tester';
 export { Grid } from './grid/index';
 
 // Interactive Renderers
-export type { CheckboxRendererOptions, createCheckboxRenderer } from './rendering/renderers/checkbox-renderer';
-export { CheckboxRenderer } from './rendering/renderers/checkbox-renderer';
+export type { CheckboxRendererOptions, createCheckboxRenderer } from './rendering/renderers/checkbox';
+export { CheckboxRenderer } from './rendering/renderers/checkbox';
 
-export type { ProgressBarRendererOptions, createProgressBarRenderer } from './rendering/renderers/progress-bar-renderer';
-export { ProgressBarRenderer } from './rendering/renderers/progress-bar-renderer';
+export type { ProgressBarRendererOptions, createProgressBarRenderer } from './rendering/renderers/progress-bar';
+export { ProgressBarRenderer } from './rendering/renderers/progress-bar';
 
-export type { LinkRendererOptions, createLinkRenderer } from './rendering/renderers/link-renderer';
-export { LinkRenderer } from './rendering/renderers/link-renderer';
+export type { LinkRendererOptions, createLinkRenderer } from './rendering/renderers/link';
+export { LinkRenderer } from './rendering/renderers/link';
 
-export type { ButtonRendererOptions, createButtonRenderer } from './rendering/renderers/button-renderer';
-export { ButtonRenderer } from './rendering/renderers/button-renderer';
+export type { ButtonRendererOptions, createButtonRenderer } from './rendering/renderers/button';
+export { ButtonRenderer } from './rendering/renderers/button';
 
-export type { DateRendererOptions, DateFormat as DateRendererFormat, createDateRenderer } from './rendering/renderers/date-renderer';
-export { DateRenderer } from './rendering/renderers/date-renderer';
+export type { DateRendererOptions, DateFormat as DateRendererFormat, createDateRenderer } from './rendering/renderers/date';
+export { DateRenderer } from './rendering/renderers/date';
 
-export type { DateRangeRendererOptions, DateRange as RendererDateRange, createDateRangeRenderer } from './rendering/renderers/date-range-renderer';
-export { DateRangeRenderer } from './rendering/renderers/date-range-renderer';
+export type { DateRangeRendererOptions, DateRange as RendererDateRange, createDateRangeRenderer } from './rendering/renderers/date-range';
+export { DateRangeRenderer } from './rendering/renderers/date-range';
 
-export type { SelectRendererOptions, SelectOption, createSelectRenderer } from './rendering/renderers/select-renderer';
-export { SelectRenderer } from './rendering/renderers/select-renderer';
+export type { SelectRendererOptions, SelectOption, createSelectRenderer } from './rendering/renderers/select';
+export { SelectRenderer } from './rendering/renderers/select';
 
-export type { ChipRendererOptions, Chip, createChipRenderer } from './rendering/renderers/chip-renderer';
-export { ChipRenderer } from './rendering/renderers/chip-renderer';
+export type { ChipRendererOptions, Chip, createChipRenderer } from './rendering/renderers/chip';
+export { ChipRenderer } from './rendering/renderers/chip';
 
-export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption } from './rendering/renderers/dropdown-types';
-export { DropdownRenderer, createDropdownRenderer } from './rendering/renderers/dropdown-renderer';
+export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption } from './rendering/renderers/dropdown';
+export { DropdownRenderer, createDropdownRenderer } from './rendering/renderers/dropdown';
 
-export type { DatePickerRendererOptions } from './rendering/renderers/date-picker';
-export { DatePickerRenderer, createDatePickerRenderer } from './rendering/renderers/date-picker';
+// DateTime Suite - New infrastructure with reliable click-outside, scroll handling, and theming
+export {
+  // Renderers
+  DatePickerRenderer,
+  createDatePickerRenderer,
+  TimePickerRenderer,
+  createTimePickerRenderer,
+  DateTimePickerRenderer,
+  createDateTimePickerRenderer,
+  // Display renderers
+  DateRenderer as DatetimeDateRenderer,
+  createDateRenderer as createDatetimeDateRenderer,
+  TimeRenderer,
+  createTimeRenderer,
+  DateTimeRenderer,
+  createDateTimeRenderer,
+} from './rendering/renderers/datetime';
+export type {
+  DatePickerRendererOptions,
+  TimePickerRendererOptions,
+  DateTimePickerRendererOptions,
+  DateRendererOptions as DatetimeDateRendererOptions,
+  TimeRendererOptions,
+  DateTimeRendererOptions,
+  TimeValue as RendererTimeValue,
+  TimeFormat as RendererTimeFormat,
+} from './rendering/renderers/datetime';
+
+// DateTime Core - Theming, parsing, formatting utilities
+export {
+  ThemeManager as DatetimeThemeManager,
+  setDatetimeTheme,
+  setDatetimeThemeConfig,
+  PopupManager as DatetimePopupManager,
+  parseDate,
+  parseTime,
+  parseDateTime,
+  formatDate,
+  formatDateForDisplay,
+  formatTime,
+  formatDateTime,
+  formatDateRange,
+  isValidDate,
+  isDateInRange,
+} from './datetime-core';
+export type {
+  DatetimeTheme,
+  ThemeConfig as DatetimeThemeConfig,
+} from './datetime-core';
 
 // Cell Editors
 export type { CellEditor, EditorParams, ValidationResult as EditorValidationResult } from './editing/cell-editor.interface';
 
-export type { TextEditorOptions, createTextEditor } from './editing/text-editor';
-export { TextEditor } from './editing/text-editor';
+export type { TextEditorOptions, createTextEditor } from './editing/text';
+export { TextEditor } from './editing/text';
 
-export type { CheckboxEditorOptions, createCheckboxEditor } from './editing/checkbox-editor';
-export { CheckboxEditor } from './editing/checkbox-editor';
+export type { CheckboxEditorOptions, createCheckboxEditor } from './editing/checkbox';
+export { CheckboxEditor } from './editing/checkbox';
 
-export type { DateEditorOptions, DateFormat as DateEditorFormat, createDateEditor } from './editing/date-editor';
-export { DateEditor } from './editing/date-editor';
+// DateTime Editors - New infrastructure
+export {
+  DateEditor,
+  createDateEditor,
+  TimeEditor,
+  createTimeEditor,
+  DateTimeEditor,
+  createDateTimeEditor,
+  DateRangeEditor,
+  createDateRangeEditor,
+} from './editing/datetime';
+export type {
+  DateEditorOptions,
+  TimeEditorOptions,
+  DateTimeEditorOptions,
+  DateRangeEditorOptions,
+  DateRange as EditorDateRange,
+  TimeValue as EditorTimeValue,
+  TimeFormat as EditorTimeFormat,
+  DateInputType,
+} from './editing/datetime';
 
-export type { VanillaDateEditorOptions } from './editing/vanilla-date-editor';
-export { VanillaDateEditor } from './editing/vanilla-date-editor';
-
-export type { DateRangeEditorOptions, DateRange as EditorDateRange } from './editing/date-range-editor';
-export { DateRangeEditor } from './editing/date-range-editor';
-
-export type { DropdownEditorOptions, DropdownOption, createDropdownEditor } from './editing/dropdown-editor';
-export { DropdownEditor } from './editing/dropdown-editor';
+export type { DropdownEditorOptions, DropdownOption, createDropdownEditor } from './editing/dropdown';
+export { DropdownEditor } from './editing/dropdown';
 
 export { EditorManager } from './editing/editor-manager';
 export type { EditorManagerOptions } from './editing/editor-manager';
@@ -227,8 +287,7 @@ export {
 } from './features/sorting';
 
 // Utilities
-export { DependencyGraph } from './utils/dependency-graph';
-export { EventEmitter } from './utils/event-emitter';
+export { DependencyGraph, EventEmitter } from './utils';
 
 // TODO: Implement remaining modules
 //

@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import {
   RendererRegistry,
   globalRendererRegistry,
@@ -49,7 +48,7 @@ describe('RendererRegistry', () => {
 
     it('should warn when overwriting existing renderer', () => {
       const factory = () => new ColumnGroupRenderer();
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       registry.register('test', factory);
       registry.register('test', factory);
@@ -91,7 +90,7 @@ describe('RendererRegistry', () => {
       };
       registry.register('error', factory);
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const renderer = registry.get('error');
 
       expect(renderer).toBeUndefined();
@@ -127,7 +126,7 @@ describe('RendererRegistry', () => {
     });
 
     it('should not unregister default renderer', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = registry.unregister('default');
       expect(result).toBe(false);

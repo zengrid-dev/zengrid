@@ -1,14 +1,12 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   SelectRenderer,
   createSelectRenderer,
-  type SelectRendererOptions,
   type SelectOption,
-} from '../select-renderer';
+} from '../select';
 import type { RenderParams } from '../renderer.interface';
 
 describe('SelectRenderer', () => {
@@ -99,7 +97,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should accept onChange callback', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -207,7 +205,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should attach onChange handler', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -223,7 +221,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should delegate to update()', () => {
-      const updateSpy = vi.spyOn(renderer, 'update');
+      const updateSpy = jest.spyOn(renderer, 'update');
       renderer.render(element, params);
 
       expect(updateSpy).toHaveBeenCalledWith(element, params);
@@ -310,7 +308,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should remove event handler', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -330,7 +328,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should clear event handlers map', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -418,7 +416,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should trigger onChange with single value', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -434,7 +432,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should trigger onChange with null for placeholder selection', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         placeholder: 'Choose...',
@@ -493,7 +491,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should trigger onChange with array of values', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         multiple: true,
@@ -511,7 +509,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should handle empty multi-select', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         multiple: true,
@@ -641,7 +639,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should trigger onChange with object value', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: complexOptions,
         onChange,
@@ -685,7 +683,7 @@ describe('SelectRenderer', () => {
     it('should use field name if no header', () => {
       const params2 = {
         ...params,
-        column: { field: 'status' },
+        column: { field: 'status', header: 'status' },
       };
       renderer.render(element, params2);
 
@@ -718,7 +716,7 @@ describe('SelectRenderer', () => {
 
   describe('Lifecycle', () => {
     it('should handle full lifecycle', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -831,8 +829,8 @@ describe('SelectRenderer', () => {
     });
 
     it('should stop event propagation on change', () => {
-      const onChange = vi.fn();
-      const parentClick = vi.fn();
+      const onChange = jest.fn();
+      const parentClick = jest.fn();
       const renderer = new SelectRenderer({
         options: defaultOptions,
         onChange,
@@ -843,7 +841,7 @@ describe('SelectRenderer', () => {
 
       const select = element.querySelector('select') as HTMLSelectElement;
       const changeEvent = new Event('change', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(changeEvent, 'stopPropagation');
+      const stopPropagationSpy = jest.spyOn(changeEvent, 'stopPropagation');
 
       select.dispatchEvent(changeEvent);
 
@@ -862,7 +860,7 @@ describe('SelectRenderer', () => {
     });
 
     it('should pass options correctly', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = createSelectRenderer({
         options: defaultOptions,
         placeholder: 'Select option...',

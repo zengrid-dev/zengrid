@@ -7,23 +7,36 @@ export type { CellEditor, EditorParams, ValidationResult, EditorFactory } from '
 export { EditorManager } from './editor-manager';
 export type { EditorManagerOptions } from './editor-manager';
 
-export { TextEditor } from './text-editor';
-export type { TextEditorOptions } from './text-editor';
+export { TextEditor } from './text';
+export type { TextEditorOptions } from './text';
 
-export { NumberEditor } from './number-editor';
-export type { NumberEditorOptions } from './number-editor';
+export { NumberEditor } from './number';
+export type { NumberEditorOptions } from './number';
 
-export { SelectEditor } from './select-editor';
-export type { SelectEditorOptions } from './select-editor';
+export { SelectEditor } from './select';
+export type { SelectEditorOptions } from './select';
 
-export { DateEditor } from './date-editor';
-export type { DateEditorOptions } from './date-editor';
+// DateTime Suite (new infrastructure)
+export {
+  DateEditor,
+  createDateEditor,
+  TimeEditor,
+  createTimeEditor,
+  DateTimeEditor,
+  createDateTimeEditor,
+  DateRangeEditor,
+  createDateRangeEditor,
+} from './datetime';
+export type {
+  DateEditorOptions,
+  TimeEditorOptions,
+  DateTimeEditorOptions,
+  DateRangeEditorOptions,
+  DateRange,
+  TimeValue,
+  TimeFormat,
+  DateInputType,
+} from './datetime';
 
-export { VanillaDateEditor } from './vanilla-date-editor';
-export type { VanillaDateEditorOptions } from './vanilla-date-editor';
-
-export { DateRangeEditor } from './date-range-editor';
-export type { DateRangeEditorOptions, DateRange as EditorDateRange } from './date-range-editor';
-
-export { CheckboxEditor, createCheckboxEditor } from './checkbox-editor';
-export type { CheckboxEditorOptions } from './checkbox-editor';
+export { CheckboxEditor, createCheckboxEditor } from './checkbox';
+export type { CheckboxEditorOptions } from './checkbox';

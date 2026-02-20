@@ -1,0 +1,407 @@
+/**
+ * ZenGrid DateTime Suite - Core Styles
+ *
+ * Uses CSS variables for theming. Variables are set by ThemeManager.
+ * Can be overridden by users for customization.
+ */
+
+/* ============================================
+   CSS Variables (defaults, overridden by JS)
+   ============================================ */
+
+:root {
+  /* Primary colors */
+  --zg-datetime-primary-color: #2563eb;
+  --zg-datetime-primary-hover-color: #1d4ed8;
+
+  /* Text colors */
+  --zg-datetime-text-color: #1f2937;
+  --zg-datetime-text-secondary-color: #6b7280;
+
+  /* Background colors */
+  --zg-datetime-background-color: #ffffff;
+  --zg-datetime-popup-background-color: #ffffff;
+
+  /* Border */
+  --zg-datetime-border-color: #e5e7eb;
+  --zg-datetime-border-radius: 6px;
+
+  /* Focus */
+  --zg-datetime-focus-ring-color: rgba(37, 99, 235, 0.5);
+
+  /* States */
+  --zg-datetime-error-color: #dc2626;
+  --zg-datetime-today-color: #dbeafe;
+  --zg-datetime-selected-color: #2563eb;
+  --zg-datetime-range-color: #eff6ff;
+
+  /* Typography */
+  --zg-datetime-font-family: inherit;
+  --zg-datetime-font-size: 14px;
+
+  /* Spacing */
+  --zg-datetime-popup-padding: 12px;
+  --zg-datetime-trigger-padding: 8px 12px;
+
+  /* Shadows */
+  --zg-datetime-popup-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Transitions */
+  --zg-datetime-transition: 150ms ease;
+}
+
+/* Dark theme */
+[data-zg-datetime-theme="dark"] {
+  --zg-datetime-primary-color: #3b82f6;
+  --zg-datetime-primary-hover-color: #60a5fa;
+  --zg-datetime-text-color: #f9fafb;
+  --zg-datetime-text-secondary-color: #9ca3af;
+  --zg-datetime-background-color: #1f2937;
+  --zg-datetime-popup-background-color: #1f2937;
+  --zg-datetime-border-color: #374151;
+  --zg-datetime-focus-ring-color: rgba(59, 130, 246, 0.5);
+  --zg-datetime-error-color: #f87171;
+  --zg-datetime-today-color: #1e3a5f;
+  --zg-datetime-selected-color: #3b82f6;
+  --zg-datetime-range-color: #1e293b;
+  --zg-datetime-popup-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   Base Container
+   ============================================ */
+
+.zg-datetime-container {
+  position: relative;
+  display: inline-block;
+  font-family: var(--zg-datetime-font-family);
+  font-size: var(--zg-datetime-font-size);
+  color: var(--zg-datetime-text-color);
+}
+
+/* ============================================
+   Trigger Button
+   ============================================ */
+
+.zg-datetime-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--zg-datetime-trigger-padding);
+  background-color: var(--zg-datetime-background-color);
+  border: 1px solid var(--zg-datetime-border-color);
+  border-radius: var(--zg-datetime-border-radius);
+  color: var(--zg-datetime-text-color);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  transition: border-color var(--zg-datetime-transition), box-shadow var(--zg-datetime-transition);
+  min-width: 0;
+  text-align: left;
+}
+
+.zg-datetime-trigger:hover:not(:disabled) {
+  border-color: var(--zg-datetime-primary-color);
+}
+
+.zg-datetime-trigger:focus {
+  outline: none;
+  border-color: var(--zg-datetime-primary-color);
+  box-shadow: 0 0 0 3px var(--zg-datetime-focus-ring-color);
+}
+
+.zg-datetime-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.zg-datetime-trigger-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.zg-datetime-trigger-text.placeholder {
+  color: var(--zg-datetime-text-secondary-color);
+}
+
+.zg-datetime-trigger-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--zg-datetime-text-secondary-color);
+}
+
+.zg-datetime-trigger-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   Popup Container
+   ============================================ */
+
+.zg-datetime-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  display: none;
+  background-color: var(--zg-datetime-popup-background-color);
+  border: 1px solid var(--zg-datetime-border-color);
+  border-radius: var(--zg-datetime-border-radius);
+  box-shadow: var(--zg-datetime-popup-shadow);
+  padding: var(--zg-datetime-popup-padding);
+  will-change: transform;
+}
+
+.zg-datetime-popup[data-zg-datetime-popup="true"] {
+  display: block;
+}
+
+/* Placement indicators for styling */
+.zg-datetime-popup[data-zg-placement="top"] {
+  /* Arrow pointing down if needed */
+}
+
+.zg-datetime-popup[data-zg-placement="bottom"] {
+  /* Arrow pointing up if needed */
+}
+
+/* ============================================
+   Calendar Wrapper (for vanilla-calendar-pro)
+   ============================================ */
+
+.zg-datetime-calendar-wrapper {
+  /* Container for vanilla-calendar-pro instance */
+}
+
+/* Override vanilla-calendar-pro styles to match theme */
+.zg-datetime-calendar-wrapper .vanilla-calendar {
+  --vc-bg: var(--zg-datetime-popup-background-color);
+  --vc-text-color: var(--zg-datetime-text-color);
+  --vc-border-color: var(--zg-datetime-border-color);
+  --vc-border-radius: var(--zg-datetime-border-radius);
+  --vc-text-disabled-color: var(--zg-datetime-text-secondary-color);
+  --vc-text-today-color: var(--zg-datetime-primary-color);
+  --vc-bg-today: var(--zg-datetime-today-color);
+  --vc-text-selected-color: #ffffff;
+  --vc-bg-selected: var(--zg-datetime-selected-color);
+  --vc-bg-hover: var(--zg-datetime-range-color);
+  font-family: var(--zg-datetime-font-family);
+}
+
+/* ============================================
+   Input Field (for editors)
+   ============================================ */
+
+.zg-datetime-input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: var(--zg-datetime-background-color);
+  border: 1px solid var(--zg-datetime-border-color);
+  border-radius: var(--zg-datetime-border-radius);
+  color: var(--zg-datetime-text-color);
+  font-family: inherit;
+  font-size: inherit;
+  transition: border-color var(--zg-datetime-transition), box-shadow var(--zg-datetime-transition);
+}
+
+.zg-datetime-input:focus {
+  outline: none;
+  border-color: var(--zg-datetime-primary-color);
+  box-shadow: 0 0 0 3px var(--zg-datetime-focus-ring-color);
+}
+
+.zg-datetime-input::placeholder {
+  color: var(--zg-datetime-text-secondary-color);
+}
+
+.zg-datetime-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.zg-datetime-input.error {
+  border-color: var(--zg-datetime-error-color);
+}
+
+.zg-datetime-input.error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+
+/* ============================================
+   Date Range Specific
+   ============================================ */
+
+.zg-datetime-range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zg-datetime-range-separator {
+  color: var(--zg-datetime-text-secondary-color);
+}
+
+.zg-datetime-range-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Date Range Editor Header */
+.zg-date-range-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--zg-datetime-border-color);
+}
+
+.zg-date-range-display {
+  font-weight: 500;
+  color: var(--zg-datetime-text-color);
+}
+
+.zg-date-range-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.zg-date-range-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--zg-datetime-border-color);
+  border-radius: var(--zg-datetime-border-radius);
+  background-color: var(--zg-datetime-background-color);
+  color: var(--zg-datetime-text-color);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color var(--zg-datetime-transition), border-color var(--zg-datetime-transition);
+}
+
+.zg-date-range-btn:hover {
+  border-color: var(--zg-datetime-primary-color);
+}
+
+.zg-date-range-btn-apply {
+  background-color: var(--zg-datetime-primary-color);
+  border-color: var(--zg-datetime-primary-color);
+  color: #ffffff;
+}
+
+.zg-date-range-btn-apply:hover {
+  background-color: var(--zg-datetime-primary-hover-color);
+  border-color: var(--zg-datetime-primary-hover-color);
+}
+
+.zg-date-range-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--zg-datetime-text-secondary-color);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zg-date-range-calendars {
+  display: flex;
+  gap: 16px;
+}
+
+/* ============================================
+   Time Picker Specific
+   ============================================ */
+
+.zg-datetime-time-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.zg-datetime-time-input {
+  width: 48px;
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.zg-datetime-time-separator {
+  color: var(--zg-datetime-text-secondary-color);
+  font-weight: 500;
+}
+
+.zg-datetime-time-ampm {
+  padding: 8px 12px;
+  background-color: var(--zg-datetime-background-color);
+  border: 1px solid var(--zg-datetime-border-color);
+  border-radius: var(--zg-datetime-border-radius);
+  color: var(--zg-datetime-text-color);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+/* ============================================
+   Display Renderers (read-only cells)
+   ============================================ */
+
+.zg-datetime-display {
+  padding: 4px 8px;
+  color: var(--zg-datetime-text-color);
+  font-family: var(--zg-datetime-font-family);
+  font-size: var(--zg-datetime-font-size);
+}
+
+.zg-datetime-display.empty {
+  color: var(--zg-datetime-text-secondary-color);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes zg-datetime-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.zg-datetime-popup[data-zg-datetime-popup="true"] {
+  animation: zg-datetime-fade-in var(--zg-datetime-transition);
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .zg-datetime-trigger,
+  .zg-datetime-input {
+    border-width: 2px;
+  }
+
+  .zg-datetime-trigger:focus,
+  .zg-datetime-input:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .zg-datetime-popup[data-zg-datetime-popup="true"] {
+    animation: none;
+  }
+
+  .zg-datetime-trigger,
+  .zg-datetime-input {
+    transition: none;
+  }
+}

@@ -1,9 +1,9 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { DateEditor, createDateEditor, type DateEditorOptions } from '../date-editor';
+import { DateEditor, createDateEditor } from '../datetime/date-editor';
+import type { DateEditorOptions } from '../datetime/date-editor';
 import type { EditorParams } from '../cell-editor.interface';
 
 describe('DateEditor', () => {
@@ -14,11 +14,20 @@ describe('DateEditor', () => {
   beforeEach(() => {
     editor = new DateEditor();
     container = document.createElement('div');
+    document.body.appendChild(container);
     params = {
       cell: { row: 0, col: 1 },
       column: { header: 'Birth Date', field: 'birthDate' },
       rowData: { id: 1, name: 'John', birthDate: new Date('1990-01-15') },
     };
+  });
+
+  afterEach(() => {
+    if (container.parentNode) {
+      container.parentNode.removeChild(container);
+    }
+    // Clean up any popups added to document.body
+    document.querySelectorAll('.zg-datetime-popup').forEach(el => el.remove());
   });
 
   describe('Constructor', () => {
@@ -39,35 +48,35 @@ describe('DateEditor', () => {
       expect(customEditor).toBeInstanceOf(DateEditor);
     });
 
-    it('should use YYYY-MM-DD format by default', () => {
+    it('should use DD/MM/YYYY format by default', () => {
       editor.init(container, new Date('2024-03-15'), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('2024-03-15');
+      expect(input.value).toBe('15/03/2024');
     });
 
     it('should apply custom className', () => {
       const customEditor = new DateEditor({ className: 'custom-date-editor' });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.className).toBe('custom-date-editor');
+      expect(input.className).toBe('custom-date-editor-input zg-datetime-input');
     });
 
-    it('should default to date input type', () => {
+    it('should default to text input type when using calendar popup', () => {
       editor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.type).toBe('date');
+      expect(input.type).toBe('text');
     });
 
-    it('should support datetime-local type', () => {
-      const customEditor = new DateEditor({ type: 'datetime-local' });
+    it('should support datetime-local type with native picker', () => {
+      const customEditor = new DateEditor({ type: 'datetime-local', useCalendarPopup: false });
       customEditor.init(container, new Date('2024-03-15T10:30:00'), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.type).toBe('datetime-local');
       expect(input.value).toMatch(/2024-03-15T\d{2}:\d{2}/);
     });
 
-    it('should support time type', () => {
-      const customEditor = new DateEditor({ type: 'time' });
+    it('should support time type with native picker', () => {
+      const customEditor = new DateEditor({ type: 'time', useCalendarPopup: false });
       customEditor.init(container, new Date('2024-03-15T14:30:00'), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.type).toBe('time');
@@ -80,27 +89,27 @@ describe('DateEditor', () => {
       editor.init(container, new Date('2024-01-15'), params);
       const input = container.querySelector('input');
       expect(input).toBeTruthy();
-      expect(input?.type).toBe('date');
+      expect(input?.type).toBe('text');
     });
 
     it('should set initial value from Date object', () => {
       const date = new Date('2024-03-15');
       editor.init(container, date, params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('2024-03-15');
+      expect(input.value).toBe('15/03/2024');
     });
 
     it('should set initial value from string', () => {
       editor.init(container, '2024-03-15' as any, params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('2024-03-15');
+      expect(input.value).toBe('15/03/2024');
     });
 
     it('should set initial value from timestamp', () => {
       const timestamp = new Date('2024-03-15').getTime();
       editor.init(container, timestamp as any, params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('2024-03-15');
+      expect(input.value).toBe('15/03/2024');
     });
 
     it('should handle null initial value', () => {
@@ -122,55 +131,45 @@ describe('DateEditor', () => {
       expect(input.placeholder).toBe('Select date...');
     });
 
-    it('should set required attribute when required is true', () => {
+    it('should set required attribute on input element', () => {
       const customEditor = new DateEditor({ required: true });
       customEditor.init(container, null, params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.required).toBe(true);
     });
 
-    it('should not set required when required is false', () => {
-      const customEditor = new DateEditor({ required: false });
-      customEditor.init(container, null, params);
-      const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.required).toBe(false);
-    });
-
-    it('should set min attribute from Date object', () => {
-      const customEditor = new DateEditor({ minDate: new Date('2020-01-01') });
+    it('should set min attribute for native picker', () => {
+      const customEditor = new DateEditor({ minDate: new Date('2020-01-01'), useCalendarPopup: false });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.min).toBe('2020-01-01');
     });
 
-    it('should set max attribute from Date object', () => {
-      const customEditor = new DateEditor({ maxDate: new Date('2030-12-31') });
+    it('should set max attribute for native picker', () => {
+      const customEditor = new DateEditor({ maxDate: new Date('2030-12-31'), useCalendarPopup: false });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.max).toBe('2030-12-31');
     });
 
-    it('should set min attribute from string', () => {
+    it('should not set min/max for calendar popup', () => {
       const customEditor = new DateEditor({ minDate: '2020-01-01' });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.min).toBe('2020-01-01');
+      expect(input.min).toBe('');
     });
 
     it('should set ARIA attributes', () => {
       editor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.getAttribute('role')).toBe('textbox');
-      expect(input.getAttribute('aria-label')).toContain('Birth Date');
-      expect(input.getAttribute('aria-required')).toBe('false');
+      expect(input.getAttribute('aria-label')).toBe('Date input');
     });
 
-    it('should set data attributes', () => {
-      editor.init(container, new Date(), params);
+    it('should set aria-required when required is true', () => {
+      const customEditor = new DateEditor({ required: true });
+      customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.dataset.row).toBe('0');
-      expect(input.dataset.col).toBe('1');
-      expect(input.dataset.field).toBe('birthDate');
+      expect(input.getAttribute('aria-required')).toBe('true');
     });
 
     it('should auto-focus by default', () => {
@@ -253,7 +252,7 @@ describe('DateEditor', () => {
       const result = customEditor.isValid();
       expect(result).toMatchObject({
         valid: false,
-        message: 'This field is required',
+        message: 'Date is required',
       });
     });
 
@@ -265,8 +264,8 @@ describe('DateEditor', () => {
       const result = customEditor.isValid();
       expect(result).toMatchObject({
         valid: false,
+        message: 'Date is before minimum allowed',
       });
-      expect((result as any).message).toContain('must be after');
     });
 
     it('should validate max date constraint', () => {
@@ -277,8 +276,8 @@ describe('DateEditor', () => {
       const result = customEditor.isValid();
       expect(result).toMatchObject({
         valid: false,
+        message: 'Date is after maximum allowed',
       });
-      expect((result as any).message).toContain('must be before');
     });
 
     it('should pass validation when date is within range', () => {
@@ -297,7 +296,8 @@ describe('DateEditor', () => {
         },
       });
       customEditor.init(container, new Date('2019-01-01'), params);
-      expect(customEditor.isValid()).toBe(false);
+      const result = customEditor.isValid();
+      expect(result).toMatchObject({ valid: false });
 
       customEditor.init(container, new Date('2024-01-01'), params);
       expect(customEditor.isValid()).toBe(true);
@@ -319,21 +319,18 @@ describe('DateEditor', () => {
       });
     });
 
-    it('should return error for invalid date string', () => {
+    it('should handle invalid input gracefully', () => {
       editor.init(container, null, params);
       const input = container.querySelector('input') as HTMLInputElement;
       input.value = 'invalid-date';
-      const result = editor.isValid();
-      expect(result).toMatchObject({
-        valid: false,
-        message: 'Invalid date format',
-      });
+      const value = editor.getValue();
+      expect(value).toBe(null);
     });
   });
 
   describe('onKeyDown()', () => {
     it('should commit on Enter key', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       editor.init(container, new Date('2024-03-15'), { ...params, onComplete });
 
       const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -344,7 +341,7 @@ describe('DateEditor', () => {
     });
 
     it('should cancel on Escape key', () => {
-      const onComplete = vi.fn();
+      const onComplete = jest.fn();
       const initialDate = new Date('2024-03-15');
       editor.init(container, initialDate, { ...params, onComplete });
 
@@ -359,49 +356,36 @@ describe('DateEditor', () => {
       expect(onComplete).toHaveBeenCalledWith(initialDate, true);
     });
 
-    it('should restore initial value on Escape', () => {
+    it('should cancel editing on Escape', () => {
+      const onComplete = jest.fn();
       const initialDate = new Date('2024-03-15');
-      editor.init(container, initialDate, params);
+      editor.init(container, initialDate, { ...params, onComplete });
 
       const input = container.querySelector('input') as HTMLInputElement;
-      input.value = '2024-06-20'; // Change value
+      input.value = '20/06/2024';
 
       editor.onKeyDown(new KeyboardEvent('keydown', { key: 'Escape' }));
 
-      expect(input.value).toBe('2024-03-15'); // Restored
+      expect(onComplete).toHaveBeenCalledWith(initialDate, true);
     });
 
-    it('should restore to empty on Escape when initial value was null', () => {
-      editor.init(container, null, params);
-
-      const input = container.querySelector('input') as HTMLInputElement;
-      input.value = '2024-06-20'; // Set value
-
-      editor.onKeyDown(new KeyboardEvent('keydown', { key: 'Escape' }));
-
-      expect(input.value).toBe(''); // Restored to empty
-    });
-
-    it('should stop propagation on all keys', () => {
+    it('should return true for all keys', () => {
       editor.init(container, new Date(), params);
       const event = new KeyboardEvent('keydown', { key: 'a' });
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
-
-      editor.onKeyDown(event);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
+      const handled = editor.onKeyDown(event);
+      expect(handled).toBe(true);
     });
 
     it('should prevent default on Enter and Escape', () => {
       editor.init(container, new Date(), params);
 
       const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
-      const preventDefaultSpy = vi.spyOn(enterEvent, 'preventDefault');
+      const preventDefaultSpy = jest.spyOn(enterEvent, 'preventDefault');
       editor.onKeyDown(enterEvent);
       expect(preventDefaultSpy).toHaveBeenCalled();
 
       const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape' });
-      const preventDefaultSpy2 = vi.spyOn(escapeEvent, 'preventDefault');
+      const preventDefaultSpy2 = jest.spyOn(escapeEvent, 'preventDefault');
       editor.onKeyDown(escapeEvent);
       expect(preventDefaultSpy2).toHaveBeenCalled();
     });
@@ -411,7 +395,7 @@ describe('DateEditor', () => {
     it('should focus the input element', () => {
       editor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      const focusSpy = vi.spyOn(input, 'focus');
+      const focusSpy = jest.spyOn(input, 'focus');
 
       editor.focus();
 
@@ -454,8 +438,8 @@ describe('DateEditor', () => {
     });
 
     it('should prevent blur handler from firing after destroy', () => {
-      const onComplete = vi.fn();
-      const customEditor = new DateEditor({ stopOnBlur: true });
+      const onComplete = jest.fn();
+      const customEditor = new DateEditor({ commitOnBlur: true });
       customEditor.init(container, new Date(), { ...params, onComplete });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -475,9 +459,9 @@ describe('DateEditor', () => {
   });
 
   describe('Blur Handling', () => {
-    it('should commit on blur when stopOnBlur is true', () => {
-      const onComplete = vi.fn();
-      const customEditor = new DateEditor({ stopOnBlur: true });
+    it('should commit on blur when commitOnBlur is true', () => {
+      const onComplete = jest.fn();
+      const customEditor = new DateEditor({ commitOnBlur: true, useCalendarPopup: false });
       customEditor.init(container, new Date('2024-03-15'), { ...params, onComplete });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -491,9 +475,9 @@ describe('DateEditor', () => {
       });
     });
 
-    it('should not commit on blur when stopOnBlur is false', () => {
-      const onComplete = vi.fn();
-      const customEditor = new DateEditor({ stopOnBlur: false });
+    it('should not commit on blur when commitOnBlur is false', () => {
+      const onComplete = jest.fn();
+      const customEditor = new DateEditor({ commitOnBlur: false });
       customEditor.init(container, new Date('2024-03-15'), { ...params, onComplete });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -509,63 +493,55 @@ describe('DateEditor', () => {
   });
 
   describe('onChange Callback', () => {
-    it('should call onChange when input value changes', () => {
-      const onChange = vi.fn();
-      editor.init(container, new Date('2024-03-15'), { ...params, onChange });
+    it('should call onChange when using native picker', () => {
+      const onChange = jest.fn();
+      const customEditor = new DateEditor({ useCalendarPopup: false });
+      customEditor.init(container, new Date('2024-03-15'), { ...params, onChange });
 
       const input = container.querySelector('input') as HTMLInputElement;
       input.value = '2024-06-20';
-      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('change'));
 
       expect(onChange).toHaveBeenCalledWith(expect.any(Date));
     });
 
     it('should not call onChange when not provided', () => {
-      editor.init(container, new Date('2024-03-15'), params);
+      const customEditor = new DateEditor({ useCalendarPopup: false });
+      customEditor.init(container, new Date('2024-03-15'), params);
 
       const input = container.querySelector('input') as HTMLInputElement;
       input.value = '2024-06-20';
 
       expect(() => {
-        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('change'));
       }).not.toThrow();
     });
 
     it('should call onChange with null when input is cleared', () => {
-      const onChange = vi.fn();
-      editor.init(container, new Date('2024-03-15'), { ...params, onChange });
+      const onChange = jest.fn();
+      const customEditor = new DateEditor({ useCalendarPopup: false });
+      customEditor.init(container, new Date('2024-03-15'), { ...params, onChange });
 
       const input = container.querySelector('input') as HTMLInputElement;
       input.value = '';
-      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event('change'));
 
       expect(onChange).toHaveBeenCalledWith(null);
     });
   });
 
-  describe('Event Propagation', () => {
-    it('should stop click propagation', () => {
+  describe('Calendar Popup', () => {
+    it('should create popup element', () => {
       editor.init(container, new Date(), params);
-      const input = container.querySelector('input') as HTMLInputElement;
-
-      const clickEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(clickEvent, 'stopPropagation');
-
-      input.dispatchEvent(clickEvent);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
+      const popup = document.querySelector('.zg-datetime-popup');
+      expect(popup).toBeTruthy();
     });
 
-    it('should stop mousedown propagation', () => {
-      editor.init(container, new Date(), params);
-      const input = container.querySelector('input') as HTMLInputElement;
-
-      const mousedownEvent = new MouseEvent('mousedown', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(mousedownEvent, 'stopPropagation');
-
-      input.dispatchEvent(mousedownEvent);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
+    it('should skip popup for native picker', () => {
+      const customEditor = new DateEditor({ useCalendarPopup: false });
+      customEditor.init(container, new Date(), params);
+      const popup = document.querySelector('.zg-datetime-popup');
+      expect(popup).toBeFalsy();
     });
   });
 
@@ -600,22 +576,22 @@ describe('DateEditor', () => {
   });
 
   describe('Date Formatting', () => {
-    it('should format date type as YYYY-MM-DD', () => {
+    it('should format date with default format', () => {
       const customEditor = new DateEditor({ type: 'date' });
       customEditor.init(container, new Date('2024-03-15T10:30:00'), params);
       const input = container.querySelector('input') as HTMLInputElement;
-      expect(input.value).toBe('2024-03-15');
+      expect(input.value).toBe('15/03/2024');
     });
 
-    it('should format datetime-local type correctly', () => {
-      const customEditor = new DateEditor({ type: 'datetime-local' });
+    it('should format datetime-local type correctly for native picker', () => {
+      const customEditor = new DateEditor({ type: 'datetime-local', useCalendarPopup: false });
       customEditor.init(container, new Date('2024-03-15T10:30:00'), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.value).toMatch(/2024-03-15T\d{2}:\d{2}/);
     });
 
-    it('should format time type correctly', () => {
-      const customEditor = new DateEditor({ type: 'time' });
+    it('should format time type correctly for native picker', () => {
+      const customEditor = new DateEditor({ type: 'time', useCalendarPopup: false });
       customEditor.init(container, new Date('2024-03-15T14:30:00'), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.value).toBe('14:30');
@@ -633,6 +609,7 @@ describe('DateEditor', () => {
         type: 'datetime-local',
         required: true,
         placeholder: 'Select datetime...',
+        useCalendarPopup: false,
       });
       expect(instance).toBeInstanceOf(DateEditor);
 

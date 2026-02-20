@@ -535,7 +535,7 @@ describe('IntervalTree', () => {
       );
 
       const conflicts = tree.search({ start: 9.5, end: 10 });
-      expect(conflicts).toHaveLength(2);
+      expect(conflicts).toHaveLength(3); // All 3 overlap: Team Standup [9,10], Client Call [9.5,10.5], Design Review [10,11] (boundary touch)
     });
 
     it('should handle virtual scrolling ranges', () => {

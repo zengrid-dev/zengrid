@@ -8,7 +8,8 @@ import {
   SelectRenderer,
   ChipRenderer,
   DropdownRenderer,
-  VanillaDateEditor,
+  // New datetime editors (with fixed popup/scroll behavior)
+  DateEditor,
   DateRangeEditor,
 } from '../../../../../packages/core/src/index';
 
@@ -115,7 +116,7 @@ export function createRendererColumns(data: any[][]) {
       sortable: true,
       minWidth: 100,
       editable: true,
-      editor: new VanillaDateEditor({
+      editor: new DateEditor({
         format: 'DD/MM/YYYY',
         minDate: new Date('2020-01-01'),
         maxDate: new Date('2030-12-31'),
@@ -123,6 +124,7 @@ export function createRendererColumns(data: any[][]) {
         placeholder: 'Select a date...',
         autoFocus: true,
         theme: 'light',
+        useCalendarPopup: true,
       }),
     },
     {

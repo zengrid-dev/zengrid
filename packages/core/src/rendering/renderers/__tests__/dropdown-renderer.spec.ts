@@ -1,14 +1,12 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
   DropdownRenderer,
   createDropdownRenderer,
-  type DropdownRendererOptions,
   type DropdownOption,
-} from '../dropdown-renderer';
+} from '../dropdown';
 import type { RenderParams } from '../renderer.interface';
 
 describe('DropdownRenderer', () => {
@@ -25,6 +23,7 @@ describe('DropdownRenderer', () => {
   beforeEach(() => {
     renderer = new DropdownRenderer({ options: defaultOptions });
     element = document.createElement('div');
+    document.body.appendChild(element);
     params = {
       cell: { row: 0, col: 0 },
       position: { x: 0, y: 0, width: 200, height: 40 },
@@ -46,6 +45,9 @@ describe('DropdownRenderer', () => {
         menu.style.display = 'none';
       }
     });
+    if (element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
   });
 
   describe('Constructor', () => {
@@ -109,7 +111,7 @@ describe('DropdownRenderer', () => {
     });
 
     it('should accept onChange callback', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new DropdownRenderer({
         options: defaultOptions,
         onChange,
@@ -353,7 +355,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const clickSpy = vi.fn();
+      const clickSpy = jest.fn();
       trigger.addEventListener('click', clickSpy);
 
       renderer.destroy(element);
@@ -466,7 +468,7 @@ describe('DropdownRenderer', () => {
     });
 
     it('should call onChange when option selected', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new DropdownRenderer({
         options: defaultOptions,
         onChange,
@@ -537,7 +539,7 @@ describe('DropdownRenderer', () => {
 
   describe('Multi-select Mode', () => {
     it('should toggle values in multi-select mode', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new DropdownRenderer({
         options: defaultOptions,
         multiSelect: true,
@@ -560,7 +562,7 @@ describe('DropdownRenderer', () => {
     });
 
     it('should remove value when clicking already selected option', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new DropdownRenderer({
         options: defaultOptions,
         multiSelect: true,
@@ -634,7 +636,7 @@ describe('DropdownRenderer', () => {
       const searchInput = element.querySelector(
         '.zg-dropdown-search-input'
       ) as HTMLInputElement;
-      searchInput.value = 'act';
+      searchInput.value = 'pend';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
@@ -643,7 +645,7 @@ describe('DropdownRenderer', () => {
       );
 
       expect(visibleOptions.length).toBe(1);
-      expect(visibleOptions[0].textContent).toBe('Active');
+      expect(visibleOptions[0].textContent).toBe('Pending');
     });
 
     it('should be case-insensitive by default', () => {
@@ -659,7 +661,7 @@ describe('DropdownRenderer', () => {
       const searchInput = element.querySelector(
         '.zg-dropdown-search-input'
       ) as HTMLInputElement;
-      searchInput.value = 'ACTIVE';
+      searchInput.value = 'PENDING';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
@@ -812,7 +814,6 @@ describe('DropdownRenderer', () => {
     it('should open dropdown on Enter key', () => {
       renderer.render(element, params);
 
-      const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
       const wrapper = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
 
@@ -911,7 +912,7 @@ describe('DropdownRenderer', () => {
     });
 
     it('should not call onChange for disabled options', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const optionsWithDisabled: DropdownOption[] = [
         { label: 'Active', value: 'active' },
         { label: 'Inactive', value: 'inactive', disabled: true },
@@ -987,7 +988,7 @@ describe('DropdownRenderer', () => {
         { label: 'Option 2', value: { id: 2, name: 'Second' } },
       ];
 
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new DropdownRenderer({
         options: complexOptions,
         onChange,
@@ -1006,10 +1007,10 @@ describe('DropdownRenderer', () => {
     });
 
     it('should handle onChange error gracefully', () => {
-      const onChange = vi.fn(() => {
+      const onChange = jest.fn(() => {
         throw new Error('Test error');
       });
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
       const renderer = new DropdownRenderer({
         options: defaultOptions,

@@ -1,5 +1,5 @@
 import type { CellRenderer } from './renderer.interface';
-import { TextRenderer } from './text-renderer';
+import { TextRenderer } from './text';
 
 /**
  * RendererRegistry - Named renderer lookup

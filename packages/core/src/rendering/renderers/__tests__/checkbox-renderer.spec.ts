@@ -1,9 +1,8 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { CheckboxRenderer, createCheckboxRenderer } from '../checkbox-renderer';
+import { CheckboxRenderer, createCheckboxRenderer } from '../checkbox';
 import type { RenderParams } from '../renderer.interface';
 
 describe('CheckboxRenderer', () => {
@@ -33,7 +32,7 @@ describe('CheckboxRenderer', () => {
     });
 
     it('should accept custom options', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = new CheckboxRenderer({
         checkedValue: 1,
         uncheckedValue: 0,
@@ -133,13 +132,14 @@ describe('CheckboxRenderer', () => {
     });
 
     it('should attach change event listener', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       renderer = new CheckboxRenderer({ onChange });
 
       renderer.render(element, params);
 
       const checkbox = element.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      checkbox.click();
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
 
       expect(onChange).toHaveBeenCalled();
     });
@@ -210,7 +210,7 @@ describe('CheckboxRenderer', () => {
 
   describe('destroy()', () => {
     it('should remove event listeners', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       renderer = new CheckboxRenderer({ onChange });
 
       renderer.render(element, params);
@@ -275,7 +275,7 @@ describe('CheckboxRenderer', () => {
 
   describe('onChange callback', () => {
     it('should call onChange with new value and params', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       renderer = new CheckboxRenderer({ onChange });
 
       renderer.render(element, params);
@@ -288,7 +288,7 @@ describe('CheckboxRenderer', () => {
     });
 
     it('should use custom checked/unchecked values in onChange', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       renderer = new CheckboxRenderer({
         checkedValue: 1,
         uncheckedValue: 0,
@@ -311,7 +311,7 @@ describe('CheckboxRenderer', () => {
     });
 
     it('should stop event propagation', () => {
-      const elementClickHandler = vi.fn();
+      const elementClickHandler = jest.fn();
       element.addEventListener('change', elementClickHandler);
 
       renderer.render(element, params);
@@ -365,7 +365,7 @@ describe('CheckboxRenderer', () => {
     });
 
     it('should pass options to constructor', () => {
-      const onChange = vi.fn();
+      const onChange = jest.fn();
       const renderer = createCheckboxRenderer({
         checkedValue: 'Y',
         uncheckedValue: 'N',

@@ -2,7 +2,7 @@
  * Tests for ColumnGroupRenderer
  */
 
-import { ColumnGroupRenderer, ColumnGroupRenderParams } from '../column-group-renderer';
+import { ColumnGroupRenderer } from '../column-group-renderer';
 import { ColumnGroupModel } from '../column-group-model';
 import { ColumnGroup } from '../types';
 

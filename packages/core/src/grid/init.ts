@@ -6,17 +6,17 @@ import { CellPool } from '../rendering/cell-pool/cell-pool';
 import { CellPositioner } from '../rendering/cell-positioner/cell-positioner';
 import { RendererRegistry } from '../rendering/renderers/renderer-registry';
 import { RendererCache } from '../rendering/cache';
-import { NumberRenderer } from '../rendering/renderers/number-renderer';
-import { ImageRenderer } from '../rendering/renderers/image-renderer';
-import { AdvancedCellRenderer } from '../rendering/renderers/advanced-cell-renderer';
-import { CheckboxRenderer } from '../rendering/renderers/checkbox-renderer';
-import { ProgressBarRenderer } from '../rendering/renderers/progress-bar-renderer';
-import { LinkRenderer } from '../rendering/renderers/link-renderer';
-import { ButtonRenderer } from '../rendering/renderers/button-renderer';
-import { DateRenderer } from '../rendering/renderers/date-renderer';
-import { SelectRenderer } from '../rendering/renderers/select-renderer';
-import { ChipRenderer } from '../rendering/renderers/chip-renderer';
-import { DropdownRenderer } from '../rendering/renderers/dropdown-renderer';
+import { NumberRenderer } from '../rendering/renderers/number';
+import { ImageRenderer } from '../rendering/renderers/image';
+import { AdvancedCellRenderer } from '../rendering/renderers/advanced-cell';
+import { CheckboxRenderer } from '../rendering/renderers/checkbox';
+import { ProgressBarRenderer } from '../rendering/renderers/progress-bar';
+import { LinkRenderer } from '../rendering/renderers/link';
+import { ButtonRenderer } from '../rendering/renderers/button';
+import { DateRenderer } from '../rendering/renderers/date';
+import { SelectRenderer } from '../rendering/renderers/select';
+import { ChipRenderer } from '../rendering/renderers/chip';
+import { DropdownRenderer } from '../rendering/renderers/dropdown';
 import { LoadingIndicator } from '../features/loading';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
 import { RowHeightManager } from '../features/row-height';
@@ -87,9 +87,9 @@ export class GridInit {
     this.registry.register('link', new LinkRenderer());
     this.registry.register('button', new ButtonRenderer());
     this.registry.register('date', new DateRenderer());
-    this.registry.register('select', new SelectRenderer());
+    this.registry.register('select', new SelectRenderer({ options: [{ value: '', label: '' }] }));
     this.registry.register('chip', new ChipRenderer());
-    this.registry.register('dropdown', new DropdownRenderer());
+    this.registry.register('dropdown', new DropdownRenderer({ options: [{ value: '', label: '' }] }));
 
     // Initialize renderer cache
     if (this.options.rendererCache?.enabled !== false) {

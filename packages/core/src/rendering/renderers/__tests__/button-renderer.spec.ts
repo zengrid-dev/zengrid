@@ -1,9 +1,8 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ButtonRenderer, createButtonRenderer, type ButtonRendererOptions } from '../button-renderer';
+import { ButtonRenderer, createButtonRenderer, type ButtonRendererOptions } from '../button';
 import type { RenderParams } from '../renderer.interface';
 
 describe('ButtonRenderer', () => {
@@ -26,13 +25,13 @@ describe('ButtonRenderer', () => {
 
   describe('constructor', () => {
     it('should create instance with default options', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
       expect(renderer).toBeInstanceOf(ButtonRenderer);
     });
 
     it('should create instance with custom options', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: 'Delete',
         variant: 'danger',
@@ -45,16 +44,30 @@ describe('ButtonRenderer', () => {
       expect(renderer).toBeInstanceOf(ButtonRenderer);
     });
 
-    it('should throw error when onClick is missing', () => {
-      expect(() => {
-        new ButtonRenderer({} as ButtonRendererOptions);
-      }).toThrow('ButtonRenderer requires an onClick handler');
+    it('should create instance with default onClick when onClick is missing', () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const renderer = new ButtonRenderer({} as ButtonRendererOptions);
+      expect(renderer).toBeInstanceOf(ButtonRenderer);
+
+      // Verify default onClick logs a warning
+      renderer.render(element, params);
+      const button = element.querySelector('button');
+      button?.click();
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'ButtonRenderer: No onClick handler provided. Cell:',
+        params.cell,
+        'Value:',
+        params.value
+      );
+
+      consoleWarnSpy.mockRestore();
     });
   });
 
   describe('render()', () => {
     it('should create button element', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -65,7 +78,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should add container class', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -74,7 +87,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should add click event listener', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -86,7 +99,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should render with static label', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Delete', onClick });
 
       renderer.render(element, params);
@@ -96,7 +109,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should render with function label', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: (p) => (p.rowData?.status === 'active' ? 'Deactivate' : 'Activate'),
         onClick,
@@ -109,7 +122,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should render with value as label when no label option', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: 'Submit' });
@@ -119,7 +132,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should render with default label when no label and no value', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: null });
@@ -129,7 +142,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should render with icon', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Edit', icon: '✏️', onClick });
 
       renderer.render(element, params);
@@ -142,7 +155,7 @@ describe('ButtonRenderer', () => {
 
   describe('update()', () => {
     it('should update button label', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Click', onClick });
 
       renderer.render(element, params);
@@ -158,7 +171,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should update dynamic label', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: (p) => (p.rowData?.status === 'active' ? 'Deactivate' : 'Activate'),
         onClick,
@@ -180,7 +193,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should update disabled state', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: 'Test',
         disabled: (p) => p.rowData?.locked === true,
@@ -199,7 +212,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should update ARIA attributes', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: 'Test',
         disabled: (p) => p.rowData?.locked === true,
@@ -216,7 +229,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should update data attributes', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Test', onClick });
 
       renderer.render(element, params);
@@ -239,7 +252,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should update icon', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Test', icon: '✏️', onClick });
 
       renderer.render(element, params);
@@ -256,7 +269,7 @@ describe('ButtonRenderer', () => {
 
   describe('destroy()', () => {
     it('should remove button element', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -267,7 +280,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should remove event listeners', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -281,7 +294,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should remove container class', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -292,7 +305,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should clean up element innerHTML', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -305,7 +318,7 @@ describe('ButtonRenderer', () => {
 
   describe('getCellClass()', () => {
     it('should return undefined for enabled button with default variant', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       const cellClass = renderer.getCellClass(params);
@@ -313,7 +326,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should return disabled class when button is disabled', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: true, onClick });
 
       const cellClass = renderer.getCellClass(params);
@@ -321,7 +334,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should return variant class for non-default variant', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ variant: 'danger', onClick });
 
       const cellClass = renderer.getCellClass(params);
@@ -329,7 +342,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should prioritize disabled class over variant class', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ variant: 'primary', disabled: true, onClick });
 
       const cellClass = renderer.getCellClass(params);
@@ -339,14 +352,14 @@ describe('ButtonRenderer', () => {
 
   describe('variants', () => {
     it.each([
-      ['button', '#fff', '#333'],
-      ['primary', '#007bff', '#fff'],
-      ['secondary', '#6c757d', '#fff'],
-      ['danger', '#dc3545', '#fff'],
-      ['success', '#28a745', '#fff'],
-      ['warning', '#ffc107', '#212529'],
+      ['button', 'rgb(255, 255, 255)', 'rgb(51, 51, 51)'],
+      ['primary', 'rgb(0, 123, 255)', 'rgb(255, 255, 255)'],
+      ['secondary', 'rgb(108, 117, 125)', 'rgb(255, 255, 255)'],
+      ['danger', 'rgb(220, 53, 69)', 'rgb(255, 255, 255)'],
+      ['success', 'rgb(40, 167, 69)', 'rgb(255, 255, 255)'],
+      ['warning', 'rgb(255, 193, 7)', 'rgb(33, 37, 41)'],
     ])('should apply correct styles for %s variant', (variant, bgColor, textColor) => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         variant: variant as ButtonRendererOptions['variant'],
         onClick,
@@ -367,7 +380,7 @@ describe('ButtonRenderer', () => {
       ['medium', '6px 12px', '14px'],
       ['large', '10px 20px', '16px'],
     ])('should apply correct styles for %s size', (size, padding, fontSize) => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         size: size as ButtonRendererOptions['size'],
         onClick,
@@ -384,7 +397,7 @@ describe('ButtonRenderer', () => {
 
   describe('disabled state', () => {
     it('should render as disabled when disabled is true', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: true, onClick });
 
       renderer.render(element, params);
@@ -393,12 +406,12 @@ describe('ButtonRenderer', () => {
       expect(button.disabled).toBe(true);
       expect(button.className).toContain('zg-button-disabled');
       expect(button.style.cursor).toBe('not-allowed');
-      expect(button.style.backgroundColor).toBe('#f5f5f5');
-      expect(button.style.color).toBe('#999');
+      expect(button.style.backgroundColor).toBe('rgb(245, 245, 245)');
+      expect(button.style.color).toBe('rgb(153, 153, 153)');
     });
 
     it('should render as enabled when disabled is false', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: false, onClick });
 
       renderer.render(element, params);
@@ -410,7 +423,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should compute disabled state from function', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         disabled: (p) => p.rowData?.locked === true,
         onClick,
@@ -429,7 +442,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should not call onClick when disabled', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: true, onClick });
 
       renderer.render(element, params);
@@ -441,7 +454,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should dynamically enable/disable via update()', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         disabled: (p) => p.rowData?.locked === true,
         onClick,
@@ -465,7 +478,7 @@ describe('ButtonRenderer', () => {
 
   describe('onClick callback', () => {
     it('should call onClick when button is clicked', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -478,15 +491,15 @@ describe('ButtonRenderer', () => {
     });
 
     it('should prevent default and stop propagation', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
 
       const button = element.querySelector('button');
       const event = new MouseEvent('click', { bubbles: true, cancelable: true });
-      const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
-      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      const stopPropagationSpy = jest.spyOn(event, 'stopPropagation');
 
       button?.dispatchEvent(event);
 
@@ -495,8 +508,8 @@ describe('ButtonRenderer', () => {
     });
 
     it('should catch and log errors from onClick', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      const onClick = vi.fn(() => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const onClick = jest.fn(() => {
         throw new Error('Test error');
       });
       const renderer = new ButtonRenderer({ onClick });
@@ -514,7 +527,7 @@ describe('ButtonRenderer', () => {
 
   describe('custom className', () => {
     it('should apply custom className', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ className: 'custom-btn', onClick });
 
       renderer.render(element, params);
@@ -524,7 +537,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should combine custom className with default classes', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         className: 'custom-btn',
         variant: 'primary',
@@ -544,7 +557,7 @@ describe('ButtonRenderer', () => {
 
   describe('ARIA attributes', () => {
     it('should set role attribute', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -554,7 +567,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should set aria-label from label option', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Delete Row', onClick });
 
       renderer.render(element, params);
@@ -564,7 +577,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should set aria-label from value when no label', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: 'Edit' });
@@ -574,7 +587,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should set aria-disabled when disabled', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: true, onClick });
 
       renderer.render(element, params);
@@ -584,7 +597,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should not set aria-disabled when enabled', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ disabled: false, onClick });
 
       renderer.render(element, params);
@@ -596,7 +609,7 @@ describe('ButtonRenderer', () => {
 
   describe('data attributes', () => {
     it('should set data-row and data-col attributes', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -607,7 +620,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should set data-field attribute when column has field', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, params);
@@ -617,7 +630,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should set data-variant attribute', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ variant: 'danger', onClick });
 
       renderer.render(element, params);
@@ -629,7 +642,7 @@ describe('ButtonRenderer', () => {
 
   describe('HTML escaping', () => {
     it('should escape HTML in label to prevent XSS', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: '<script>alert("xss")</script>', onClick });
 
       renderer.render(element, params);
@@ -643,7 +656,7 @@ describe('ButtonRenderer', () => {
 
   describe('full lifecycle', () => {
     it('should handle multiple render-update-destroy cycles', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: (p) => `Button ${p.cell.row}`,
         onClick,
@@ -671,7 +684,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle render -> update -> update -> destroy', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: (p) => (p.rowData?.status === 'active' ? 'Deactivate' : 'Activate'),
         disabled: (p) => p.rowData?.locked === true,
@@ -704,14 +717,14 @@ describe('ButtonRenderer', () => {
 
   describe('factory function', () => {
     it('should create ButtonRenderer instance', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = createButtonRenderer({ onClick });
 
       expect(renderer).toBeInstanceOf(ButtonRenderer);
     });
 
     it('should pass options correctly', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = createButtonRenderer({
         label: 'Test',
         variant: 'primary',
@@ -730,7 +743,7 @@ describe('ButtonRenderer', () => {
 
   describe('edge cases', () => {
     it('should handle null value', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: null });
@@ -740,7 +753,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle undefined value', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: undefined });
@@ -750,7 +763,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle empty string value', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: '' });
@@ -760,7 +773,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle numeric value', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, value: 123 });
@@ -770,7 +783,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle missing column', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       renderer.render(element, { ...params, column: undefined });
@@ -780,7 +793,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle missing rowData', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({
         label: (p) => p.rowData?.name || 'Default',
         onClick,
@@ -793,7 +806,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle button without icon', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ label: 'Test', onClick });
 
       renderer.render(element, params);
@@ -803,7 +816,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle update before render gracefully', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       // Try to update without render
@@ -815,7 +828,7 @@ describe('ButtonRenderer', () => {
     });
 
     it('should handle destroy before render gracefully', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new ButtonRenderer({ onClick });
 
       // Try to destroy without render

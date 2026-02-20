@@ -23,6 +23,7 @@ export class GridEditing {
   private events: EventEmitter<GridEvents>;
   private editorManager: EditorManager | null = null;
   private callbacks: EditingCallbacks;
+  private scrollHandler: ((event: Event) => void) | null = null;
 
   constructor(
     container: HTMLElement,
@@ -46,6 +47,8 @@ export class GridEditing {
   initialize(): void {
     this.editorManager = new EditorManager({
       container: this.container,
+      scrollContainer: this.scrollContainer ?? undefined,
+      headerHeight: 40,
       events: this.events,
       getValue: this.callbacks.getValue,
       setValue: (row: number, col: number, value: any) => {
@@ -104,6 +107,13 @@ export class GridEditing {
         }
       }
     });
+
+    this.scrollHandler = () => {
+      if (this.editorManager?.isEditing()) {
+        this.editorManager.updateEditorPosition();
+      }
+    };
+    this.scrollContainer.addEventListener('scroll', this.scrollHandler, { passive: true });
   }
 
   /**
@@ -117,6 +127,11 @@ export class GridEditing {
    * Cleanup editor manager
    */
   cleanup(): void {
+    if (this.scrollContainer && this.scrollHandler) {
+      this.scrollContainer.removeEventListener('scroll', this.scrollHandler);
+      this.scrollHandler = null;
+    }
+
     if (this.editorManager) {
       this.editorManager.cancelEdit();
       this.editorManager = null;

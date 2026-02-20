@@ -1,9 +1,8 @@
 /**
- * @vitest-environment jsdom
+ * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LinkRenderer, createLinkRenderer } from '../link-renderer';
+import { LinkRenderer, createLinkRenderer } from '../link';
 import type { RenderParams } from '../renderer.interface';
 
 describe('LinkRenderer', () => {
@@ -33,7 +32,7 @@ describe('LinkRenderer', () => {
     });
 
     it('should accept custom options', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = new LinkRenderer({
         target: '_blank',
         urlPrefix: 'https://',
@@ -106,7 +105,7 @@ describe('LinkRenderer', () => {
     });
 
     it('should attach click event listener when onClick is provided', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new LinkRenderer({ onClick });
 
       renderer.render(element, params);
@@ -154,7 +153,7 @@ describe('LinkRenderer', () => {
 
   describe('destroy()', () => {
     it('should remove event listeners', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new LinkRenderer({ onClick });
 
       renderer.render(element, params);
@@ -420,7 +419,7 @@ describe('LinkRenderer', () => {
 
   describe('onClick callback', () => {
     it('should call onClick with URL and params', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new LinkRenderer({ onClick });
 
       params.value = 'https://example.com';
@@ -433,7 +432,7 @@ describe('LinkRenderer', () => {
     });
 
     it('should prevent default navigation', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       renderer = new LinkRenderer({ onClick });
 
       renderer.render(element, params);
@@ -446,8 +445,8 @@ describe('LinkRenderer', () => {
     });
 
     it('should stop event propagation', () => {
-      const onClick = vi.fn();
-      const elementClickHandler = vi.fn();
+      const onClick = jest.fn();
+      const elementClickHandler = jest.fn();
       element.addEventListener('click', elementClickHandler);
 
       renderer = new LinkRenderer({ onClick });
@@ -494,7 +493,7 @@ describe('LinkRenderer', () => {
     });
 
     it('should pass options to constructor', () => {
-      const onClick = vi.fn();
+      const onClick = jest.fn();
       const renderer = createLinkRenderer({
         target: '_blank',
         onClick,

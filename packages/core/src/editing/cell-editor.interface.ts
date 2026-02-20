@@ -88,6 +88,11 @@ export interface EditorParams {
    * Unregister a popup element
    */
   unregisterPopup?: (element: HTMLElement) => void;
+
+  /**
+   * Scroll container for popup scroll handling (grid's scroll container)
+   */
+  scrollContainer?: HTMLElement;
 }
 
 /**

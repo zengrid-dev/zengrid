@@ -86,8 +86,11 @@
   position: absolute;
   box-sizing: border-box;
   padding: var(--zg-cell-padding);
-  border-right: var(--zg-border-width) solid var(--zg-border-color);
-  border-bottom: var(--zg-border-width) solid var(--zg-border-color);
+  /* Use box-shadow instead of border for consistent rendering at fractional devicePixelRatio */
+  /* Borders render inconsistently at 125%/150% Windows scaling due to sub-pixel rounding */
+  box-shadow:
+    inset -1px 0 0 0 var(--zg-border-color),
+    inset 0 -1px 0 0 var(--zg-border-color);
   background: var(--zg-bg-color);
   color: var(--zg-text-color);
   white-space: nowrap;
@@ -101,7 +104,10 @@
 }
 
 .zg-cell[data-col="0"] {
-  border-left: var(--zg-border-width) solid var(--zg-border-color);
+  box-shadow:
+    inset 1px 0 0 0 var(--zg-border-color),
+    inset -1px 0 0 0 var(--zg-border-color),
+    inset 0 -1px 0 0 var(--zg-border-color);
 }
 
 .zg-cell:hover {
@@ -111,7 +117,7 @@
 /* Selected cell */
 .zg-cell-selected {
   background: var(--zg-selected-bg);
-  border: 2px solid var(--zg-selected-border);
+  box-shadow: inset 0 0 0 2px var(--zg-selected-border);
   z-index: 1;
 }
 
@@ -227,8 +233,9 @@
 }
 
 .zg-grid[dir='rtl'] .zg-cell {
-  border-right: none;
-  border-left: var(--zg-border-width) solid var(--zg-border-color);
+  box-shadow:
+    inset 1px 0 0 0 var(--zg-border-color),
+    inset 0 -1px 0 0 var(--zg-border-color);
 }
 
 /* Dark theme */

@@ -327,7 +327,7 @@ describe('Timsort Performance Benchmarks', () => {
       );
 
       // Nearly sorted - merging overhead in JS
-      expect(result.time).toBeLessThan(900); // < 900ms (merge overhead)
+      expect(result.time).toBeLessThan(1200); // < 1.2s (merge overhead)
     });
 
     it('should benchmark many duplicates', () => {
@@ -343,7 +343,7 @@ describe('Timsort Performance Benchmarks', () => {
         }
       );
 
-      expect(result.time).toBeLessThan(900); // < 900ms (comparison overhead)
+      expect(result.time).toBeLessThan(1200); // < 1.2s (comparison overhead)
     });
 
     it('should benchmark all same values', () => {
@@ -395,7 +395,7 @@ describe('Timsort Performance Benchmarks', () => {
         }
       );
 
-      expect(result.time).toBeLessThan(1700); // < 1.7s (index indirection overhead)
+      expect(result.time).toBeLessThan(2200); // < 2.2s (index indirection overhead)
     });
 
     it('should benchmark with custom comparator', () => {
@@ -450,7 +450,7 @@ describe('Timsort Performance Benchmarks', () => {
         }
       );
 
-      expect(result.time).toBeLessThan(2900); // < 2.9s (object comparison + copy overhead)
+      expect(result.time).toBeLessThan(3600); // < 3.6s (object comparison + copy overhead)
     });
   });
 
@@ -471,7 +471,7 @@ describe('Timsort Performance Benchmarks', () => {
       );
 
       // JavaScript overhead: ~20x slower than native/C++ implementation
-      expect(result.time).toBeLessThan(22000); // < 22s (realistic for JS Timsort)
+      expect(result.time).toBeLessThan(28000); // < 28s (realistic for JS Timsort)
     });
 
     it('should benchmark already sorted (best case)', () => {

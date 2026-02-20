@@ -184,6 +184,9 @@ export class CellPositioner implements ICellPositioner {
 
   private renderCell(row: number, col: number, key: string): void {
     const element = this.pool.acquire(key);
+    if (!element.classList.contains('zg-cell')) {
+      element.classList.add('zg-cell');
+    }
     const position = this.scroller.getCellPosition(row, col);
     const value = this.getData(row, col);
     const column = this.getColumn?.(col);
@@ -251,6 +254,13 @@ export class CellPositioner implements ICellPositioner {
     if (cacheKey && this.cache) {
       const cached = this.cache.get(cacheKey);
       if (cached) {
+        console.log(`[CellPositioner] CACHE HIT row=${row}, col=${col}`, {
+          rendererName,
+          cachedClasses: cached.classes,
+          elementClassesBefore: element.className,
+          cachedHtml: cached.html.substring(0, 100)
+        });
+
         // Use cached content
         element.innerHTML = cached.html;
 
@@ -269,6 +279,10 @@ export class CellPositioner implements ICellPositioner {
         // Apply overflow mode class (from column config) - even for cached content
         this.applyOverflowClass(element, column);
 
+        console.log(`[CellPositioner] CACHE HIT AFTER row=${row}, col=${col}`, {
+          elementClassesAfter: element.className
+        });
+
         // CRITICAL: Measure row height even for cached content
         // Cached content still needs height measurement for auto-height columns
         this.measureRowIfNeeded(row, col, element);
@@ -279,6 +293,16 @@ export class CellPositioner implements ICellPositioner {
 
     // Render or update (cache miss or no cache)
     const lastRenderer = this.renderedCells.get(key);
+    console.log(`[CellPositioner] CACHE MISS row=${row}, col=${col}`, {
+      rendererName,
+      lastRenderer,
+      willRender: lastRenderer !== rendererName || !lastRenderer,
+      elementClassesBefore: element.className
+    });
+
+    // Capture classes before render for delta calculation
+    const classesBefore = new Set(Array.from(element.classList));
+
     if (lastRenderer !== rendererName || !lastRenderer) {
       // Renderer changed or first render - destroy old and render new
       if (lastRenderer) {
@@ -292,12 +316,31 @@ export class CellPositioner implements ICellPositioner {
       renderer.update(element, params);
     }
 
-    // Cache the rendered content
+    // Apply optional renderer class (before caching so it's included)
+    if (renderer.getCellClass) {
+      const rendererClass = renderer.getCellClass(params);
+      if (rendererClass) {
+        element.classList.add(rendererClass);
+      }
+    }
+
+    console.log(`[CellPositioner] AFTER RENDER row=${row}, col=${col}`, {
+      elementClassesAfter: element.className
+    });
+
+    // Cache the rendered content with all classes added by renderer
     if (cacheKey && this.cache) {
-      const rendererClass = renderer.getCellClass?.(params);
+      // Calculate delta: classes added during render
+      const addedClasses: string[] = [];
+      element.classList.forEach((cls) => {
+        if (!classesBefore.has(cls)) {
+          addedClasses.push(cls);
+        }
+      });
+
       this.cache.set(cacheKey, {
         html: element.innerHTML,
-        classes: rendererClass ? [rendererClass] : undefined,
+        classes: addedClasses.length > 0 ? addedClasses : undefined,
       });
     }
 
@@ -305,14 +348,6 @@ export class CellPositioner implements ICellPositioner {
     element.classList.toggle('zg-cell-selected', params.isSelected);
     element.classList.toggle('zg-cell-active', params.isActive);
     element.classList.toggle('zg-cell-editing', params.isEditing);
-
-    // Apply optional renderer class
-    if (renderer.getCellClass) {
-      const rendererClass = renderer.getCellClass(params);
-      if (rendererClass) {
-        element.classList.add(rendererClass);
-      }
-    }
 
     // Apply overflow mode class (from column config)
     this.applyOverflowClass(element, column);
@@ -445,11 +480,11 @@ export class CellPositioner implements ICellPositioner {
    * @param column - Column definition (may be undefined)
    */
   private applyOverflowClass(element: HTMLElement, column: ColumnDef | undefined): void {
+    // Remove any existing overflow classes
+    element.classList.remove(...OVERFLOW_CLASSES);
     if (!column?.overflow?.mode) {
       return;
     }
-    // Remove any existing overflow classes
-    element.classList.remove(...OVERFLOW_CLASSES);
     // Add the configured overflow class
     element.classList.add(`zg-cell-overflow-${column.overflow.mode}`);
   }
