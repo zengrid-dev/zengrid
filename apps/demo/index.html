@@ -188,6 +188,14 @@
       cursor: pointer;
     }
 
+    .menu-item input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
     #controls {
       background: white;
       border-bottom: 1px solid #ddd;
@@ -675,6 +683,12 @@
           </div>
           <div class="menu-item">
             <button id="btn-random">Random Data</button>
+          </div>
+          <div class="menu-item">
+            <input id="quick-filter-input" type="text" placeholder="Quick search..." />
+          </div>
+          <div class="menu-item">
+            <button id="btn-export-csv" style="background: #2c3e50;">⬇️ Export CSV</button>
           </div>
           <div class="menu-item">
             <button id="btn-toggle-filter" class="btn-toggle-filter">🔍 Advanced Filters</button>

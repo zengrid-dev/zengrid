@@ -77,7 +77,7 @@ export class ColumnModelWidthProvider implements WidthProvider {
    */
   private getOrderedColumns(): ColumnState[] {
     if (!this.cachedColumns) {
-      this.cachedColumns = this.columnModel.getColumnsInOrder();
+      this.cachedColumns = this.columnModel.getVisibleColumnsInOrder();
     }
     return this.cachedColumns;
   }
@@ -120,7 +120,7 @@ export class ColumnModelWidthProvider implements WidthProvider {
   }
 
   get length(): number {
-    return this.columnModel.getCount();
+    return this.columnModel.getVisibleCount();
   }
 
   /**

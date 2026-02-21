@@ -217,9 +217,14 @@ export class SuffixArray implements ISuffixArray {
       suffixes.push(i);
     }
 
-    // Sort suffixes lexicographically
+    // Sort suffixes lexicographically using code-point order
+    // (must match the comparison operators used in findRange)
     suffixes.sort((a, b) => {
-      return this.text.substring(a).localeCompare(this.text.substring(b));
+      const sa = this.text.substring(a);
+      const sb = this.text.substring(b);
+      if (sa < sb) return -1;
+      if (sa > sb) return 1;
+      return 0;
     });
 
     return suffixes;

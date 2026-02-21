@@ -33,6 +33,30 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
    */
   private static readonly DEFAULT_FILTER_ICON = '▼';
 
+  private static setFilterMeta(
+    filterBtn: HTMLElement,
+    params: HeaderRenderParams
+  ): void {
+    const filterIndicator = params.config.filterIndicator;
+    (filterBtn as any)._zgFilterMeta = {
+      columnIndex: params.columnIndex,
+      column: params.column,
+      hasFilter: params.hasFilter || false,
+      dropdownType: filterIndicator?.dropdownType || 'text',
+      emit: params.emit,
+    };
+  }
+
+  private static getFilterMeta(filterBtn: HTMLElement): {
+    columnIndex: number;
+    column: HeaderRenderParams['column'];
+    hasFilter: boolean;
+    dropdownType: string;
+    emit?: HeaderRenderParams['emit'];
+  } | null {
+    return (filterBtn as any)._zgFilterMeta ?? null;
+  }
+
   /**
    * Initial render of filterable header
    */
@@ -105,32 +129,35 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
       filterBtn.style.borderColor = 'var(--zg-primary-color, #0066cc)';
     }
 
+    FilterableHeaderRenderer.setFilterMeta(filterBtn, params);
+
     // Click handler to open filter dropdown
     filterBtn.addEventListener('click', (e) => {
       e.stopPropagation(); // Don't trigger sort
 
-      if (params.emit) {
-        params.emit('header:filter:click', {
-          columnIndex: params.columnIndex,
-          column: params.column,
-          hasActiveFilter: params.hasFilter || false,
-          dropdownType: filterIndicator.dropdownType || 'text',
-        });
-      }
+      const meta = FilterableHeaderRenderer.getFilterMeta(filterBtn);
+      if (!meta?.emit) return;
 
-      // TODO: Show filter dropdown UI
-      console.log('Filter clicked for column', params.columnIndex);
+      meta.emit('header:filter:click', {
+        columnIndex: meta.columnIndex,
+        column: meta.column,
+        hasActiveFilter: meta.hasFilter || false,
+        dropdownType: meta.dropdownType,
+        anchorElement: filterBtn,
+      });
     });
 
     // Hover effects
     filterBtn.addEventListener('mouseenter', () => {
-      if (!params.hasFilter) {
+      const meta = FilterableHeaderRenderer.getFilterMeta(filterBtn);
+      if (!meta?.hasFilter) {
         filterBtn.style.background = 'var(--zg-bg-hover, #e5e5e5)';
       }
     });
 
     filterBtn.addEventListener('mouseleave', () => {
-      if (!params.hasFilter) {
+      const meta = FilterableHeaderRenderer.getFilterMeta(filterBtn);
+      if (!meta?.hasFilter) {
         filterBtn.style.background = 'var(--zg-bg-secondary, #f5f5f5)';
       }
     });
@@ -145,6 +172,8 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
   protected updateFilterTrigger(element: HTMLElement, params: HeaderRenderParams): void {
     const filterBtn = element.querySelector('.zg-filter-trigger') as HTMLElement;
     if (!filterBtn) return;
+
+    FilterableHeaderRenderer.setFilterMeta(filterBtn, params);
 
     // Update active state styling
     if (params.hasFilter) {

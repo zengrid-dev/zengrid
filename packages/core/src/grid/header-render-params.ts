@@ -14,6 +14,7 @@ import type { HeaderRenderParams } from '../rendering/headers/header-renderer.in
 export function buildRenderParams(
   column: ColumnDef,
   columnIndex: number,
+  dataColumnIndex: number,
   width: number,
   headerHeight: number,
   sortState: SortState[],
@@ -22,16 +23,18 @@ export function buildRenderParams(
 ): HeaderRenderParams {
   const config = resolveHeaderConfig(column.header, column);
 
+  const sortKey = dataColumnIndex ?? columnIndex;
+
   // Find sort state for this column
-  const columnSort = sortState.find((s) => s.column === columnIndex);
+  const columnSort = sortState.find((s) => s.column === sortKey);
   const sortDirection = columnSort?.direction;
   const sortPriority =
     sortState.length > 1
-      ? sortState.findIndex((s) => s.column === columnIndex) + 1
+      ? sortState.findIndex((s) => s.column === sortKey) + 1
       : undefined;
 
   // Check if column has active filter
-  const hasFilter = filterState.some((f) => f.column === columnIndex);
+  const hasFilter = filterState.some((f) => f.column === sortKey);
 
   return {
     columnIndex,

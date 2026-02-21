@@ -142,31 +142,32 @@ describe('SegmentTree', () => {
         type: AggregationType.SUM,
       });
 
-      // findIndexAtSum finds first index where prefix sum >= target
-      // Prefix sums: [20, 60, 90, 140, 150] (cumulative including each index)
+      // findIndexAtSum finds the row containing pixel at target offset
+      // Prefix sums: [20, 60, 90, 140, 150]
+      // Row boundaries: [0,20), [20,60), [60,90), [90,140), [140,150)
 
-      // Target 10: prefix[0]=20 >= 10, returns 0
+      // Target 10: in row 0 [0, 20)
       expect(tree.findIndexAtSum(10)).toBe(0);
+      expect(tree.findIndexAtSum(19)).toBe(0);
 
-      // Target 20: prefix[0]=20 >= 20, returns 0
-      expect(tree.findIndexAtSum(20)).toBe(0);
-
-      // Target 21: prefix[0]=20 < 21, prefix[1]=60 >= 21, returns 1
+      // Target 20: in row 1 [20, 60) — boundary goes to next row
+      expect(tree.findIndexAtSum(20)).toBe(1);
       expect(tree.findIndexAtSum(21)).toBe(1);
       expect(tree.findIndexAtSum(50)).toBe(1);
-      expect(tree.findIndexAtSum(60)).toBe(1);
+      expect(tree.findIndexAtSum(59)).toBe(1);
 
-      // Target 61: prefix[1]=60 < 61, prefix[2]=90 >= 61, returns 2
+      // Target 60: in row 2 [60, 90)
+      expect(tree.findIndexAtSum(60)).toBe(2);
       expect(tree.findIndexAtSum(61)).toBe(2);
       expect(tree.findIndexAtSum(89)).toBe(2);
-      expect(tree.findIndexAtSum(90)).toBe(2);
 
-      // Target 91: prefix[2]=90 < 91, prefix[3]=140 >= 91, returns 3
+      // Target 90: in row 3 [90, 140)
+      expect(tree.findIndexAtSum(90)).toBe(3);
       expect(tree.findIndexAtSum(91)).toBe(3);
       expect(tree.findIndexAtSum(130)).toBe(3);
-      expect(tree.findIndexAtSum(140)).toBe(3);
 
-      // Target 141: prefix[3]=140 < 141, prefix[4]=150 >= 141, returns 4
+      // Target 140: in row 4 [140, 150)
+      expect(tree.findIndexAtSum(140)).toBe(4);
       expect(tree.findIndexAtSum(141)).toBe(4);
     });
 

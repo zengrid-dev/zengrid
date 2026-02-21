@@ -138,7 +138,7 @@ describe('RingBuffer', () => {
     buffer.push(3);
     
     const results: number[] = [];
-    buffer.forEach((item, index) => {
+    buffer.forEach((item) => {
       results.push(item);
     });
     

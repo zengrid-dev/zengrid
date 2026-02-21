@@ -249,6 +249,27 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
     return columns;
   }
 
+  /**
+   * Get all visible columns (unordered)
+   */
+  getVisibleColumns(): ColumnState[] {
+    return this.getColumns().filter(col => col.visible);
+  }
+
+  /**
+   * Get visible columns in visual order (sorted by order property)
+   */
+  getVisibleColumnsInOrder(): ColumnState[] {
+    return this.getVisibleColumns().sort((a, b) => a.order - b.order);
+  }
+
+  /**
+   * Get count of visible columns
+   */
+  getVisibleCount(): number {
+    return this.getColumns().filter(col => col.visible).length;
+  }
+
   getCount(): number {
     return this.fieldToId.size;
   }

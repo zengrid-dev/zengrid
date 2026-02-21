@@ -11,6 +11,9 @@ export default {
       },
     ],
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(\\.pnpm|@preact/signals-core))',
+  ],
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/packages/core',
   coverageThreshold: {

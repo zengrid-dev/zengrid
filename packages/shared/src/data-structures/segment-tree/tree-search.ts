@@ -29,7 +29,7 @@ export function findIndexAtSumRecursive<T>(
 
   const leftSum = tree[leftChild] as unknown as number;
 
-  if (targetSum <= leftSum) {
+  if (targetSum < leftSum) {
     return findIndexAtSumRecursive(
       tree,
       lazy,

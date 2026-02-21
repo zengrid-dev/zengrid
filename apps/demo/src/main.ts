@@ -164,7 +164,6 @@ function main() {
 
   grid.on('header:filter:click', (event) => {
     console.log(`🔍 Filter clicked: Column ${event.columnIndex}, Has active filter: ${event.hasActiveFilter}`);
-    alert(`Filter UI for "${event.column.field}" column\n\nCurrent filter: ${event.hasActiveFilter ? 'Active' : 'None'}\n\nImplement filter dropdown UI here!`);
   });
 
   grid.on('header:hover', (event) => {
@@ -188,6 +187,40 @@ function main() {
       await paginationDemo.enable();
       alert('Pagination Mode: ON\n\nNow loading data from mock server (http://localhost:3003)\n\nMake sure the server is running:\npnpm server\n\nTotal records: 10,000');
     }
+  });
+
+  // Quick filter input
+  const quickFilterInput = document.getElementById('quick-filter-input') as HTMLInputElement | null;
+  if (quickFilterInput) {
+    let quickFilterTimer: number | null = null;
+    quickFilterInput.addEventListener('input', () => {
+      if (quickFilterTimer) {
+        window.clearTimeout(quickFilterTimer);
+      }
+      quickFilterTimer = window.setTimeout(() => {
+        grid.setQuickFilter(quickFilterInput.value);
+      }, 200);
+    });
+  }
+
+  // Export CSV button
+  const exportBtn = document.getElementById('btn-export-csv');
+  exportBtn?.addEventListener('click', () => {
+    const csv = grid.exportCSV({
+      rows: 'filtered',
+      columns: 'visible',
+      includeHeaders: true,
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'zengrid-export.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   });
 
   // 18. Infinite scroll toggle button

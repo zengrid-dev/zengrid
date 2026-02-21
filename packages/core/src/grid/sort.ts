@@ -132,6 +132,21 @@ export class GridSort {
   }
 
   /**
+   * Set sort state directly
+   */
+  setSortState(sortState: SortState[]): void {
+    if (!this.sortManager) {
+      console.warn('Sort manager not initialized. Call setData() first.');
+      return;
+    }
+
+    this.sortManager.setSortState(sortState);
+    this.state.sortState = this.sortManager.getSortState();
+    this.onClearCache();
+    this.onRefresh();
+  }
+
+  /**
    * Get sort direction for a specific column
    */
   getColumnSort(column: number) {

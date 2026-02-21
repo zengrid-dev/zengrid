@@ -11,6 +11,9 @@ High-performance data grid library for web applications.
 - 🌍 **i18n & RTL** - Full internationalization support
 - 📋 **Copy/Paste** - Native clipboard integration
 - 🎨 **Customizable** - Flexible styling and theming
+- 🔎 **Quick Filter** - Global search across columns
+- 💾 **Column State Persistence** - Save/restore widths and order
+- 📤 **CSV Export** - Export visible, filtered, or selected rows
 
 ## Installation
 

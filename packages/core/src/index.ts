@@ -300,8 +300,12 @@ export { DependencyGraph, EventEmitter } from './utils';
 //
 // // Features
 // export { BasicFilter } from './features/filtering/basic-filter';
-// export { ClipboardManager } from './features/copy-paste/clipboard-manager';
-// export { CSVExporter } from './features/export/csv-exporter';
+export { ClipboardManager } from './features/copy-paste/clipboard-manager';
+export { CSVExporter } from './features/export/csv-exporter';
+
+// Reactive Store (Phase 1)
+export { GridStore, PipelineRegistry } from './reactive';
+export type { StoreKeys, WrappedSignal, WrappedComputed } from './reactive';
 
 // Version
 export const VERSION = '0.1.0';

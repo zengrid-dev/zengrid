@@ -34,6 +34,7 @@ export function renderAllHeaders(
     const params = buildRenderParams(
       columnState.definition,
       visualIndex,
+      columnState.dataIndex,
       columnState.actualWidth,
       headerHeight,
       sortState,
@@ -77,6 +78,7 @@ export function updateHeaderByColumnId(
   const params = buildRenderParams(
     metadata.lastParams.column,
     metadata.columnIndex,
+    columnState.dataIndex,
     columnState.actualWidth,
     headerHeight,
     sortState,

@@ -20,7 +20,7 @@ describe('SuffixArray', () => {
       const sa = new SuffixArray('BaNaNa', { caseSensitive: true });
       const positions = sa.search('aNa');
 
-      expect(positions).toEqual([1]);
+      expect(positions).toEqual([1, 3]);
     });
 
     it('should return empty array for non-existent pattern', () => {

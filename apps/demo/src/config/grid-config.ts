@@ -42,6 +42,7 @@ export function createGridConfig(options: GridConfigOptions) {
     columns,
     enableSelection: true,
     enableMultiSelection: true,
+    selectionType: 'row' as const,
     enableKeyboardNavigation: true,
     overscanRows: 5,
     overscanCols: 2,

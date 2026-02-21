@@ -23,6 +23,11 @@ export interface GridOptions {
   columns?: ColumnDef[];
   enableSelection?: boolean;
   enableMultiSelection?: boolean;
+  /**
+   * Selection type (cell, row, column, or range)
+   * @default 'cell'
+   */
+  selectionType?: 'cell' | 'row' | 'column' | 'range';
   enableKeyboardNavigation?: boolean;
   enableA11y?: boolean;
 
@@ -249,6 +254,7 @@ export interface GridOptions {
   onScroll?: (scrollTop: number, scrollLeft: number) => void;
   onCellClick?: (row: number, col: number) => void;
   onCellDoubleClick?: (row: number, col: number) => void;
+  onCellContextMenu?: (row: number, col: number, event: MouseEvent) => void;
   onSelectionChange?: (selection: CellRange[]) => void;
   onPageChange?: (page: number, pageSize: number) => void;
   onColumnWidthsChange?: (widths: number[]) => void; // Called when column widths change (for persistence)
@@ -265,6 +271,40 @@ export interface GridState {
   filterState: FilterModel[];
   scrollPosition: { top: number; left: number };
   editingCell: CellRef | null;
+}
+
+/**
+ * Column state snapshot for persistence
+ */
+export interface ColumnStateSnapshot {
+  id?: string;
+  field?: string;
+  width?: number;
+  visible?: boolean;
+  order?: number;
+}
+
+/**
+ * Grid state snapshot for persistence
+ */
+export interface GridStateSnapshot {
+  columns?: ColumnStateSnapshot[];
+  sortState?: SortState[];
+  filterState?: FilterModel[];
+}
+
+/**
+ * Grid export options
+ */
+export interface GridExportOptions {
+  /** Rows to export */
+  rows?: 'all' | 'filtered' | 'selected' | number[];
+  /** Columns to export */
+  columns?: 'all' | 'visible' | number[];
+  /** Include header row */
+  includeHeaders?: boolean;
+  /** Custom delimiter (default: comma for CSV) */
+  delimiter?: string;
 }
 
 /**

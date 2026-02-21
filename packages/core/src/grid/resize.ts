@@ -84,10 +84,14 @@ export class GridResize {
       });
     }
 
+    const visibleColCount = this.columnModel
+      ? this.columnModel.getVisibleCount()
+      : this.options.colCount;
+
     this.resizeManager = new ColumnResizeManager({
       events: this.events,
       widthProvider: this.scroller.getWidthProvider(),
-      colCount: this.options.colCount,
+      colCount: visibleColCount,
       getColOffset: (col) => this.scroller!.getColOffset(col),
       getColWidth: (col) => this.scroller!.getColWidth(col),
       onWidthChange: (col, width) => {

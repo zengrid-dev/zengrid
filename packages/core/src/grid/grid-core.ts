@@ -1,4 +1,14 @@
-import type { GridOptions, GridState, CellRef, VisibleRange } from '../types';
+import type {
+  GridOptions,
+  GridState,
+  CellRef,
+  VisibleRange,
+  ColumnStateSnapshot,
+  GridStateSnapshot,
+  SortState,
+  GridExportOptions,
+  FilterModel,
+} from '../types';
 import { EventEmitter } from '../events/event-emitter';
 import type { GridEvents } from '../events/grid-events';
 import type { ColumnConstraints } from '../features/column-resize';
@@ -8,6 +18,7 @@ import { FilterOptimizer } from '../features/filtering/filter-optimizer';
 import { SubstringFilter } from '../features/filtering/substring-filter';
 import { FormulaCalculator } from '../features/formulas/formula-calculator';
 import { AutofillManager } from '../features/autofill/autofill-manager';
+import { CSVExporter } from '../features/export';
 
 import { GridDOM } from './dom';
 import { GridPagination } from './pagination';
@@ -21,8 +32,11 @@ import { GridInit } from './init';
 import { HeaderManager } from './header-manager';
 import { GridEditing } from './grid-editing';
 import { GridInfiniteScroll } from './grid-infinite-scroll';
+import { GridSelection } from './selection';
+import { GridFilterUI } from './filter-ui';
 import type { HeaderRenderer } from '../rendering/headers/header-renderer.interface';
 import { ColumnModel } from '../features/columns/column-model';
+import { ColumnVisibilityPlugin } from '../features/columns/plugins/column-visibility';
 import { ScrollModel } from '../features/viewport/scroll-model';
 import { ViewportModel } from '../features/viewport/viewport-model';
 
@@ -70,6 +84,8 @@ export class Grid {
   private columnModel: ColumnModel | null = null;
   private editingOps: GridEditing | null = null;
   private infiniteScrollOps: GridInfiniteScroll | null = null;
+  private selectionOps: GridSelection | null = null;
+  private filterUI: GridFilterUI | null = null;
 
   // Reactive viewport models
   private scrollModel: ScrollModel;
@@ -177,7 +193,16 @@ export class Grid {
         onRefresh: () => this.refresh(),
         onClearCache: () => this.clearCache(),
         updateScrollerAndPositioner: (rowCount: number) => {
-          console.log(`Filter: updating scroller with ${rowCount} effective rows`);
+          if (this.init.scroller) {
+            this.init.scroller.setRowCount(rowCount);
+            this.dom.updateCanvasSize(
+              this.init.scroller.getTotalWidth(),
+              this.init.scroller.getTotalHeight()
+            );
+          }
+          if (this.init.positioner) {
+            this.init.positioner.refresh();
+          }
         },
       }
     );
@@ -241,7 +266,12 @@ export class Grid {
 
       this.columnModel.subscribeAll({
         onChange: (event) => {
-          if (event.type === 'width' || event.type === 'reorder') {
+          if (event.type === 'width' || event.type === 'reorder' || event.type === 'visibility') {
+            if (event.type === 'visibility' && this.init.scroller) {
+              const visibleCount = this.columnModel?.getVisibleCount() ?? this.options.colCount;
+              this.scrollOps.updateVisibleColumnCount(visibleCount);
+            }
+
             if (this.init.scroller) {
               this.dom.updateCanvasSize(
                 this.init.scroller.getTotalWidth(),
@@ -253,7 +283,7 @@ export class Grid {
               this.init.positioner.refresh();
             }
 
-            if (event.type === 'reorder') {
+            if (event.type === 'reorder' || event.type === 'visibility') {
               this.resizeOps.updateColumnResizeHandles();
             }
           }
@@ -276,7 +306,42 @@ export class Grid {
         this.resizeOps.setHeaderManager(this.headerManager);
 
         this.events.on('header:sort:click', (event) => {
-          this.toggleSort(event.columnIndex);
+          let dataCol = event.columnIndex;
+          if (this.columnModel) {
+            const orderedColumns = this.columnModel.getVisibleColumnsInOrder();
+            if (orderedColumns[event.columnIndex]) {
+              dataCol = orderedColumns[event.columnIndex].dataIndex;
+            }
+          }
+          this.toggleSort(dataCol);
+        });
+
+        this.events.on('header:checkbox:change', (event) => {
+          if (!this.selectionOps) return;
+          if (event.action === 'select-all') {
+            this.selectionOps.selectAllRows(this.options.rowCount);
+          } else {
+            this.selectionOps.clearSelection();
+          }
+        });
+
+        this.filterUI = new GridFilterUI({
+          container: this.container,
+          events: this.events,
+          getFilterState: () => this.state.filterState,
+          setColumnFilter: (column, conditions, logic) =>
+            this.filterOps.setColumnFilter(column, conditions, logic ?? 'AND'),
+          clearColumnFilter: (column) => this.filterOps.clearColumnFilter(column),
+          getColumnDef: (dataCol) => this.options.columns?.[dataCol],
+          mapVisualToDataCol: (visualCol) => {
+            if (this.columnModel) {
+              const orderedColumns = this.columnModel.getVisibleColumnsInOrder();
+              if (orderedColumns[visualCol]) {
+                return orderedColumns[visualCol].dataIndex;
+              }
+            }
+            return visualCol;
+          },
         });
       }
     }
@@ -290,14 +355,34 @@ export class Grid {
       this.events,
       {
         getValue: (row: number, col: number) => {
-          return this.dataOps.dataAccessor?.getValue(row, col);
+          let dataCol = col;
+          if (this.columnModel) {
+            const orderedColumns = this.columnModel.getVisibleColumnsInOrder();
+            if (orderedColumns[col]) {
+              dataCol = orderedColumns[col].dataIndex;
+            }
+          }
+          return this.dataOps.dataAccessor?.getValue(row, dataCol);
         },
         setValue: (row: number, col: number, value: any) => {
+          let dataCol = col;
+          if (this.columnModel) {
+            const orderedColumns = this.columnModel.getVisibleColumnsInOrder();
+            if (orderedColumns[col]) {
+              dataCol = orderedColumns[col].dataIndex;
+            }
+          }
           if (this.state.data && this.state.data[row]) {
-            this.state.data[row][col] = value;
+            this.state.data[row][dataCol] = value;
           }
         },
         getColumn: (col: number) => {
+          if (this.columnModel) {
+            const orderedColumns = this.columnModel.getVisibleColumnsInOrder();
+            if (orderedColumns[col]) {
+              return orderedColumns[col].definition;
+            }
+          }
           return this.options.columns?.[col];
         },
         getCellElement: (row: number, col: number) => {
@@ -309,6 +394,33 @@ export class Grid {
       }
     );
     this.editingOps.initialize();
+
+    // Initialize selection module
+    this.selectionOps = new GridSelection(
+      this.container,
+      this.options,
+      this.state,
+      this.events,
+      this.scrollContainer,
+      {
+        onRefresh: () => this.refresh(),
+        getValue: (row: number, col: number) => {
+          return this.dataOps.dataAccessor?.getValue(row, col);
+        },
+        mapRowToDataIndex: (row: number) => {
+          const mapping = this.getVisibleRowMapping();
+          if (mapping) return mapping[row];
+          return row;
+        },
+      }
+    );
+    this.selectionOps.initialize();
+
+    this.events.on('filter:afterFilter', () => {
+      if (this.selectionOps && this.state.selection.length > 0) {
+        this.selectionOps.clearSelection();
+      }
+    });
 
     // Initialize infinite scrolling module
     this.infiniteScrollOps = new GridInfiniteScroll(
@@ -333,6 +445,11 @@ export class Grid {
     if (this.infiniteScrollOps) {
       this.infiniteScrollOps.initializeRowCount(data.length);
     }
+
+    // Initialize filter manager and update accessor
+    this.filterOps.updateDataAccessor(this.dataOps.dataAccessor);
+    this.filterOps.initializeFilterManager(this.options.colCount);
+    this.filterOps.reapplyFilters();
 
     this.sortOps.initializeSortManager(data.length, this.dataOps.dataAccessor);
 
@@ -542,6 +659,10 @@ export class Grid {
     this.sortOps.clearSort();
   }
 
+  setSortState(sortState: SortState[]): void {
+    this.sortOps.setSortState(sortState);
+  }
+
   // Filter operations
   setFilter(column: number, operator: string, value: any): void {
     this.filterOps.setFilter(column, operator, value);
@@ -557,6 +678,10 @@ export class Grid {
 
   getFilterState() {
     return this.filterOps.getFilterState();
+  }
+
+  setFilterState(models: FilterModel[]): void {
+    this.filterOps.setFilterState(models);
   }
 
   getFieldFilterState() {
@@ -575,6 +700,23 @@ export class Grid {
     this.filterOps.clearFilter();
   }
 
+  clearColumnFilter(column: number): void {
+    this.filterOps.clearColumnFilter(column);
+  }
+
+  // Quick filter (global search)
+  setQuickFilter(query: string, columns?: number[]): void {
+    this.filterOps.setQuickFilter(query, columns);
+  }
+
+  clearQuickFilter(): void {
+    this.filterOps.clearQuickFilter();
+  }
+
+  getQuickFilter(): { query: string; columns: number[] | null } {
+    return this.filterOps.getQuickFilter();
+  }
+
   // Data operations
   getDataMode(): 'frontend' | 'backend' {
     return this.dataOps.getDataMode();
@@ -582,6 +724,15 @@ export class Grid {
 
   getData(row: number, col: number): any {
     return this.dataOps.getData(row, col);
+  }
+
+  // Export operations
+  exportCSV(options: GridExportOptions = {}): string {
+    return this.exportDelimited(',', options);
+  }
+
+  exportTSV(options: GridExportOptions = {}): string {
+    return this.exportDelimited('\t', options);
   }
 
   // Pagination operations
@@ -667,6 +818,119 @@ export class Grid {
     return this.dragOps.isDragging();
   }
 
+  // =========================
+  // State Persistence
+  // =========================
+
+  /**
+   * Get current column state snapshot
+   */
+  getColumnState(): ColumnStateSnapshot[] {
+    if (!this.columnModel) return [];
+
+    return this.columnModel.getColumns().map(col => ({
+      id: col.id,
+      field: col.field,
+      width: col.width,
+      visible: col.visible,
+      order: col.order,
+    }));
+  }
+
+  /**
+   * Apply column state snapshot
+   */
+  applyColumnState(
+    state: ColumnStateSnapshot[],
+    options?: {
+      applyWidth?: boolean;
+      applyVisibility?: boolean;
+      applyOrder?: boolean;
+    }
+  ): void {
+    if (!this.columnModel || !state || state.length === 0) return;
+
+    const applyWidth = options?.applyWidth !== false;
+    const applyVisibility = options?.applyVisibility !== false;
+    const applyOrder = options?.applyOrder !== false;
+
+    const byId = new Map<string, ColumnStateSnapshot>();
+    const byField = new Map<string, ColumnStateSnapshot>();
+
+    state.forEach((snapshot) => {
+      if (snapshot.id) {
+        byId.set(snapshot.id, snapshot);
+      }
+      if (snapshot.field) {
+        byField.set(snapshot.field, snapshot);
+      }
+    });
+
+    const visibility = new ColumnVisibilityPlugin(this.columnModel);
+
+    this.columnModel.batchUpdate(() => {
+      for (const col of this.columnModel!.getColumns()) {
+        const snapshot = byId.get(col.id) ?? (col.field ? byField.get(col.field) : undefined);
+        if (!snapshot) continue;
+
+        if (applyWidth && snapshot.width !== undefined) {
+          this.columnModel!.setWidth(col.id, snapshot.width);
+        }
+
+        if (applyVisibility && snapshot.visible !== undefined) {
+          if (snapshot.visible) {
+            visibility.show(col.id);
+          } else {
+            visibility.hide(col.id);
+          }
+        }
+
+        if (applyOrder && snapshot.order !== undefined) {
+          const current = this.columnModel!.getColumn(col.id);
+          if (current && current.order !== snapshot.order) {
+            this.columnModel!.updateState(col.id, { order: snapshot.order }, {
+              type: 'reorder',
+              columnId: col.id,
+              oldValue: current.order,
+              newValue: snapshot.order,
+              state: { ...current, order: snapshot.order },
+            });
+          }
+        }
+      }
+    });
+  }
+
+  /**
+   * Get full grid state snapshot (columns + sort + filters)
+   */
+  getStateSnapshot(): GridStateSnapshot {
+    return {
+      columns: this.getColumnState(),
+      sortState: this.getSortState(),
+      filterState: this.getFilterState(),
+    };
+  }
+
+  /**
+   * Apply full grid state snapshot
+   */
+  applyStateSnapshot(snapshot: GridStateSnapshot): void {
+    if (!snapshot) return;
+
+    if (snapshot.columns && snapshot.columns.length > 0) {
+      this.applyColumnState(snapshot.columns);
+    }
+
+    if (snapshot.sortState) {
+      this.setSortState(snapshot.sortState);
+    }
+
+    if (snapshot.filterState) {
+      this.filterOps.setFilterState(snapshot.filterState);
+    }
+  }
+
   // Event subscriptions
   on<K extends keyof GridEvents>(event: K, handler: (payload: GridEvents[K]) => void): void {
     this.events.on(event, handler);
@@ -742,6 +1006,120 @@ export class Grid {
     };
   }
 
+  // =========================
+  // Export Helpers
+  // =========================
+
+  private exportDelimited(delimiter: string, options: GridExportOptions): string {
+    if (!this.dataOps.dataAccessor) return '';
+
+    const rows = this.resolveExportRows(options.rows);
+    const { columns, headers } = this.resolveExportColumns(options.columns);
+
+    const exporter = new CSVExporter({
+      getValue: (row: number, col: number) => this.dataOps.dataAccessor!.getValue(row, col),
+      rowCount: this.options.rowCount,
+      colCount: this.options.colCount,
+      getColumnHeader: (col: number) => this.getColumnHeader(col),
+    });
+
+    return exporter.export({
+      rows,
+      columns,
+      headers,
+      includeHeaders: options.includeHeaders ?? true,
+      delimiter,
+    });
+  }
+
+  private resolveExportRows(
+    rows: GridExportOptions['rows']
+  ): number[] {
+    if (Array.isArray(rows)) {
+      return rows;
+    }
+
+    if (rows === 'filtered') {
+      return this.getVisibleRowMapping() ?? this.range(0, this.options.rowCount - 1);
+    }
+
+    if (rows === 'selected') {
+      const selected = new Set<number>();
+      const rowMap = this.getVisibleRowMapping();
+      for (const range of this.state.selection) {
+        for (let row = range.startRow; row <= range.endRow; row++) {
+          const mappedRow = rowMap ? rowMap[row] : row;
+          if (mappedRow !== undefined) {
+            selected.add(mappedRow);
+          }
+        }
+      }
+      return Array.from(selected).sort((a, b) => a - b);
+    }
+
+    return this.range(0, this.options.rowCount - 1);
+  }
+
+  private getVisibleRowMapping(): number[] | null {
+    const indexMap = this.sortOps.getSortManager()?.getIndexMap() ?? null;
+    const visibleRows = this.filterOps.cachedVisibleRows ?? null;
+
+    if (indexMap && visibleRows) {
+      const visibleSet = new Set<number>(visibleRows);
+      return indexMap.indices.filter(index => visibleSet.has(index));
+    }
+
+    if (indexMap) {
+      return Array.from(indexMap.indices);
+    }
+
+    if (visibleRows) {
+      return visibleRows;
+    }
+
+    return null;
+  }
+
+  private resolveExportColumns(
+    columns: GridExportOptions['columns']
+  ): { columns: number[]; headers?: string[] } {
+    if (Array.isArray(columns)) {
+      return { columns };
+    }
+
+    if (columns === 'visible' && this.columnModel) {
+      const visible = this.columnModel.getVisibleColumnsInOrder();
+      return {
+        columns: visible.map(col => col.dataIndex),
+        headers: visible.map(col => this.getColumnHeader(col.dataIndex)),
+      };
+    }
+
+    return {
+      columns: this.range(0, this.options.colCount - 1),
+    };
+  }
+
+  private getColumnHeader(col: number): string {
+    const column = this.options.columns?.[col];
+    if (!column) return `Column ${col}`;
+
+    if (typeof column.header === 'string') {
+      return column.header;
+    }
+
+    return column.header?.text ?? column.field ?? `Column ${col}`;
+  }
+
+  private range(start: number, end: number): number[] {
+    if (end < start) return [];
+    const out: number[] = [];
+    for (let i = start; i <= end; i++) {
+      out.push(i);
+    }
+    return out;
+  }
+
   /**
    * Destroy the grid and clean up resources
    */
@@ -780,6 +1158,18 @@ export class Grid {
       this.editingOps.cleanup();
       this.editingOps = null;
     }
+
+    if (this.selectionOps) {
+      this.selectionOps.destroy();
+      this.selectionOps = null;
+    }
+
+    if (this.filterUI) {
+      this.filterUI.destroy();
+      this.filterUI = null;
+    }
+
+    this.resizeOps.destroy();
 
     this.container.innerHTML = '';
     this.container.classList.remove('zg-grid');

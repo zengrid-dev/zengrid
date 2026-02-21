@@ -187,6 +187,106 @@
   background: var(--zg-hover-bg);
 }
 
+/* Header checkbox */
+.zg-header-checkbox {
+  justify-content: center;
+}
+
+.zg-header-checkbox-input {
+  cursor: pointer;
+  accent-color: var(--zg-selected-border);
+}
+
+/* Filter popup */
+.zg-filter-popup {
+  position: fixed;
+  min-width: 220px;
+  max-width: 320px;
+  background: var(--zg-bg-color);
+  color: var(--zg-text-color);
+  border: 1px solid var(--zg-border-color);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 2000;
+  font-size: 13px;
+}
+
+.zg-filter-popup__title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.zg-filter-popup__row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.zg-filter-popup__conditions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.zg-filter-popup__condition {
+  padding: 6px;
+  border: 1px solid var(--zg-border-color);
+  border-radius: 4px;
+  background: var(--zg-bg-secondary, #f9f9f9);
+}
+
+.zg-filter-popup__condition-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.zg-filter-popup__select,
+.zg-filter-popup__input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--zg-border-color);
+  border-radius: 4px;
+  background: var(--zg-bg-color);
+  color: var(--zg-text-color);
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.zg-filter-popup__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.zg-filter-popup__btn {
+  padding: 6px 10px;
+  border: 1px solid var(--zg-border-color);
+  background: var(--zg-header-bg);
+  color: var(--zg-header-text);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.zg-filter-popup__btn--add {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.zg-filter-popup__btn--remove {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.zg-filter-popup__btn.primary {
+  background: var(--zg-selected-border);
+  border-color: var(--zg-selected-border);
+  color: #fff;
+}
+
 /* Selection overlay */
 .zg-selection-overlay {
   position: absolute;

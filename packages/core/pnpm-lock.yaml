@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@preact/signals-core':
+        specifier: ^1.13.0
+        version: 1.13.0
       '@zengrid/shared':
         specifier: ^1.0.4
         version: 1.0.4
@@ -17,6 +20,9 @@ importers:
 
 packages:
 
+  '@preact/signals-core@1.13.0':
+    resolution: {integrity: sha512-slT6XeTCAbdql61GVLlGU4x7XHI7kCZV5Um5uhE4zLX4ApgiiXc0UYFvVOKq06xcovzp7p+61l68oPi563ARKg==}
+
   '@zengrid/shared@1.0.4':
     resolution: {integrity: sha512-YetrVW5r9jBmCuWSERH3S+58kXEZJBZo/V/XyqfNfpA65cbtEGIqyAexPvukxj5uKs16SR4u2goaTO4UaVZlzg==}
 
@@ -24,6 +30,8 @@ packages:
     resolution: {integrity: sha512-4X9bmTo1/KzbZrB7B6mZXtvVXIhcKxaVSnFZuaVtps7tshKJDxgaIElkgdia6IjB5qWetWuu7kZ+ZaV1sPxy6w==}
 
 snapshots:
+
+  '@preact/signals-core@1.13.0': {}
 
   '@zengrid/shared@1.0.4': {}
 

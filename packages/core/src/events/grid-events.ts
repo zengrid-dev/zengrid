@@ -393,6 +393,7 @@ export interface GridEvents {
     column: import('../types').ColumnDef;
     hasActiveFilter: boolean;
     dropdownType?: string;
+    anchorElement?: HTMLElement;
   };
 
   'header:checkbox:change': {

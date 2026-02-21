@@ -384,16 +384,13 @@ export class Trie implements ITrie {
     index: number
   ): boolean {
     if (index === word.length) {
-      // Reached end of word
       if (!node.isEndOfWord) {
         return false; // Word doesn't exist
       }
 
       node.isEndOfWord = false;
       this.wordCount--;
-
-      // Return true if node has no children (can be deleted)
-      return node.children.size === 0;
+      return true;
     }
 
     const char = word[index];
@@ -403,19 +400,17 @@ export class Trie implements ITrie {
       return false; // Word doesn't exist
     }
 
-    // Decrement word count
-    childNode.wordCount--;
+    const deleted = this.deleteRecursive(childNode, word, index + 1);
 
-    // Recursively delete in child
-    const shouldDeleteChild = this.deleteRecursive(childNode, word, index + 1);
+    if (deleted) {
+      childNode.wordCount--;
 
-    if (shouldDeleteChild) {
-      node.children.delete(char);
-
-      // Return true if current node has no children and is not end of another word
-      return node.children.size === 0 && !node.isEndOfWord;
+      // Prune child if it has no children and is not end of another word
+      if (childNode.children.size === 0 && !childNode.isEndOfWord) {
+        node.children.delete(char);
+      }
     }
 
-    return false;
+    return deleted;
   }
 }

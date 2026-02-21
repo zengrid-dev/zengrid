@@ -16,12 +16,14 @@ ZenGrid is a lightweight, high-performance data grid library designed to handle 
 - ✅ **Selection** - Single cell, range selection, multi-selection
 - ✅ **Sorting** - Single column sorting
 - ✅ **Filtering** - Basic text/number filtering
+- ✅ **Quick Filter** - Global search across columns
 - ✅ **Copy/Paste** - Native clipboard integration
 - ✅ **Keyboard Navigation** - Full Excel-like keyboard shortcuts
 - ✅ **Accessibility** - WCAG 2.1 AA compliant
 - ✅ **i18n & RTL** - Internationalization and right-to-left support
 - ✅ **Touch Support** - Mobile-friendly gestures
 - ✅ **CSV Export** - Export data to CSV
+- ✅ **Column State Persistence** - Save/restore widths and order
 - ✅ **Column Resize** - Drag to resize columns
 - ✅ **Theming** - Dark mode and custom themes
 

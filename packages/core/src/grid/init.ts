@@ -19,6 +19,7 @@ import { ChipRenderer } from '../rendering/renderers/chip';
 import { DropdownRenderer } from '../rendering/renderers/dropdown';
 import { LoadingIndicator } from '../features/loading';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
+import type { IndexMap } from '../data/index-map';
 import { RowHeightManager } from '../features/row-height';
 import { SegmentTreeHeightProvider } from '../rendering/height-provider/segment-tree-height-provider';
 import { ColumnModelWidthProvider } from '../rendering/width-provider/column-model-width-provider';
@@ -47,6 +48,7 @@ export class GridInit {
   private getCachedVisibleRows: () => number[] | null;
   private getDataAccessor: () => DataAccessor | null;
   private getColumnModel: () => any;
+  private mapRowToDataIndex: (row: number) => number | undefined;
 
   constructor(
     container: HTMLElement,
@@ -72,6 +74,7 @@ export class GridInit {
     this.getCachedVisibleRows = callbacks.getCachedVisibleRows;
     this.getDataAccessor = callbacks.getDataAccessor;
     this.getColumnModel = callbacks.getColumnModel;
+    this.mapRowToDataIndex = this.createRowMapper();
 
     // Initialize renderer registry
     this.registry = new RendererRegistry();
@@ -191,10 +194,14 @@ export class GridInit {
       ? new ColumnModelWidthProvider(columnModel)
       : undefined;
 
+    const visibleColCount = columnModel
+      ? columnModel.getVisibleCount()
+      : this.options.colCount;
+
     // Initialize VirtualScroller
     this.scroller = new VirtualScroller({
       rowCount: this.options.rowCount,
-      colCount: this.options.colCount,
+      colCount: visibleColCount,
       rowHeight: this.options.rowHeight,
       colWidth: this.options.colWidth,
       widthProvider, // Adapter reads from ColumnModel; undefined falls back to colWidth
@@ -226,29 +233,18 @@ export class GridInit {
       cache: this.cache ?? undefined,
       rowHeightManager: this.rowHeightManager ?? undefined,
       getData: (row: number, col: number) => {
-        let dataRow = row;
-
-        const cachedVisibleRows = this.getCachedVisibleRows();
-        if (cachedVisibleRows && cachedVisibleRows.length > 0) {
-          if (row >= cachedVisibleRows.length) return undefined;
-          dataRow = cachedVisibleRows[row];
-        }
-
-        const sortManager = this.getSortManager();
-        const indexMap = sortManager?.getIndexMap();
-        const mappedRow = indexMap ? indexMap.toDataIndex(dataRow) : dataRow;
+        const mappedRow = this.mapRowToDataIndex(row);
+        if (mappedRow === undefined || mappedRow < 0) return undefined;
 
         // Map visual column index to data column index
         // When columns are reordered, col is the visual position, not the data position
         const columnModel = this.getColumnModel();
         let dataCol = col;
         if (columnModel) {
-          const orderedColumns = columnModel.getColumnsInOrder();
+          const orderedColumns = columnModel.getVisibleColumnsInOrder();
           if (orderedColumns && orderedColumns[col]) {
-            // Get the original data column index from the column definition
-            const columnState = orderedColumns[col];
-            // Extract data column index from column ID (e.g., "col-2" -> 2)
-            dataCol = parseInt(columnState.id.split('-')[1], 10);
+            // Use stable dataIndex instead of parsing column ID
+            dataCol = orderedColumns[col].dataIndex;
           }
         }
 
@@ -259,7 +255,7 @@ export class GridInit {
         // When columns are reordered, col is the visual position
         const columnModel = this.getColumnModel();
         if (columnModel) {
-          const orderedColumns = columnModel.getColumnsInOrder();
+          const orderedColumns = columnModel.getVisibleColumnsInOrder();
           if (orderedColumns && orderedColumns[col]) {
             return orderedColumns[col].definition;
           }
@@ -280,6 +276,48 @@ export class GridInit {
         return this.state.editingCell?.row === row && this.state.editingCell?.col === col;
       },
     });
+  }
+
+  private createRowMapper(): (row: number) => number | undefined {
+    let cachedIndexMap: IndexMap | null = null;
+    let cachedVisibleRows: number[] | null = null;
+    let cachedCombined: number[] | null = null;
+
+    const getCombinedRows = (indexMap: IndexMap, visibleRows: number[]): number[] => {
+      if (indexMap === cachedIndexMap && visibleRows === cachedVisibleRows && cachedCombined) {
+        return cachedCombined;
+      }
+
+      const visibleSet = new Set<number>(visibleRows);
+      const combined = indexMap.indices.filter(index => visibleSet.has(index));
+
+      cachedIndexMap = indexMap;
+      cachedVisibleRows = visibleRows;
+      cachedCombined = combined;
+
+      return combined;
+    };
+
+    return (row: number) => {
+      const indexMap = this.getSortManager()?.getIndexMap() ?? null;
+      const visibleRows = this.getCachedVisibleRows();
+
+      if (indexMap && visibleRows) {
+        const combined = getCombinedRows(indexMap, visibleRows);
+        return combined[row];
+      }
+
+      if (visibleRows) {
+        return visibleRows[row];
+      }
+
+      if (indexMap) {
+        const mapped = indexMap.toDataIndex(row);
+        return mapped >= 0 ? mapped : undefined;
+      }
+
+      return row;
+    };
   }
 
   /**
