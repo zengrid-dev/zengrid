@@ -6,7 +6,11 @@ interface FilterUIOptions {
   container: HTMLElement;
   events: EventEmitter<GridEvents>;
   getFilterState: () => FilterModel[];
-  setColumnFilter: (column: number, conditions: Array<{ operator: string; value: any }>, logic?: 'AND' | 'OR') => void;
+  setColumnFilter: (
+    column: number,
+    conditions: Array<{ operator: string; value: any }>,
+    logic?: 'AND' | 'OR'
+  ) => void;
   clearColumnFilter: (column: number) => void;
   getColumnDef: (dataCol: number) => ColumnDef | undefined;
   mapVisualToDataCol: (visualCol: number) => number;
@@ -54,7 +58,11 @@ export class GridFilterUI {
   private container: HTMLElement;
   private events: EventEmitter<GridEvents>;
   private getFilterState: () => FilterModel[];
-  private setColumnFilter: (column: number, conditions: Array<{ operator: string; value: any }>, logic?: 'AND' | 'OR') => void;
+  private setColumnFilter: (
+    column: number,
+    conditions: Array<{ operator: string; value: any }>,
+    logic?: 'AND' | 'OR'
+  ) => void;
   private clearColumnFilter: (column: number) => void;
   private getColumnDef: (dataCol: number) => ColumnDef | undefined;
   private mapVisualToDataCol: (visualCol: number) => number;
@@ -87,7 +95,7 @@ export class GridFilterUI {
 
     const dropdownType = payload.dropdownType ?? 'text';
     const operators = this.getOperatorsForType(dropdownType);
-    const existing = this.getFilterState().find(f => f.column === dataCol);
+    const existing = this.getFilterState().find((f) => f.column === dataCol);
 
     const popup = document.createElement('div');
     popup.className = 'zg-filter-popup';
@@ -135,7 +143,7 @@ export class GridFilterUI {
 
       const operatorSelect = document.createElement('select');
       operatorSelect.className = 'zg-filter-popup__select';
-      operators.forEach(op => {
+      operators.forEach((op) => {
         const option = document.createElement('option');
         option.value = op.value;
         option.textContent = op.label;
@@ -150,7 +158,8 @@ export class GridFilterUI {
 
       const valueInput = document.createElement('input');
       valueInput.className = 'zg-filter-popup__input';
-      valueInput.type = dropdownType === 'number' ? 'number' : dropdownType === 'date' ? 'date' : 'text';
+      valueInput.type =
+        dropdownType === 'number' ? 'number' : dropdownType === 'date' ? 'date' : 'text';
 
       const valueInputTo = document.createElement('input');
       valueInputTo.className = 'zg-filter-popup__input';
@@ -172,7 +181,7 @@ export class GridFilterUI {
       conditionEl.appendChild(actionsRow);
 
       const updateValueInputs = () => {
-        const selected = operators.find(op => op.value === operatorSelect.value);
+        const selected = operators.find((op) => op.value === operatorSelect.value);
         const valueCount = selected?.valueCount ?? 1;
         if (valueCount === 0) {
           valueInput.style.display = 'none';
@@ -201,7 +210,7 @@ export class GridFilterUI {
       updateValueInputs();
 
       removeBtn.addEventListener('click', () => {
-        const index = conditionRows.findIndex(row => row.element === conditionEl);
+        const index = conditionRows.findIndex((row) => row.element === conditionEl);
         if (index >= 0) {
           conditionRows.splice(index, 1);
         }
@@ -221,7 +230,7 @@ export class GridFilterUI {
     const updateConditionControls = () => {
       const showLogic = conditionRows.length > 1;
       logicRow.style.display = showLogic ? '' : 'none';
-      conditionRows.forEach(row => {
+      conditionRows.forEach((row) => {
         row.removeBtn.style.display = showLogic ? '' : 'none';
       });
     };
@@ -233,12 +242,11 @@ export class GridFilterUI {
       updateConditionControls();
     };
 
-    const existingConditions = existing?.conditions && existing.conditions.length > 0
-      ? existing.conditions
-      : null;
+    const existingConditions =
+      existing?.conditions && existing.conditions.length > 0 ? existing.conditions : null;
 
     if (existingConditions) {
-      existingConditions.forEach(condition => addCondition(condition));
+      existingConditions.forEach((condition) => addCondition(condition));
     } else {
       addCondition();
     }
@@ -268,7 +276,7 @@ export class GridFilterUI {
     popup.appendChild(actions);
 
     const applyFilter = () => {
-      const conditions: Array<{ operator: string; value?: any }> = [];
+      const conditions: Array<{ operator: string; value: any }> = [];
       for (const row of conditionRows) {
         const operator = row.operatorSelect.value as FilterOperator;
         const condition = this.buildCondition(
@@ -278,7 +286,7 @@ export class GridFilterUI {
           row.valueInputTo.value
         );
         if (condition) {
-          conditions.push(condition);
+          conditions.push(condition as { operator: string; value: any });
         }
       }
 
@@ -366,7 +374,7 @@ export class GridFilterUI {
 
   private getOperatorValueCount(operator: FilterOperator, type: string): 0 | 1 | 2 {
     const operators = this.getOperatorsForType(type);
-    return operators.find(op => op.value === operator)?.valueCount ?? 1;
+    return operators.find((op) => op.value === operator)?.valueCount ?? 1;
   }
 
   private getColumnLabel(column: ColumnDef, index: number): string {

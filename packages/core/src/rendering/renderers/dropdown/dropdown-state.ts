@@ -30,7 +30,7 @@ export class DropdownState {
    * Gets option label for a value
    */
   getOptionLabel(value: any, options: DropdownOption[]): string {
-    const option = options.find(opt => deepEqual(opt.value, value));
+    const option = options.find((opt) => deepEqual(opt.value, value));
     return option ? option.label : String(value);
   }
 
@@ -58,7 +58,7 @@ export class DropdownState {
       if (multiSelectDisplay === 'count') {
         return `${values.length} selected`;
       } else if (multiSelectDisplay === 'list') {
-        const labels = values.map(v => this.getOptionLabel(v, options));
+        const labels = values.map((v) => this.getOptionLabel(v, options));
         return labels.join(', ');
       } else {
         return `${values.length} selected`;
@@ -82,7 +82,7 @@ export class DropdownState {
     if (!filteredOptions) {
       const normalizedQuery = caseSensitive ? query : query.toLowerCase();
 
-      filteredOptions = options.filter(option => {
+      filteredOptions = options.filter((option) => {
         const normalizedLabel = caseSensitive ? option.label : option.label.toLowerCase();
         return normalizedLabel.includes(normalizedQuery);
       });
@@ -100,11 +100,11 @@ export class DropdownState {
     const optionsList = menu.querySelector('.zg-dropdown-options');
     if (!optionsList) return;
 
-    optionsList.querySelectorAll('.zg-dropdown-option').forEach(optionEl => {
+    optionsList.querySelectorAll('.zg-dropdown-option').forEach((optionEl) => {
       const valueStr = (optionEl as HTMLElement).dataset.value;
       if (valueStr) {
         const value = JSON.parse(valueStr);
-        const isSelected = selectedValues.some(v => deepEqual(v, value));
+        const isSelected = selectedValues.some((v) => deepEqual(v, value));
 
         if (isSelected) {
           optionEl.classList.add('selected');
@@ -127,11 +127,11 @@ export class DropdownState {
     if (!optionsList) return;
 
     const optionElements = optionsList.querySelectorAll('.zg-dropdown-option');
-    optionElements.forEach(optionEl => {
+    optionElements.forEach((optionEl) => {
       const valueStr = (optionEl as HTMLElement).dataset.value;
       if (valueStr) {
         const value = JSON.parse(valueStr);
-        const isVisible = filteredOptions.some(opt => deepEqual(opt.value, value));
+        const isVisible = filteredOptions.some((opt) => deepEqual(opt.value, value));
         (optionEl as HTMLElement).style.display = isVisible ? '' : 'none';
       }
     });
@@ -144,7 +144,7 @@ export class DropdownState {
    */
   private updateGroupHeadersVisibility(optionsList: HTMLElement): void {
     const groupHeaders = optionsList.querySelectorAll('.zg-dropdown-group-header');
-    groupHeaders.forEach(header => {
+    groupHeaders.forEach((header) => {
       const nextOptions: HTMLElement[] = [];
       let sibling = header.nextElementSibling;
 
@@ -155,7 +155,7 @@ export class DropdownState {
         sibling = sibling.nextElementSibling;
       }
 
-      const hasVisibleOptions = nextOptions.some(opt => opt.style.display !== 'none');
+      const hasVisibleOptions = nextOptions.some((opt) => opt.style.display !== 'none');
       (header as HTMLElement).style.display = hasVisibleOptions ? '' : 'none';
     });
   }
@@ -214,10 +214,10 @@ export class DropdownState {
 
       const optionsList = menu.querySelector('.zg-dropdown-options') as HTMLElement;
       if (optionsList) {
-        optionsList.querySelectorAll('.zg-dropdown-option').forEach(opt => {
+        optionsList.querySelectorAll('.zg-dropdown-option').forEach((opt) => {
           (opt as HTMLElement).style.display = '';
         });
-        optionsList.querySelectorAll('.zg-dropdown-group-header').forEach(header => {
+        optionsList.querySelectorAll('.zg-dropdown-group-header').forEach((header) => {
           (header as HTMLElement).style.display = '';
         });
       }

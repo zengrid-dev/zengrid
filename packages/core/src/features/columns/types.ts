@@ -98,14 +98,14 @@ export interface ColumnState {
  * Column event types
  */
 export type ColumnEventType =
-  | 'width'        // Width changed
-  | 'resize'       // User resizing
-  | 'reorder'      // Order changed (drag & drop)
-  | 'pin'          // Pinned left/right
-  | 'unpin'        // Unpinned
-  | 'visibility'   // Show/hide
-  | 'group'        // Grouped
-  | 'ungroup';     // Ungrouped
+  | 'width' // Width changed
+  | 'resize' // User resizing
+  | 'reorder' // Order changed (drag & drop)
+  | 'pin' // Pinned left/right
+  | 'unpin' // Unpinned
+  | 'visibility' // Show/hide
+  | 'group' // Grouped
+  | 'ungroup'; // Ungrouped
 
 /**
  * Column change event

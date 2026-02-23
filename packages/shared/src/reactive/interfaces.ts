@@ -83,7 +83,7 @@ export interface IReactiveState<T, E> {
 
   // T is intentionally not used in interface - it's internal to implementation
   // The type parameter is kept for compatibility with ReactiveState implementation
-  __state?: T;  // Phantom type parameter marker
+  __state?: T; // Phantom type parameter marker
 }
 
 // ========================================
@@ -247,7 +247,10 @@ export interface IEventHandlerRegistry {
   unregister(elementId: string): void;
   update(elementId: string, handlers: IElementEventHandlers, merge: boolean): void;
   get(elementId: string): IElementEventHandlers | undefined;
-  getHandler(elementId: string, handlerName: keyof IElementEventHandlers): ((event: any) => void) | undefined;
+  getHandler(
+    elementId: string,
+    handlerName: keyof IElementEventHandlers
+  ): ((event: any) => void) | undefined;
   size(): number;
   clear(): void;
 }

@@ -67,10 +67,7 @@ export class ColumnStore implements IColumnStore {
     this.columnTypes.set(definition.name, definition.type);
   }
 
-  private createColumn(
-    type: ColumnType,
-    size: number
-  ): Int32Array | Float64Array | any[] {
+  private createColumn(type: ColumnType, size: number): Int32Array | Float64Array | any[] {
     switch (type) {
       case 'int32':
         return new Int32Array(size);
@@ -84,10 +81,7 @@ export class ColumnStore implements IColumnStore {
     }
   }
 
-  private fillColumn(
-    column: Int32Array | Float64Array | any[],
-    value: any
-  ): void {
+  private fillColumn(column: Int32Array | Float64Array | any[], value: any): void {
     if (column instanceof Int32Array || column instanceof Float64Array) {
       column.fill(value);
     } else {
@@ -193,9 +187,7 @@ export class ColumnStore implements IColumnStore {
 
   setColumn(columnName: string, values: any[]): void {
     if (values.length !== this.rows) {
-      throw new Error(
-        `Values length (${values.length}) must match row count (${this.rows})`
-      );
+      throw new Error(`Values length (${values.length}) must match row count (${this.rows})`);
     }
 
     const column = this.data.get(columnName);
@@ -210,10 +202,7 @@ export class ColumnStore implements IColumnStore {
     }
   }
 
-  aggregate(
-    columnName: string,
-    operation: AggregateOperation
-  ): AggregationResult {
+  aggregate(columnName: string, operation: AggregateOperation): AggregationResult {
     const column = this.data.get(columnName);
     if (!column) {
       throw new Error(`Column '${columnName}' does not exist`);
@@ -221,9 +210,7 @@ export class ColumnStore implements IColumnStore {
 
     const type = this.columnTypes.get(columnName)!;
     if (type !== 'int32' && type !== 'float64') {
-      throw new Error(
-        `Cannot aggregate non-numeric column '${columnName}' (type: ${type})`
-      );
+      throw new Error(`Cannot aggregate non-numeric column '${columnName}' (type: ${type})`);
     }
 
     // Helper to check if value is null/undefined
@@ -319,15 +306,9 @@ export class ColumnStore implements IColumnStore {
       const newColumn = this.createColumn(type, newRowCount);
 
       // Copy old data
-      if (
-        newColumn instanceof Int32Array &&
-        oldColumn instanceof Int32Array
-      ) {
+      if (newColumn instanceof Int32Array && oldColumn instanceof Int32Array) {
         newColumn.set(oldColumn);
-      } else if (
-        newColumn instanceof Float64Array &&
-        oldColumn instanceof Float64Array
-      ) {
+      } else if (newColumn instanceof Float64Array && oldColumn instanceof Float64Array) {
         newColumn.set(oldColumn);
       } else {
         for (let i = 0; i < this.rows; i++) {
@@ -362,9 +343,7 @@ export class ColumnStore implements IColumnStore {
       if (this.autoGrow) {
         this.addRows(row - this.rows + 1);
       } else {
-        throw new RangeError(
-          `Row index ${row} out of bounds [0, ${this.rows - 1}]`
-        );
+        throw new RangeError(`Row index ${row} out of bounds [0, ${this.rows - 1}]`);
       }
     }
   }

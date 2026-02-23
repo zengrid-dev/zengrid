@@ -53,10 +53,7 @@ export class EventEmitter<TEvents extends Record<string, any>> implements IEvent
    * @param handler - Event handler function
    * @returns Unsubscribe function
    */
-  on<K extends keyof TEvents>(
-    event: K,
-    handler: (data: TEvents[K]) => void
-  ): () => void {
+  on<K extends keyof TEvents>(event: K, handler: (data: TEvents[K]) => void): () => void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
@@ -81,10 +78,7 @@ export class EventEmitter<TEvents extends Record<string, any>> implements IEvent
    * @param handler - Event handler function
    * @returns Unsubscribe function
    */
-  once<K extends keyof TEvents>(
-    event: K,
-    handler: (data: TEvents[K]) => void
-  ): () => void {
+  once<K extends keyof TEvents>(event: K, handler: (data: TEvents[K]) => void): () => void {
     if (!this.onceListeners.has(event)) {
       this.onceListeners.set(event, new Set());
     }
@@ -100,10 +94,7 @@ export class EventEmitter<TEvents extends Record<string, any>> implements IEvent
    * @param event - Event name
    * @param handler - Event handler function to remove
    */
-  off<K extends keyof TEvents>(
-    event: K,
-    handler: (data: TEvents[K]) => void
-  ): void {
+  off<K extends keyof TEvents>(event: K, handler: (data: TEvents[K]) => void): void {
     const handlers = this.listeners.get(event);
     if (handlers) {
       handlers.delete(handler);
@@ -118,10 +109,7 @@ export class EventEmitter<TEvents extends Record<string, any>> implements IEvent
    * @param event - Event name
    * @param handler - Event handler function to remove
    */
-  private offOnce<K extends keyof TEvents>(
-    event: K,
-    handler: (data: TEvents[K]) => void
-  ): void {
+  private offOnce<K extends keyof TEvents>(event: K, handler: (data: TEvents[K]) => void): void {
     const handlers = this.onceListeners.get(event);
     if (handlers) {
       handlers.delete(handler);

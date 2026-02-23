@@ -161,7 +161,10 @@ export class HitTester {
    * @param col - Column index
    * @returns Bounding box { left, top, width, height }
    */
-  getCellBounds(row: number, col: number): { left: number; top: number; width: number; height: number } {
+  getCellBounds(
+    row: number,
+    col: number
+  ): { left: number; top: number; width: number; height: number } {
     if (row < 0 || row >= this.rowCount || col < 0 || col >= this.colCount) {
       throw new Error(`Cell out of bounds: row=${row}, col=${col}`);
     }

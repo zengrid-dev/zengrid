@@ -43,4 +43,3 @@ export type {
   TimeValue,
   TimeFormat,
 } from './datetime';
-

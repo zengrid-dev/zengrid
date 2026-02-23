@@ -38,11 +38,7 @@
 export { ColumnModel } from './column-model';
 
 // Plugins
-export {
-  ColumnReorderPlugin,
-  ColumnPinPlugin,
-  ColumnVisibilityPlugin
-} from './plugins';
+export { ColumnReorderPlugin, ColumnPinPlugin, ColumnVisibilityPlugin } from './plugins';
 
 // Types
 export type {

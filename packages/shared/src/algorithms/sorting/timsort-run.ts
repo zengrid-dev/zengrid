@@ -128,8 +128,10 @@ export function mergeCollapse<T>(
     let n = state.runStack.length - 2;
 
     if (
-      (n > 0 && state.runStack[n - 1].length <= state.runStack[n].length + state.runStack[n + 1].length) ||
-      (n > 1 && state.runStack[n - 2].length <= state.runStack[n - 1].length + state.runStack[n].length)
+      (n > 0 &&
+        state.runStack[n - 1].length <= state.runStack[n].length + state.runStack[n + 1].length) ||
+      (n > 1 &&
+        state.runStack[n - 2].length <= state.runStack[n - 1].length + state.runStack[n].length)
     ) {
       // Merge the smaller of the two pairs
       if (state.runStack[n - 1].length < state.runStack[n + 1].length) {

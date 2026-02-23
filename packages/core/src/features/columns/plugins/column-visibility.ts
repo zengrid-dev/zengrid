@@ -77,13 +77,17 @@ export class ColumnVisibilityPlugin {
 
     if (column.visible === visible) return; // No change
 
-    this.columnModel.updateState(columnId, { visible }, {
-      type: 'visibility',
+    this.columnModel.updateState(
       columnId,
-      oldValue: column.visible,
-      newValue: visible,
-      state: { ...column, visible },
-    });
+      { visible },
+      {
+        type: 'visibility',
+        columnId,
+        oldValue: column.visible,
+        newValue: visible,
+        state: { ...column, visible },
+      }
+    );
   }
 
   /**
@@ -93,7 +97,7 @@ export class ColumnVisibilityPlugin {
    */
   showMany(columnIds: string[]): void {
     this.columnModel.batchUpdate(() => {
-      columnIds.forEach(id => this.show(id));
+      columnIds.forEach((id) => this.show(id));
     });
   }
 
@@ -104,7 +108,7 @@ export class ColumnVisibilityPlugin {
    */
   hideMany(columnIds: string[]): void {
     this.columnModel.batchUpdate(() => {
-      columnIds.forEach(id => this.hide(id));
+      columnIds.forEach((id) => this.hide(id));
     });
   }
 
@@ -113,7 +117,7 @@ export class ColumnVisibilityPlugin {
    */
   showAll(): void {
     this.columnModel.batchUpdate(() => {
-      this.columnModel.getColumns().forEach(col => {
+      this.columnModel.getColumns().forEach((col) => {
         if (!col.visible) {
           this.show(col.id);
         }
@@ -129,7 +133,7 @@ export class ColumnVisibilityPlugin {
   getVisibleColumns(): ColumnState[] {
     return this.columnModel
       .getColumns()
-      .filter(col => col.visible)
+      .filter((col) => col.visible)
       .sort((a, b) => a.order - b.order);
   }
 
@@ -141,7 +145,7 @@ export class ColumnVisibilityPlugin {
   getHiddenColumns(): ColumnState[] {
     return this.columnModel
       .getColumns()
-      .filter(col => !col.visible)
+      .filter((col) => !col.visible)
       .sort((a, b) => a.order - b.order);
   }
 
@@ -151,7 +155,7 @@ export class ColumnVisibilityPlugin {
    * @returns Number of visible columns
    */
   getVisibleCount(): number {
-    return this.columnModel.getColumns().filter(col => col.visible).length;
+    return this.columnModel.getColumns().filter((col) => col.visible).length;
   }
 
   /**

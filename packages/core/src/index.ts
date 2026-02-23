@@ -13,14 +13,24 @@ export { SparseMatrix } from '@zengrid/shared';
 export type { SparseMatrixOptions, ReadonlySparseMatrix } from '@zengrid/shared';
 
 export { ColumnStore } from '@zengrid/shared';
-export type { ColumnStoreOptions, ColumnDefinition, ColumnType, AggregateOperation, AggregationResult } from '@zengrid/shared';
+export type {
+  ColumnStoreOptions,
+  ColumnDefinition,
+  ColumnType,
+  AggregateOperation,
+  AggregationResult,
+} from '@zengrid/shared';
 
 // Rendering - Height and Width Providers
 export type { HeightProvider, HeightProviderOptions } from './rendering/height-provider';
 export { UniformHeightProvider, VariableHeightProvider } from './rendering/height-provider';
 
 export type { WidthProvider, WidthProviderOptions } from './rendering/width-provider';
-export { UniformWidthProvider, VariableWidthProvider, ColumnModelWidthProvider } from './rendering/width-provider';
+export {
+  UniformWidthProvider,
+  VariableWidthProvider,
+  ColumnModelWidthProvider,
+} from './rendering/width-provider';
 
 // Rendering - Virtual Scroller
 export type { VirtualScrollerOptions, CellPosition } from './rendering/virtual-scroller';
@@ -36,7 +46,13 @@ export { CellPositioner } from './rendering/cell-positioner';
 
 // Rendering - Renderers
 export type { CellRenderer, RenderParams } from './rendering/renderers';
-export { RendererRegistry, TextRenderer, NumberRenderer, ImageRenderer, AdvancedCellRenderer } from './rendering/renderers';
+export {
+  RendererRegistry,
+  TextRenderer,
+  NumberRenderer,
+  ImageRenderer,
+  AdvancedCellRenderer,
+} from './rendering/renderers';
 export type {
   NumberRendererOptions,
   ImageRendererOptions,
@@ -46,7 +62,10 @@ export type {
 } from './rendering/renderers';
 
 // Rendering - Headers
-export type { HeaderRenderer, HeaderRenderParams } from './rendering/headers/header-renderer.interface';
+export type {
+  HeaderRenderer,
+  HeaderRenderParams,
+} from './rendering/headers/header-renderer.interface';
 export type { ResolvedHeaderConfig } from './types/header';
 export {
   TextHeaderRenderer,
@@ -108,11 +127,7 @@ export {
 
 // Features - Column Model (Reactive column state management)
 export { ColumnModel } from './features/columns';
-export {
-  ColumnReorderPlugin,
-  ColumnPinPlugin,
-  ColumnVisibilityPlugin,
-} from './features/columns';
+export { ColumnReorderPlugin, ColumnPinPlugin, ColumnVisibilityPlugin } from './features/columns';
 export type {
   ColumnState,
   ColumnEvent,
@@ -133,17 +148,28 @@ export type {
 } from './features/viewport';
 
 // Selection utilities
-export { normalizeRange, mergeRanges, containsCell, rangesIntersect } from './selection/range-utils';
+export {
+  normalizeRange,
+  mergeRanges,
+  containsCell,
+  rangesIntersect,
+} from './selection/range-utils';
 export { createHitTester } from './selection/hit-tester';
 
 // Main Grid class
 export { Grid } from './grid/index';
 
 // Interactive Renderers
-export type { CheckboxRendererOptions, createCheckboxRenderer } from './rendering/renderers/checkbox';
+export type {
+  CheckboxRendererOptions,
+  createCheckboxRenderer,
+} from './rendering/renderers/checkbox';
 export { CheckboxRenderer } from './rendering/renderers/checkbox';
 
-export type { ProgressBarRendererOptions, createProgressBarRenderer } from './rendering/renderers/progress-bar';
+export type {
+  ProgressBarRendererOptions,
+  createProgressBarRenderer,
+} from './rendering/renderers/progress-bar';
 export { ProgressBarRenderer } from './rendering/renderers/progress-bar';
 
 export type { LinkRendererOptions, createLinkRenderer } from './rendering/renderers/link';
@@ -152,19 +178,34 @@ export { LinkRenderer } from './rendering/renderers/link';
 export type { ButtonRendererOptions, createButtonRenderer } from './rendering/renderers/button';
 export { ButtonRenderer } from './rendering/renderers/button';
 
-export type { DateRendererOptions, DateFormat as DateRendererFormat, createDateRenderer } from './rendering/renderers/date';
+export type {
+  DateRendererOptions,
+  DateFormat as DateRendererFormat,
+  createDateRenderer,
+} from './rendering/renderers/date';
 export { DateRenderer } from './rendering/renderers/date';
 
-export type { DateRangeRendererOptions, DateRange as RendererDateRange, createDateRangeRenderer } from './rendering/renderers/date-range';
+export type {
+  DateRangeRendererOptions,
+  DateRange as RendererDateRange,
+  createDateRangeRenderer,
+} from './rendering/renderers/date-range';
 export { DateRangeRenderer } from './rendering/renderers/date-range';
 
-export type { SelectRendererOptions, SelectOption, createSelectRenderer } from './rendering/renderers/select';
+export type {
+  SelectRendererOptions,
+  SelectOption,
+  createSelectRenderer,
+} from './rendering/renderers/select';
 export { SelectRenderer } from './rendering/renderers/select';
 
 export type { ChipRendererOptions, Chip, createChipRenderer } from './rendering/renderers/chip';
 export { ChipRenderer } from './rendering/renderers/chip';
 
-export type { DropdownRendererOptions, DropdownOption as DropdownRendererOption } from './rendering/renderers/dropdown';
+export type {
+  DropdownRendererOptions,
+  DropdownOption as DropdownRendererOption,
+} from './rendering/renderers/dropdown';
 export { DropdownRenderer, createDropdownRenderer } from './rendering/renderers/dropdown';
 
 // DateTime Suite - New infrastructure with reliable click-outside, scroll handling, and theming
@@ -212,13 +253,14 @@ export {
   isValidDate,
   isDateInRange,
 } from './datetime-core';
-export type {
-  DatetimeTheme,
-  ThemeConfig as DatetimeThemeConfig,
-} from './datetime-core';
+export type { DatetimeTheme, ThemeConfig as DatetimeThemeConfig } from './datetime-core';
 
 // Cell Editors
-export type { CellEditor, EditorParams, ValidationResult as EditorValidationResult } from './editing/cell-editor.interface';
+export type {
+  CellEditor,
+  EditorParams,
+  ValidationResult as EditorValidationResult,
+} from './editing/cell-editor.interface';
 
 export type { TextEditorOptions, createTextEditor } from './editing/text';
 export { TextEditor } from './editing/text';
@@ -248,7 +290,11 @@ export type {
   DateInputType,
 } from './editing/datetime';
 
-export type { DropdownEditorOptions, DropdownOption, createDropdownEditor } from './editing/dropdown';
+export type {
+  DropdownEditorOptions,
+  DropdownOption,
+  createDropdownEditor,
+} from './editing/dropdown';
 export { DropdownEditor } from './editing/dropdown';
 
 export { EditorManager } from './editing/editor-manager';
@@ -281,10 +327,7 @@ export type {
 } from './features/column-groups';
 
 // Features - Multi-Column Sorting
-export {
-  MultiColumnSorter,
-  SortStateManager,
-} from './features/sorting';
+export { MultiColumnSorter, SortStateManager } from './features/sorting';
 
 // Utilities
 export { DependencyGraph, EventEmitter } from './utils';
@@ -305,7 +348,35 @@ export { CSVExporter } from './features/export/csv-exporter';
 
 // Reactive Store (Phase 1)
 export { GridStore, PipelineRegistry } from './reactive';
-export type { StoreKeys, WrappedSignal, WrappedComputed } from './reactive';
+export type {
+  StoreKeys,
+  WrappedSignal,
+  WrappedComputed,
+  AsyncState,
+  AsyncComputedOptions,
+} from './reactive';
+
+// Async Utilities (Phase 8)
+export { yieldToMain, processInChunks } from './reactive';
+
+// Plugin System (Phase 2)
+export type { GridPlugin, PluginDisposable, GridApi as GridApiInterface } from './reactive';
+export { PluginHost } from './grid/plugin-host';
+export { GridApiImpl } from './grid/grid-api';
+
+// Plugins
+export { createCorePlugin, createSortPlugin, createFilterPlugin } from './plugins';
+export type { CorePluginOptions, SortPluginOptions, FilterPluginOptions } from './plugins';
+export { createSelectionPlugin, createEditingPlugin, createUndoRedoPlugin } from './plugins';
+export type {
+  SelectionPluginOptions,
+  EditingPluginOptions,
+  UndoRedoPluginOptions,
+} from './plugins';
+export { createLegacyApiPlugin, createDevToolsConnector } from './plugins';
+export type { DevToolsConnectorOptions } from './plugins';
+export { createAsyncSortPlugin, createAsyncFilterPlugin } from './plugins';
+export type { AsyncSortPluginOptions, AsyncFilterPluginOptions } from './plugins';
 
 // Version
 export const VERSION = '0.1.0';

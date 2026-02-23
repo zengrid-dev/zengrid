@@ -4,6 +4,8 @@ import {
   getEventsByTrace,
   resetDebug,
   getCurrentTraceId,
+  recordPluginTiming,
+  getPluginTimings,
 } from '../debug';
 import { resetTracking } from '../tracking';
 
@@ -90,5 +92,22 @@ describe('debug', () => {
     });
 
     expect(getCurrentTraceId()).toBe(0);
+  });
+
+  describe('plugin timings', () => {
+    it('recordPluginTiming + getPluginTimings round-trip', () => {
+      recordPluginTiming('core', 1.5);
+      recordPluginTiming('sort', 3.2);
+
+      const timings = getPluginTimings();
+      expect(timings.get('core')).toBe(1.5);
+      expect(timings.get('sort')).toBe(3.2);
+    });
+
+    it('resetDebug clears plugin timings', () => {
+      recordPluginTiming('core', 1.0);
+      resetDebug();
+      expect(getPluginTimings().size).toBe(0);
+    });
   });
 });

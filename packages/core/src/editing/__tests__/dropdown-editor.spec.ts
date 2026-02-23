@@ -1,11 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import {
-  DropdownEditor,
-  createDropdownEditor,
-  type DropdownOption,
-} from '../dropdown';
+import { DropdownEditor, createDropdownEditor, type DropdownOption } from '../dropdown';
 import type { EditorParams } from '../cell-editor.interface';
 
 describe('DropdownEditor', () => {

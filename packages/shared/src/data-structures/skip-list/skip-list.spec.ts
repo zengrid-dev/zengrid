@@ -79,10 +79,10 @@ describe('SkipList', () => {
 
     it('should handle insertions in random order', () => {
       const keys = [5, 2, 8, 1, 9, 3, 7, 4, 6];
-      keys.forEach(key => list.set(key, `val-${key}`));
+      keys.forEach((key) => list.set(key, `val-${key}`));
 
       expect(list.size).toBe(keys.length);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         expect(list.get(key)).toBe(`val-${key}`);
       });
     });
@@ -531,16 +531,11 @@ describe('SkipList', () => {
       sortedColumn.set(25, 'Product D');
 
       // Get all in sorted order
-      expect(sortedColumn.values()).toEqual([
-        'Product D',
-        'Product B',
-        'Product A',
-        'Product C',
-      ]);
+      expect(sortedColumn.values()).toEqual(['Product D', 'Product B', 'Product A', 'Product C']);
 
       // Range query: products with value 50-150
       const inRange = sortedColumn.range(50, 150);
-      expect(inRange.map(r => r.value)).toEqual(['Product B', 'Product A']);
+      expect(inRange.map((r) => r.value)).toEqual(['Product B', 'Product A']);
     });
 
     it('should efficiently find median', () => {
@@ -548,7 +543,7 @@ describe('SkipList', () => {
 
       // Add dataset
       const values = [5, 2, 8, 1, 9, 3, 7, 4, 6];
-      values.forEach(v => list.set(v, v));
+      values.forEach((v) => list.set(v, v));
 
       // Find median (middle element)
       const medianIndex = Math.floor(list.size / 2);

@@ -114,9 +114,7 @@ describe('CommandStack Performance', () => {
     // Each iteration: +10 -5 +3 = +8 commands
     expect(stack.getUndoCount()).toBe(iterations * 8);
     expect(duration).toBeLessThan(100);
-    console.log(
-      `Mixed operations (${iterations} iterations): ${duration.toFixed(2)}ms`
-    );
+    console.log(`Mixed operations (${iterations} iterations): ${duration.toFixed(2)}ms`);
   });
 
   it('should enforce maxSize efficiently', () => {
@@ -133,9 +131,7 @@ describe('CommandStack Performance', () => {
 
     expect(stack.getUndoCount()).toBe(100);
     expect(duration).toBeLessThan(100);
-    console.log(
-      `Execute ${count} commands with maxSize=100: ${duration.toFixed(2)}ms`
-    );
+    console.log(`Execute ${count} commands with maxSize=100: ${duration.toFixed(2)}ms`);
   });
 
   it('should handle canUndo/canRedo checks efficiently', () => {
@@ -156,9 +152,7 @@ describe('CommandStack Performance', () => {
     const duration = performance.now() - start;
 
     expect(duration).toBeLessThan(10); // Should be very fast (O(1))
-    console.log(
-      `${iterations * 2} canUndo/canRedo checks: ${duration.toFixed(2)}ms`
-    );
+    console.log(`${iterations * 2} canUndo/canRedo checks: ${duration.toFixed(2)}ms`);
   });
 
   it('should retrieve history efficiently', () => {
@@ -179,9 +173,7 @@ describe('CommandStack Performance', () => {
     const duration = performance.now() - start;
 
     expect(duration).toBeLessThan(100);
-    console.log(
-      `${iterations * 2} history retrievals: ${duration.toFixed(2)}ms`
-    );
+    console.log(`${iterations * 2} history retrievals: ${duration.toFixed(2)}ms`);
   });
 
   it('should clear large stacks efficiently', () => {
@@ -278,8 +270,6 @@ describe('CommandStack Performance', () => {
 
     expect(stack.getUndoCount()).toBe(100);
     expect(duration).toBeLessThan(50);
-    console.log(
-      `${iterations} alternating undo/redo: ${duration.toFixed(2)}ms`
-    );
+    console.log(`${iterations} alternating undo/redo: ${duration.toFixed(2)}ms`);
   });
 });

@@ -66,10 +66,12 @@ export class ViewportModel extends ReactiveState<ViewportState, ViewportEvent> {
    * Get current viewport state
    */
   getViewport(): ViewportState {
-    return this.getState(ViewportModel.VIEWPORT_KEY) ?? {
-      range: { startRow: 0, endRow: 0, startCol: 0, endCol: 0 },
-      scrollPosition: { top: 0, left: 0 },
-    };
+    return (
+      this.getState(ViewportModel.VIEWPORT_KEY) ?? {
+        range: { startRow: 0, endRow: 0, startCol: 0, endCol: 0 },
+        scrollPosition: { top: 0, left: 0 },
+      }
+    );
   }
 
   /**
@@ -93,8 +95,10 @@ export class ViewportModel extends ReactiveState<ViewportState, ViewportEvent> {
 
     // Determine event type
     let eventType: ViewportEventType = 'range';
-    const rowsChanged = newRange.startRow !== oldRange.startRow || newRange.endRow !== oldRange.endRow;
-    const colsChanged = newRange.startCol !== oldRange.startCol || newRange.endCol !== oldRange.endCol;
+    const rowsChanged =
+      newRange.startRow !== oldRange.startRow || newRange.endRow !== oldRange.endRow;
+    const colsChanged =
+      newRange.startCol !== oldRange.startCol || newRange.endCol !== oldRange.endCol;
 
     if (rowsChanged && !colsChanged) {
       eventType = 'rows';
@@ -127,9 +131,6 @@ export class ViewportModel extends ReactiveState<ViewportState, ViewportEvent> {
    * Reset viewport to empty range
    */
   reset(): void {
-    this.setRange(
-      { startRow: 0, endRow: 0, startCol: 0, endCol: 0 },
-      { top: 0, left: 0 }
-    );
+    this.setRange({ startRow: 0, endRow: 0, startCol: 0, endCol: 0 }, { top: 0, left: 0 });
   }
 }

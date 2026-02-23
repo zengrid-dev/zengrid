@@ -4,10 +4,12 @@ import type {
   ActionHandler,
   ActionRegistration,
   EffectDispose,
+  AsyncComputedOptions,
   GridStore as IGridStore,
 } from './types';
 import { createSignal, createComputed } from './signal';
 import { createEffect } from './effect-scheduler';
+import { createAsyncComputed } from './async-computed';
 import {
   signalRegistry,
   computedRegistry,
@@ -19,10 +21,7 @@ import {
   removeOwnership,
   resetTracking,
 } from './tracking';
-import {
-  recordActionExec,
-  debugGraph as debugGraphFn,
-} from './debug';
+import { recordActionExec, debugGraph as debugGraphFn } from './debug';
 
 export class GridStoreImpl implements IGridStore {
   private signals = new Map<string, WrappedSignal>();
@@ -30,14 +29,10 @@ export class GridStoreImpl implements IGridStore {
   private effects = new Map<string, EffectDispose>();
   private actions = new Map<string, ActionRegistration>();
   private disposables = new Map<string, Array<() => void>>();
+  private asyncComputeds = new Map<string, { dispose: () => void; owner: string }>();
   private executingActions = new Set<string>();
 
-  extend(
-    key: string,
-    initial: unknown,
-    owner: string,
-    phase = 0,
-  ): void {
+  extend(key: string, initial: unknown, owner: string, phase = 0): void {
     if (this.signals.has(key) || this.computeds.has(key)) {
       throw new Error(`Store key "${key}" already exists`);
     }
@@ -50,12 +45,7 @@ export class GridStoreImpl implements IGridStore {
     activatePhantom(key, initial);
   }
 
-  computed(
-    key: string,
-    fn: () => unknown,
-    owner: string,
-    phase = 0,
-  ): void {
+  computed(key: string, fn: () => unknown, owner: string, phase = 0): void {
     if (this.signals.has(key) || this.computeds.has(key)) {
       throw new Error(`Store key "${key}" already exists`);
     }
@@ -64,12 +54,7 @@ export class GridStoreImpl implements IGridStore {
     this.computeds.set(key, wrapped);
   }
 
-  effect(
-    name: string,
-    fn: () => void | (() => void),
-    owner: string,
-    phase = 0,
-  ): void {
+  effect(name: string, fn: () => void | (() => void), owner: string, phase = 0): void {
     if (this.effects.has(name)) {
       throw new Error(`Effect "${name}" already registered`);
     }
@@ -77,6 +62,30 @@ export class GridStoreImpl implements IGridStore {
     const dispose = createEffect(name, fn, owner, phase);
     this.effects.set(name, dispose);
     registerOwnership(owner, name);
+  }
+
+  asyncComputed(
+    key: string,
+    fn: () => () => Promise<unknown>,
+    owner: string,
+    phase = 0,
+    options?: AsyncComputedOptions
+  ): void {
+    if (this.signals.has(key) || this.computeds.has(key)) {
+      throw new Error(`Store key "${key}" already exists`);
+    }
+
+    const { valueSignal, metaSignal, dispose } = createAsyncComputed(
+      key,
+      fn,
+      owner,
+      phase,
+      options
+    );
+
+    this.signals.set(key, valueSignal);
+    this.signals.set(`${key}.__async`, metaSignal);
+    this.asyncComputeds.set(key, { dispose, owner });
   }
 
   get(key: string): unknown {
@@ -99,6 +108,14 @@ export class GridStoreImpl implements IGridStore {
     // a preact dependency that will fire when extend() is called.
     const placeholder = getOrCreatePlaceholder(key);
     return placeholder.value;
+  }
+
+  set(key: string, value: unknown): void {
+    const sig = this.signals.get(key);
+    if (!sig) {
+      throw new Error(`Store key "${key}" does not exist. Use extend() to create it first.`);
+    }
+    sig.value = value;
   }
 
   getUnphased(key: string): unknown {
@@ -154,6 +171,14 @@ export class GridStoreImpl implements IGridStore {
   }
 
   disposePlugin(owner: string): void {
+    // Dispose async computeds owned by this plugin
+    for (const [key, entry] of this.asyncComputeds) {
+      if (entry.owner === owner) {
+        entry.dispose();
+        this.asyncComputeds.delete(key);
+      }
+    }
+
     // Dispose effects owned by this plugin
     const owned = getOwnedNames(owner);
     for (const name of owned) {
@@ -182,6 +207,12 @@ export class GridStoreImpl implements IGridStore {
   }
 
   disposeAll(): void {
+    // Dispose all async computeds
+    for (const entry of this.asyncComputeds.values()) {
+      entry.dispose();
+    }
+    this.asyncComputeds.clear();
+
     // Dispose all effects
     for (const dispose of this.effects.values()) {
       dispose();

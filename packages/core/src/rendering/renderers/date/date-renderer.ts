@@ -364,11 +364,7 @@ export class DateRenderer implements CellRenderer {
   /**
    * Set ARIA attributes for accessibility
    */
-  private setAriaAttributes(
-    element: HTMLElement,
-    date: Date | null,
-    params: RenderParams
-  ): void {
+  private setAriaAttributes(element: HTMLElement, date: Date | null, params: RenderParams): void {
     element.setAttribute('role', 'text');
 
     // Add label for screen readers
@@ -409,8 +405,6 @@ export class DateRenderer implements CellRenderer {
  * });
  * ```
  */
-export function createDateRenderer(
-  options: DateRendererOptions = {}
-): DateRenderer {
+export function createDateRenderer(options: DateRendererOptions = {}): DateRenderer {
   return new DateRenderer(options);
 }

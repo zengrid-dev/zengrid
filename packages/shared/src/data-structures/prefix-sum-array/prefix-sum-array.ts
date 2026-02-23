@@ -51,27 +51,21 @@ export class PrefixSumArray implements IPrefixSumArray {
 
   getOffset(index: number): number {
     if (index < 0 || index > this.values.length) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.values.length}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.values.length}]`);
     }
     return this.sums[index];
   }
 
   getSumUpTo(index: number): number {
     if (index < 0 || index >= this.values.length) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.values.length - 1}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.values.length - 1}]`);
     }
     return this.sums[index + 1];
   }
 
   getRangeSum(start: number, end: number): number {
     if (start < 0 || end > this.values.length || start > end) {
-      throw new RangeError(
-        `Invalid range [${start}, ${end}) for length ${this.values.length}`
-      );
+      throw new RangeError(`Invalid range [${start}, ${end}) for length ${this.values.length}`);
     }
     return this.sums[end] - this.sums[start];
   }
@@ -107,9 +101,7 @@ export class PrefixSumArray implements IPrefixSumArray {
 
   update(index: number, newValue: number): void {
     if (index < 0 || index >= this.values.length) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.values.length - 1}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.values.length - 1}]`);
     }
 
     if (newValue < 0) {
@@ -127,9 +119,7 @@ export class PrefixSumArray implements IPrefixSumArray {
 
   getValue(index: number): number {
     if (index < 0 || index >= this.values.length) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.values.length - 1}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.values.length - 1}]`);
     }
     return this.values[index];
   }

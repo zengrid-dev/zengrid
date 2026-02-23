@@ -26,7 +26,7 @@ export function createSignal<T>(
   name: string,
   initial: T,
   owner = 'core',
-  phase = 0,
+  phase = 0
 ): WrappedSignal<T> {
   const raw = preactSignal<T>(initial);
 
@@ -63,7 +63,7 @@ export function createComputed<T>(
   name: string,
   fn: () => T,
   owner = 'core',
-  phase = 0,
+  phase = 0
 ): WrappedComputed<T> {
   const wrappedFn = () => {
     pushEvaluatingPhase(phase, name);

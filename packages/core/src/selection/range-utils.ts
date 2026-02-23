@@ -263,7 +263,8 @@ export function mergeRanges(ranges: CellRange[], options: MergeRangesOptions = {
     const next = normalized[i];
 
     // Check if ranges can be merged
-    const shouldMerge = rangesIntersect(current, next) || (mergeAdjacent && rangesAreAdjacent(current, next));
+    const shouldMerge =
+      rangesIntersect(current, next) || (mergeAdjacent && rangesAreAdjacent(current, next));
 
     if (shouldMerge) {
       // Merge ranges by taking the bounding box
@@ -416,7 +417,10 @@ export function cellRefToString(cell: CellRef): string {
  * });
  * ```
  */
-export function forEachCellInRange(range: CellRange, callback: (row: number, col: number) => void): void {
+export function forEachCellInRange(
+  range: CellRange,
+  callback: (row: number, col: number) => void
+): void {
   const normalized = normalizeRange(range);
 
   for (let row = normalized.startRow; row <= normalized.endRow; row++) {

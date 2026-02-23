@@ -39,6 +39,9 @@
           "codeCoverage": true
         }
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
   }
 }

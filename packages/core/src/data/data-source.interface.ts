@@ -69,13 +69,13 @@ export interface DataSource {
  * Data source events
  */
 export interface DataSourceEvents {
-  'change': {
+  change: {
     cell: CellRef;
     oldValue: any;
     newValue: any;
   };
 
-  'bulkChange': {
+  bulkChange: {
     changes: Array<{
       cell: CellRef;
       oldValue: any;
@@ -83,11 +83,11 @@ export interface DataSourceEvents {
     }>;
   };
 
-  'clear': {
+  clear: {
     timestamp: number;
   };
 
-  'dataLoad': {
+  dataLoad: {
     rowCount: number;
     colCount: number;
   };

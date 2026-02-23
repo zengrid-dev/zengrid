@@ -5,9 +5,4 @@
  */
 
 export { Trie } from './trie';
-export type {
-  ITrie,
-  ITrieNode,
-  TrieOptions,
-  TrieSearchResult,
-} from './trie.interface';
+export type { ITrie, ITrieNode, TrieOptions, TrieSearchResult } from './trie.interface';

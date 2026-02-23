@@ -57,9 +57,7 @@ describe('ColumnStore', () => {
       const store = new ColumnStore();
       store.addColumn({ name: 'id', type: 'int32' });
 
-      expect(() =>
-        store.addColumn({ name: 'id', type: 'float64' })
-      ).toThrow('already exists');
+      expect(() => store.addColumn({ name: 'id', type: 'float64' })).toThrow('already exists');
     });
 
     it('should remove column', () => {
@@ -135,9 +133,7 @@ describe('ColumnStore', () => {
     });
 
     it('should throw when setting non-existent column', () => {
-      expect(() => store.setValue(0, 'missing', 123)).toThrow(
-        'does not exist'
-      );
+      expect(() => store.setValue(0, 'missing', 123)).toThrow('does not exist');
     });
 
     it('should throw on out of bounds row access', () => {
@@ -230,9 +226,7 @@ describe('ColumnStore', () => {
     });
 
     it('should throw when setting column with wrong length', () => {
-      expect(() => store.setColumn('values', [1, 2, 3])).toThrow(
-        'must match row count'
-      );
+      expect(() => store.setColumn('values', [1, 2, 3])).toThrow('must match row count');
     });
 
     it('should throw when getting non-existent column', () => {

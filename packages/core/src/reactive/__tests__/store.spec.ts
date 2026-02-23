@@ -34,7 +34,7 @@ describe('GridStore', () => {
           const val = store.get('num') as number;
           return val !== undefined ? val * 2 : -1;
         },
-        'core',
+        'core'
       );
 
       expect(store.get('doubled')).toBe(-1);
@@ -58,7 +58,7 @@ describe('GridStore', () => {
             return store.get('high');
           },
           'core',
-          10,
+          10
         );
         // Force evaluation
         store.get('low');
@@ -74,7 +74,7 @@ describe('GridStore', () => {
           return store.getUnphased('high');
         },
         'core',
-        10,
+        10
       );
 
       expect(store.get('low')).toBe(42);
@@ -88,7 +88,7 @@ describe('GridStore', () => {
         () => {
           store.exec('selfCall');
         },
-        'core',
+        'core'
       );
 
       expect(() => store.exec('selfCall')).toThrow(/Re-entrant/);
@@ -99,16 +99,16 @@ describe('GridStore', () => {
       store.action(
         'inner',
         () => {
-          (store.get('val') as number); // just read
+          store.get('val') as number; // just read
         },
-        'core',
+        'core'
       );
       store.action(
         'outer',
         () => {
           store.exec('inner');
         },
-        'core',
+        'core'
       );
 
       expect(() => store.exec('outer')).not.toThrow();
@@ -134,7 +134,7 @@ describe('GridStore', () => {
           void store.get('p.val');
           effectRan++;
         },
-        'plugin-a',
+        'plugin-a'
       );
 
       const initial = effectRan;
@@ -213,10 +213,49 @@ describe('GridStore', () => {
   describe('effect', () => {
     it('throws on duplicate effect name', () => {
       store.extend('x', 0, 'core');
-      store.effect('e', () => { void store.get('x'); }, 'core');
+      store.effect(
+        'e',
+        () => {
+          void store.get('x');
+        },
+        'core'
+      );
       expect(() =>
-        store.effect('e', () => { void store.get('x'); }, 'core'),
+        store.effect(
+          'e',
+          () => {
+            void store.get('x');
+          },
+          'core'
+        )
       ).toThrow('already registered');
+    });
+  });
+
+  describe('set()', () => {
+    it('updates existing signal value', () => {
+      store.extend('x', 1, 'core');
+      store.set('x', 42);
+      expect(store.get('x')).toBe(42);
+    });
+
+    it('triggers computed recomputation', () => {
+      store.extend('x', 1, 'core');
+      store.computed('doubled', () => (store.get('x') as number) * 2, 'core');
+      expect(store.get('doubled')).toBe(2);
+
+      store.set('x', 5);
+      expect(store.get('doubled')).toBe(10);
+    });
+
+    it('throws if key does not exist', () => {
+      expect(() => store.set('nonexistent', 1)).toThrow('Store key "nonexistent" does not exist');
+    });
+
+    it('throws for computed-only keys', () => {
+      store.extend('x', 1, 'core');
+      store.computed('derived', () => (store.get('x') as number) + 1, 'core');
+      expect(() => store.set('derived', 99)).toThrow('Store key "derived" does not exist');
     });
   });
 });

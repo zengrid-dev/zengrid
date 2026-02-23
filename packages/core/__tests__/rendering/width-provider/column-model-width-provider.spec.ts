@@ -103,12 +103,12 @@ describe('ColumnModelWidthProvider', () => {
       const model = new ColumnModel(createColumns([100, 150, 200]));
       const provider = new ColumnModelWidthProvider(model);
 
-      expect(provider.findIndexAtOffset(0)).toBe(0);    // Start of col 0
-      expect(provider.findIndexAtOffset(50)).toBe(0);    // Middle of col 0
-      expect(provider.findIndexAtOffset(100)).toBe(1);   // Start of col 1
-      expect(provider.findIndexAtOffset(200)).toBe(1);   // Middle of col 1
-      expect(provider.findIndexAtOffset(250)).toBe(2);   // Start of col 2
-      expect(provider.findIndexAtOffset(400)).toBe(2);   // Middle of col 2
+      expect(provider.findIndexAtOffset(0)).toBe(0); // Start of col 0
+      expect(provider.findIndexAtOffset(50)).toBe(0); // Middle of col 0
+      expect(provider.findIndexAtOffset(100)).toBe(1); // Start of col 1
+      expect(provider.findIndexAtOffset(200)).toBe(1); // Middle of col 1
+      expect(provider.findIndexAtOffset(250)).toBe(2); // Start of col 2
+      expect(provider.findIndexAtOffset(400)).toBe(2); // Middle of col 2
     });
 
     it('should return last column for offset >= total', () => {
@@ -213,20 +213,28 @@ describe('ColumnModelWidthProvider', () => {
 
       // Simulate reorder by directly updating order (via plugin pattern)
       // Move col-0 to position 2, col-2 to position 0
-      model.updateState('col-0', { order: 2 }, {
-        type: 'reorder',
-        columnId: 'col-0',
-        oldValue: 0,
-        newValue: 2,
-        state: model.getColumn('col-0')!,
-      });
-      model.updateState('col-2', { order: 0 }, {
-        type: 'reorder',
-        columnId: 'col-2',
-        oldValue: 2,
-        newValue: 0,
-        state: model.getColumn('col-2')!,
-      });
+      model.updateState(
+        'col-0',
+        { order: 2 },
+        {
+          type: 'reorder',
+          columnId: 'col-0',
+          oldValue: 0,
+          newValue: 2,
+          state: model.getColumn('col-0')!,
+        }
+      );
+      model.updateState(
+        'col-2',
+        { order: 0 },
+        {
+          type: 'reorder',
+          columnId: 'col-2',
+          oldValue: 2,
+          newValue: 0,
+          state: model.getColumn('col-2')!,
+        }
+      );
 
       // After reorder: visual order is col-2(200), col-1(150), col-0(100)
       expect(provider.getWidth(0)).toBe(200);

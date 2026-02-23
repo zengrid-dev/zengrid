@@ -27,7 +27,7 @@ describe('DateEditor', () => {
       container.parentNode.removeChild(container);
     }
     // Clean up any popups added to document.body
-    document.querySelectorAll('.zg-datetime-popup').forEach(el => el.remove());
+    document.querySelectorAll('.zg-datetime-popup').forEach((el) => el.remove());
   });
 
   describe('Constructor', () => {
@@ -139,14 +139,20 @@ describe('DateEditor', () => {
     });
 
     it('should set min attribute for native picker', () => {
-      const customEditor = new DateEditor({ minDate: new Date('2020-01-01'), useCalendarPopup: false });
+      const customEditor = new DateEditor({
+        minDate: new Date('2020-01-01'),
+        useCalendarPopup: false,
+      });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.min).toBe('2020-01-01');
     });
 
     it('should set max attribute for native picker', () => {
-      const customEditor = new DateEditor({ maxDate: new Date('2030-12-31'), useCalendarPopup: false });
+      const customEditor = new DateEditor({
+        maxDate: new Date('2030-12-31'),
+        useCalendarPopup: false,
+      });
       customEditor.init(container, new Date(), params);
       const input = container.querySelector('input') as HTMLInputElement;
       expect(input.max).toBe('2030-12-31');

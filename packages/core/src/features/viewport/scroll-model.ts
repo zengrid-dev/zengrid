@@ -35,12 +35,16 @@ export class ScrollModel extends ReactiveState<ScrollState, ScrollEvent> {
     super();
 
     // Initialize with default scroll position
-    this.setState(ScrollModel.SCROLL_KEY, { top: 0, left: 0 }, {
-      type: 'scroll',
-      oldPosition: { top: 0, left: 0 },
-      newPosition: { top: 0, left: 0 },
-      state: { top: 0, left: 0 },
-    });
+    this.setState(
+      ScrollModel.SCROLL_KEY,
+      { top: 0, left: 0 },
+      {
+        type: 'scroll',
+        oldPosition: { top: 0, left: 0 },
+        newPosition: { top: 0, left: 0 },
+        state: { top: 0, left: 0 },
+      }
+    );
   }
 
   /**

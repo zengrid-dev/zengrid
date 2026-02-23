@@ -5,12 +5,7 @@
  */
 
 // DFS
-export {
-  dfs,
-  dfsPath,
-  hasCycle,
-  stronglyConnectedComponents,
-} from './dfs';
+export { dfs, dfsPath, hasCycle, stronglyConnectedComponents } from './dfs';
 
 // BFS
 export {

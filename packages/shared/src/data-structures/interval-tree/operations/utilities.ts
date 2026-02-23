@@ -22,9 +22,7 @@ export function filter<T>(
   predicate: (interval: IntervalData<T>) => boolean,
   options: IntervalTreeOptions
 ): IIntervalTree<T> {
-  const IntervalTree = tree.constructor as new (
-    opts?: IntervalTreeOptions
-  ) => IIntervalTree<T>;
+  const IntervalTree = tree.constructor as new (opts?: IntervalTreeOptions) => IIntervalTree<T>;
   const result = new IntervalTree(options);
 
   forEachHelper(root, (interval) => {
@@ -45,9 +43,7 @@ export function map<T, U>(
   mapper: (data: T, interval: Interval) => U,
   options: IntervalTreeOptions
 ): IIntervalTree<U> {
-  const IntervalTree = tree.constructor as new (
-    opts?: IntervalTreeOptions
-  ) => IIntervalTree<U>;
+  const IntervalTree = tree.constructor as new (opts?: IntervalTreeOptions) => IIntervalTree<U>;
   const result = new IntervalTree(options);
 
   forEachHelper(root, (interval) => {
@@ -61,10 +57,7 @@ export function map<T, U>(
 /**
  * Get tree structure as string
  */
-export function treeToString<T>(
-  root: IntervalNode<T> | null,
-  balanced: boolean
-): string {
+export function treeToString<T>(root: IntervalNode<T> | null, balanced: boolean): string {
   const size = countNodes(root);
   const height = getHeight(root);
   return `IntervalTree(${size} intervals, height: ${height}, balanced: ${balanced})`;

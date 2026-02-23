@@ -65,10 +65,7 @@ export class ClickOutsideManager {
   /**
    * Check if a click target is inside any registered element
    */
-  private isInsideRegistration(
-    target: Node,
-    registration: ClickOutsideRegistration
-  ): boolean {
+  private isInsideRegistration(target: Node, registration: ClickOutsideRegistration): boolean {
     const { popup, additionalElements } = registration;
 
     // Check main popup

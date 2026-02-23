@@ -33,7 +33,10 @@ import {
 import { GroupOperations, GroupOperationsConfig } from './group-operations';
 import { GroupRendererController, RendererControllerConfig } from './group-renderer-controller';
 import { ModelQueryAdapter, ModelQueryAdapterConfig } from './model-query-adapter';
-import { EventSubscriptionManager, EventSubscriptionManagerConfig } from './event-subscription-manager';
+import {
+  EventSubscriptionManager,
+  EventSubscriptionManagerConfig,
+} from './event-subscription-manager';
 
 export type { ColumnGroupManagerOptions };
 
@@ -243,14 +246,22 @@ export class ColumnGroupManager {
   /**
    * Render a group using the configured renderer
    */
-  renderGroup(element: HTMLElement, groupId: string, onToggle?: (groupId: string, expanded: boolean) => void): void {
+  renderGroup(
+    element: HTMLElement,
+    groupId: string,
+    onToggle?: (groupId: string, expanded: boolean) => void
+  ): void {
     this.rendererController.renderGroup(element, groupId, onToggle);
   }
 
   /**
    * Render multiple groups
    */
-  renderGroups(element: HTMLElement, groupIds: string[], onToggle?: (groupId: string, expanded: boolean) => void): void {
+  renderGroups(
+    element: HTMLElement,
+    groupIds: string[],
+    onToggle?: (groupId: string, expanded: boolean) => void
+  ): void {
     this.rendererController.renderGroups(element, groupIds, onToggle);
   }
 

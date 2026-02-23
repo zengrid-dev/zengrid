@@ -69,10 +69,6 @@ export class CheckboxRenderer implements CellRenderer {
     // Add base class
     element.classList.add('zg-cell-checkbox-container');
 
-    console.log(`[CheckboxRenderer.render] AFTER adding class, row=${params.cell.row}`, {
-      elementClasses: element.className
-    });
-
     // Create wrapper for styling
     const wrapper = document.createElement('div');
     wrapper.className = 'zg-checkbox-wrapper';
@@ -96,9 +92,7 @@ export class CheckboxRenderer implements CellRenderer {
     const handler: EventListener = (e: Event) => {
       e.stopPropagation();
       const target = e.target as HTMLInputElement;
-      const newValue = target.checked
-        ? this.options.checkedValue
-        : this.options.uncheckedValue;
+      const newValue = target.checked ? this.options.checkedValue : this.options.uncheckedValue;
 
       // Trigger onChange callback
       this.options.onChange(newValue, params);
@@ -120,13 +114,6 @@ export class CheckboxRenderer implements CellRenderer {
    */
   update(element: HTMLElement, params: RenderParams): void {
     const checkbox = element.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    console.log(`[CheckboxRenderer.update] row=${params.cell.row}, col=${params.cell.col}`, {
-      elementClasses: element.className,
-      hasCheckbox: !!checkbox,
-      hasContainerClass: element.classList.contains('zg-cell-checkbox-container'),
-      computedDisplay: window.getComputedStyle(element).display,
-      computedJustify: window.getComputedStyle(element).justifyContent
-    });
     if (!checkbox) return;
 
     // Determine checked state
@@ -233,8 +220,6 @@ export class CheckboxRenderer implements CellRenderer {
  * });
  * ```
  */
-export function createCheckboxRenderer(
-  options: CheckboxRendererOptions = {}
-): CheckboxRenderer {
+export function createCheckboxRenderer(options: CheckboxRendererOptions = {}): CheckboxRenderer {
   return new CheckboxRenderer(options);
 }

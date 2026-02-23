@@ -66,7 +66,10 @@ export function createHeader(
   onClear: () => void,
   onCancel: () => void,
   onApply: () => void
-): { header: HTMLElement; buttonHandlers: Array<{ element: HTMLElement; event: string; handler: EventListener }> } {
+): {
+  header: HTMLElement;
+  buttonHandlers: Array<{ element: HTMLElement; event: string; handler: EventListener }>;
+} {
   const buttonHandlers: Array<{ element: HTMLElement; event: string; handler: EventListener }> = [];
 
   const header = document.createElement('div');
@@ -121,8 +124,12 @@ export function createHeader(
     font-size: 14px;
     font-weight: 500;
   `;
-  clearBtn.addEventListener('mouseenter', () => { clearBtn.style.textDecoration = 'underline'; });
-  clearBtn.addEventListener('mouseleave', () => { clearBtn.style.textDecoration = 'none'; });
+  clearBtn.addEventListener('mouseenter', () => {
+    clearBtn.style.textDecoration = 'underline';
+  });
+  clearBtn.addEventListener('mouseleave', () => {
+    clearBtn.style.textDecoration = 'none';
+  });
   clearBtn.addEventListener('click', onClear);
   buttonHandlers.push({ element: clearBtn, event: 'click', handler: onClear });
 
@@ -138,8 +145,12 @@ export function createHeader(
     font-size: 14px;
     font-weight: 500;
   `;
-  cancelBtn.addEventListener('mouseenter', () => { cancelBtn.style.color = '#111827'; });
-  cancelBtn.addEventListener('mouseleave', () => { cancelBtn.style.color = '#374151'; });
+  cancelBtn.addEventListener('mouseenter', () => {
+    cancelBtn.style.color = '#111827';
+  });
+  cancelBtn.addEventListener('mouseleave', () => {
+    cancelBtn.style.color = '#374151';
+  });
   cancelBtn.addEventListener('click', onCancel);
   buttonHandlers.push({ element: cancelBtn, event: 'click', handler: onCancel });
 
@@ -157,8 +168,12 @@ export function createHeader(
     font-weight: 500;
     transition: background 0.2s;
   `;
-  applyBtn.addEventListener('mouseenter', () => { applyBtn.style.background = '#3b6ce7'; });
-  applyBtn.addEventListener('mouseleave', () => { applyBtn.style.background = '#4f7df3'; });
+  applyBtn.addEventListener('mouseenter', () => {
+    applyBtn.style.background = '#3b6ce7';
+  });
+  applyBtn.addEventListener('mouseleave', () => {
+    applyBtn.style.background = '#4f7df3';
+  });
   applyBtn.addEventListener('click', onApply);
   buttonHandlers.push({ element: applyBtn, event: 'click', handler: onApply });
 
@@ -234,8 +249,6 @@ export function updateDatePill(calendarWrapper: HTMLDivElement, currentValue: Da
   }
 
   if (endDateEl) {
-    endDateEl.textContent = currentValue.end
-      ? formatDateLong(currentValue.end)
-      : 'Select end date';
+    endDateEl.textContent = currentValue.end ? formatDateLong(currentValue.end) : 'Select end date';
   }
 }

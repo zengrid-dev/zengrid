@@ -1,10 +1,6 @@
 import type { EventEmitter } from '../../utils/event-emitter';
 import type { ColumnGroupModel } from './column-group-model';
-import type {
-  ColumnGroup,
-  ValidationResult,
-  ColumnGroupManagerEvents,
-} from './types';
+import type { ColumnGroup, ValidationResult, ColumnGroupManagerEvents } from './types';
 
 /**
  * Configuration for group operations

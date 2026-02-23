@@ -57,7 +57,7 @@ export function createEffect(
   name: string,
   fn: () => void | (() => void),
   _owner = 'core',
-  phase = 0,
+  phase = 0
 ): EffectDispose {
   const id = nextEffectId++;
   let cleanup: (() => void) | undefined;

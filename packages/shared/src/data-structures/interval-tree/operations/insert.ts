@@ -35,23 +35,9 @@ export function insertNode<T>(
   const cmp = comparator(interval, node.interval);
 
   if (cmp < 0) {
-    node.left = insertNode(
-      node.left,
-      interval,
-      comparator,
-      allowDuplicates,
-      balanced,
-      onInsert
-    );
+    node.left = insertNode(node.left, interval, comparator, allowDuplicates, balanced, onInsert);
   } else if (cmp > 0) {
-    node.right = insertNode(
-      node.right,
-      interval,
-      comparator,
-      allowDuplicates,
-      balanced,
-      onInsert
-    );
+    node.right = insertNode(node.right, interval, comparator, allowDuplicates, balanced, onInsert);
   } else {
     // cmp === 0: equal intervals
     if (allowDuplicates) {

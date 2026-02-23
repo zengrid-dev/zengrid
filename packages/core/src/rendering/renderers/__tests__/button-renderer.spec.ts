@@ -519,7 +519,10 @@ describe('ButtonRenderer', () => {
       const button = element.querySelector('button');
       button?.click();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('ButtonRenderer onClick error:', expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'ButtonRenderer onClick error:',
+        expect.any(Error)
+      );
 
       consoleErrorSpy.mockRestore();
     });

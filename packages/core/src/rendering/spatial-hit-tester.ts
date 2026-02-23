@@ -94,7 +94,7 @@ export class SpatialHitTester {
    * @returns Array of cell references
    */
   getCellsInRect(rect: Rectangle): CellRef[] {
-    return this.spatialIndex.search(rect).map(r => r.data);
+    return this.spatialIndex.search(rect).map((r) => r.data);
   }
 
   /**
@@ -107,9 +107,7 @@ export class SpatialHitTester {
    * @returns Array of nearest cells, sorted by distance
    */
   getCellsNear(x: number, y: number, maxDistance: number = 50, maxResults: number = 5): CellRef[] {
-    return this.spatialIndex
-      .nearest(x, y, maxResults, maxDistance)
-      .map(r => r.data);
+    return this.spatialIndex.nearest(x, y, maxResults, maxDistance).map((r) => r.data);
   }
 
   /**

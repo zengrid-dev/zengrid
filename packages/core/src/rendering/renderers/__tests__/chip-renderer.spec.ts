@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {
-  ChipRenderer,
-  createChipRenderer,
-  type Chip,
-} from '../chip';
+import { ChipRenderer, createChipRenderer, type Chip } from '../chip';
 import type { RenderParams } from '../renderer.interface';
 
 describe('ChipRenderer', () => {
@@ -913,9 +909,7 @@ describe('ChipRenderer', () => {
       const params2 = { ...params, value: chips2 };
       renderer.update(element, params2);
 
-      labels = Array.from(element.querySelectorAll('.zg-chip__label')).map(
-        (el) => el.textContent
-      );
+      labels = Array.from(element.querySelectorAll('.zg-chip__label')).map((el) => el.textContent);
       expect(labels).toEqual(['Second', 'Third']);
     });
   });

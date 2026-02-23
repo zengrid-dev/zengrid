@@ -69,7 +69,9 @@ export interface ButtonRendererOptions {
  * ```
  */
 export class ButtonRenderer implements CellRenderer {
-  private options: Required<Omit<ButtonRendererOptions, 'label' | 'className' | 'disabled' | 'icon'>> & {
+  private options: Required<
+    Omit<ButtonRendererOptions, 'label' | 'className' | 'disabled' | 'icon'>
+  > & {
     label?: string | ((params: RenderParams) => string);
     className?: string;
     disabled?: boolean | ((params: RenderParams) => boolean);

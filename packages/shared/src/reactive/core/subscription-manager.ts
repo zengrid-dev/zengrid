@@ -49,7 +49,7 @@ export class SubscriptionManager<E> implements ISubscriptionManager<E> {
     // Key-specific subscribers
     const subscribers = this.keySubscribers.get(key);
     if (subscribers) {
-      subscribers.forEach(sub => {
+      subscribers.forEach((sub) => {
         try {
           sub.onChange(event);
         } catch (error) {
@@ -59,7 +59,7 @@ export class SubscriptionManager<E> implements ISubscriptionManager<E> {
     }
 
     // Global subscribers
-    this.globalSubscribers.forEach(sub => {
+    this.globalSubscribers.forEach((sub) => {
       try {
         sub.onChange(event);
       } catch (error) {
@@ -76,12 +76,12 @@ export class SubscriptionManager<E> implements ISubscriptionManager<E> {
     eventsByKey.forEach((events, key) => {
       const subscribers = this.keySubscribers.get(key);
       if (subscribers) {
-        subscribers.forEach(sub => {
+        subscribers.forEach((sub) => {
           try {
             if (sub.onBatchChange) {
               sub.onBatchChange(events);
             } else {
-              events.forEach(event => sub.onChange(event));
+              events.forEach((event) => sub.onChange(event));
             }
           } catch (error) {
             console.error(`SubscriptionManager: Batch error for key ${key}:`, error);
@@ -92,14 +92,14 @@ export class SubscriptionManager<E> implements ISubscriptionManager<E> {
 
     // Notify global subscribers
     const allEvents: E[] = [];
-    eventsByKey.forEach(events => allEvents.push(...events));
+    eventsByKey.forEach((events) => allEvents.push(...events));
 
-    this.globalSubscribers.forEach(sub => {
+    this.globalSubscribers.forEach((sub) => {
       try {
         if (sub.onBatchChange) {
           sub.onBatchChange(allEvents);
         } else {
-          allEvents.forEach(event => sub.onChange(event));
+          allEvents.forEach((event) => sub.onChange(event));
         }
       } catch (error) {
         console.error('SubscriptionManager: Global batch error:', error);

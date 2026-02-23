@@ -37,19 +37,11 @@ export { ScrollHandler, onScroll } from './scroll';
 export type { ScrollAction, ScrollHandlerOptions } from './scroll';
 
 // Keyboard navigation
-export {
-  createKeyboardHandler,
-  FocusTrap,
-  setupDatetimeKeyboard,
-} from './keyboard';
+export { createKeyboardHandler, FocusTrap, setupDatetimeKeyboard } from './keyboard';
 export type { KeyboardNavOptions } from './keyboard';
 
 // Theming
-export {
-  ThemeManager,
-  setDatetimeTheme,
-  setDatetimeThemeConfig,
-} from './theming';
+export { ThemeManager, setDatetimeTheme, setDatetimeThemeConfig } from './theming';
 export type { DatetimeTheme, ThemeConfig } from './theming';
 
 // Calendar adapter
@@ -62,13 +54,7 @@ export {
 export type { CalendarOptions } from './calendar';
 
 // Parsing
-export {
-  parseDate,
-  parseTime,
-  parseDateTime,
-  isDateInRange,
-  isValidDate,
-} from './parsing';
+export { parseDate, parseTime, parseDateTime, isDateInRange, isValidDate } from './parsing';
 
 // Formatting
 export {

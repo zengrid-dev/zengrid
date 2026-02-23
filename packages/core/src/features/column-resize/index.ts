@@ -21,10 +21,7 @@ export {
 } from './resize-strategies';
 
 // Test utilities
-export {
-  ResizeTestHelper,
-  MockResizableDataSource,
-} from './resize-test-helper';
+export { ResizeTestHelper, MockResizableDataSource } from './resize-test-helper';
 
 // Types
 export type {

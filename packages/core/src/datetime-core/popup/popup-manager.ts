@@ -6,7 +6,11 @@
  */
 
 import { ClickOutsideManager } from './click-outside';
-import { ScrollHandler, type ScrollAction, type ScrollHandlerOptions } from '../scroll/scroll-handler';
+import {
+  ScrollHandler,
+  type ScrollAction,
+  type ScrollHandlerOptions,
+} from '../scroll/scroll-handler';
 import { positionPopup, type PositionOptions } from './popup-positioner';
 
 export interface PopupConfig {
@@ -184,11 +188,7 @@ export class PopupManager {
     const activePopup = this.popupStack.get(popup);
     if (!activePopup) return;
 
-    positionPopup(
-      activePopup.config.anchor,
-      popup,
-      activePopup.config.positionOptions
-    );
+    positionPopup(activePopup.config.anchor, popup, activePopup.config.positionOptions);
   }
 
   /**

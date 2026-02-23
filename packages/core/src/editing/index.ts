@@ -2,7 +2,12 @@
  * Cell editing system for ZenGrid
  */
 
-export type { CellEditor, EditorParams, ValidationResult, EditorFactory } from './cell-editor.interface';
+export type {
+  CellEditor,
+  EditorParams,
+  ValidationResult,
+  EditorFactory,
+} from './cell-editor.interface';
 
 export { EditorManager } from './editor-manager';
 export type { EditorManagerOptions } from './editor-manager';

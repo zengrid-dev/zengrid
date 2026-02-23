@@ -33,11 +33,7 @@ import type { AdjacencyList, DFSOptions } from './graph.interface';
  * @param options - Traversal options
  * @returns Array of visited nodes in DFS order
  */
-export function dfs<T>(
-  graph: AdjacencyList<T>,
-  start: T,
-  options: DFSOptions<T> = {}
-): T[] {
+export function dfs<T>(graph: AdjacencyList<T>, start: T, options: DFSOptions<T> = {}): T[] {
   const visited = new Set<T>();
   const result: T[] = [];
   const recursionStack = new Set<T>();

@@ -82,7 +82,7 @@ export interface GridEvents {
   };
 
   // Scroll events
-  'scroll': {
+  scroll: {
     scrollTop: number;
     scrollLeft: number;
     visibleRange: {
@@ -227,17 +227,17 @@ export interface GridEvents {
   };
 
   // Clipboard events
-  'copy': {
+  copy: {
     ranges: CellRange[];
     data: string;
   };
 
-  'cut': {
+  cut: {
     ranges: CellRange[];
     data: string;
   };
 
-  'paste': {
+  paste: {
     cell: CellRef;
     data: string;
   };
@@ -289,18 +289,18 @@ export interface GridEvents {
     redoCount: number;
   };
 
-  'destroy': {
+  destroy: {
     timestamp: number;
   };
 
   // Error events
-  'error': {
+  error: {
     message: string;
     error: Error;
     context?: any;
   };
 
-  'warning': {
+  warning: {
     message: string;
     context?: any;
   };

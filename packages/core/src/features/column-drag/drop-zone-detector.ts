@@ -7,7 +7,11 @@
  */
 
 import type { ColumnModel } from '../columns/column-model';
-import type { DropZoneResult, DropPosition, ColumnDragOptions } from './column-drag-manager.interface';
+import type {
+  DropZoneResult,
+  DropPosition,
+  ColumnDragOptions,
+} from './column-drag-manager.interface';
 
 /**
  * Detects drop zones during column drag operations
@@ -106,11 +110,7 @@ export class DropZoneDetector {
    * @param position Whether dropping before or after target
    * @returns Final index for the column
    */
-  calculateDropIndex(
-    sourceIndex: number,
-    targetIndex: number,
-    position: DropPosition
-  ): number {
+  calculateDropIndex(sourceIndex: number, targetIndex: number, position: DropPosition): number {
     let dropIndex = position === 'before' ? targetIndex : targetIndex + 1;
 
     // Adjust for source position

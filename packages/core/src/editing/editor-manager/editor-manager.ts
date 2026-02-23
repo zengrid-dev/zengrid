@@ -202,7 +202,11 @@ export class EditorManager {
     this.positionEditorContainer(cellElement);
 
     // Determine editor - supports both instance and string type
-    if (column?.editor && typeof column.editor === 'object' && typeof column.editor.init === 'function') {
+    if (
+      column?.editor &&
+      typeof column.editor === 'object' &&
+      typeof column.editor.init === 'function'
+    ) {
       // Editor is already an instance - use it directly
       this.currentEditor = column.editor;
     } else {
@@ -278,8 +282,10 @@ export class EditorManager {
 
     // Validate
     const validation = this.currentEditor.isValid?.();
-    const isValid = validation === undefined || validation === true ||
-                   (typeof validation === 'object' && validation.valid);
+    const isValid =
+      validation === undefined ||
+      validation === true ||
+      (typeof validation === 'object' && validation.valid);
 
     if (!isValid) {
       const message = typeof validation === 'object' ? validation.message : 'Invalid value';
@@ -507,9 +513,11 @@ export class EditorManager {
     }
 
     // Fallback: Check for known calendar classes (handles edge cases)
-    if (target.closest('.vanilla-calendar-wrapper') ||
-        target.closest('.date-range-calendar-wrapper') ||
-        target.closest('.vanilla-calendar')) {
+    if (
+      target.closest('.vanilla-calendar-wrapper') ||
+      target.closest('.date-range-calendar-wrapper') ||
+      target.closest('.vanilla-calendar')
+    ) {
       return;
     }
 
@@ -555,7 +563,7 @@ export class EditorManager {
         // TODO: Move to next editable cell
         break;
     }
-  };
+  }
 
   /**
    * Get default editor type based on value

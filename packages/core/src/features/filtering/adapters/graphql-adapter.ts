@@ -7,7 +7,12 @@
 
 import type { FilterAdapter, AdapterConfig } from './adapter.interface';
 import type { GraphQLFilterExport } from './types';
-import type { FieldFilterState, FieldFilterGroup, FieldFilterCondition, StandardFilterOperator } from '../types';
+import type {
+  FieldFilterState,
+  FieldFilterGroup,
+  FieldFilterCondition,
+  StandardFilterOperator,
+} from '../types';
 
 /**
  * GraphQL schema styles
@@ -82,7 +87,8 @@ export interface GraphQLAdapterOptions extends AdapterConfig {
 export class GraphQLFilterAdapter implements FilterAdapter<GraphQLFilterExport> {
   readonly name = 'graphql';
 
-  private options: Required<Omit<GraphQLAdapterOptions, 'customWhereBuilder'>> & Pick<GraphQLAdapterOptions, 'customWhereBuilder'>;
+  private options: Required<Omit<GraphQLAdapterOptions, 'customWhereBuilder'>> &
+    Pick<GraphQLAdapterOptions, 'customWhereBuilder'>;
   private variables: Record<string, any> = {};
   private variableCounter = 0;
 
@@ -149,7 +155,7 @@ export class GraphQLFilterAdapter implements FilterAdapter<GraphQLFilterExport> 
     // Process nested groups
     if (group.groups && group.groups.length > 0) {
       const logic = group.logic === 'OR' ? 'OR' : 'AND';
-      const nestedWhere = group.groups.map(g => this.processGroup(g));
+      const nestedWhere = group.groups.map((g) => this.processGroup(g));
 
       if (this.options.style === 'hasura') {
         where[`_${logic.toLowerCase()}`] = nestedWhere;
@@ -187,7 +193,9 @@ export class GraphQLFilterAdapter implements FilterAdapter<GraphQLFilterExport> 
     // Handle between operator
     if (operator === 'between') {
       if (condition.valueTo === undefined) {
-        console.warn(`GraphQL Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`);
+        console.warn(
+          `GraphQL Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`
+        );
         return {};
       }
       const gteOp = this.mapOperatorToGraphQL('gte');

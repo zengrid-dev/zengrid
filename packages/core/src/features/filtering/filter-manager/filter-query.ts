@@ -169,7 +169,7 @@ export class FilterQueryHandler {
       // For now, log a warning and suggest using FilterModels or backend mode
       console.warn(
         'Frontend SQL filtering is limited. For complex SQL queries, use backend mode. ' +
-        'Alternatively, convert your query to FilterModels for full frontend support.'
+          'Alternatively, convert your query to FilterModels for full frontend support.'
       );
 
       // Clear filters as we can't apply SQL in frontend mode properly yet

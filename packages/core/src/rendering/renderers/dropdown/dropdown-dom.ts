@@ -96,7 +96,7 @@ export function createOptionsList(
     }
 
     for (const option of groupOptions) {
-      const isSelected = selectedValues.some(v => deepEqual(v, option.value));
+      const isSelected = selectedValues.some((v) => deepEqual(v, option.value));
       const optionElement = createOptionElement(option, isSelected, optionRenderer);
       fragment.appendChild(optionElement);
     }

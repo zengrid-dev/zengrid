@@ -115,12 +115,16 @@ export class ColumnDragManager {
       options.onDuringDrag,
       options.onAfterDrag,
       () => this.lifecycle.getContainer(),
-      (value) => { this.dragThresholdMet = value; }
+      (value) => {
+        this.dragThresholdMet = value;
+      }
     );
 
     // Throttled drag for performance (60fps)
-    const throttledDrag: ThrottledFunction<(x: number, y: number) => void> =
-      throttle(this.dragOperations.performDrag.bind(this.dragOperations), 16);
+    const throttledDrag: ThrottledFunction<(x: number, y: number) => void> = throttle(
+      this.dragOperations.performDrag.bind(this.dragOperations),
+      16
+    );
 
     // Mouse callbacks
     const mouseCallbacks = createMouseCallbacks(
@@ -131,7 +135,9 @@ export class ColumnDragManager {
       visualFeedback,
       options.events,
       () => this.dragThresholdMet,
-      (value) => { this.dragThresholdMet = value; },
+      (value) => {
+        this.dragThresholdMet = value;
+      },
       (reason) => this.dragOperations.cancelDrag(reason),
       () => this.dragOperations.commitDrop()
     );
@@ -164,7 +170,9 @@ export class ColumnDragManager {
         this.stateMachine.transition('mousedown');
         this.stateMachine.transition('dragstart');
 
-        const headerElement = (event.target as HTMLElement).closest('[data-column-id]') as HTMLElement;
+        const headerElement = (event.target as HTMLElement).closest(
+          '[data-column-id]'
+        ) as HTMLElement;
         if (headerElement) {
           visualFeedback.startDrag(headerElement, x, y);
         }

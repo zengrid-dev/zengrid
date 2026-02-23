@@ -215,11 +215,7 @@ export interface ResizeStrategy {
    * @param dataSource Data source for accessing column information
    * @returns New width for the column
    */
-  calculateNewWidth(
-    state: ResizeState,
-    currentX: number,
-    dataSource: ResizableDataSource
-  ): number;
+  calculateNewWidth(state: ResizeState, currentX: number, dataSource: ResizableDataSource): number;
 
   /**
    * Get list of columns affected by this resize

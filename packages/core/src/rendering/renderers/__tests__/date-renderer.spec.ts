@@ -317,7 +317,6 @@ describe('DateRenderer', () => {
     });
   });
 
-
   describe('Lifecycle', () => {
     it('should support full render -> update -> destroy cycle', () => {
       // Render

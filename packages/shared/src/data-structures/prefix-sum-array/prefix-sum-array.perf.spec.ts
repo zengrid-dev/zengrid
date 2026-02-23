@@ -23,12 +23,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -70,21 +65,19 @@ function formatResults() {
   console.log('      PrefixSumArray Performance Benchmarks     ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(40),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(40), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -92,27 +85,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(40),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(40), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 
@@ -345,13 +331,9 @@ describe('PrefixSumArray Performance Benchmarks', () => {
       const values = Array.from({ length: SIZE }, () => 30);
       const psa = new PrefixSumArray({ values });
 
-      const result = benchmark(
-        'Update at beginning',
-        'Medium (100K elements)',
-        () => {
-          psa.update(0, 60);
-        }
-      );
+      const result = benchmark('Update at beginning', 'Medium (100K elements)', () => {
+        psa.update(0, 60);
+      });
 
       // Worst case: O(n) - must update all subsequent sums
       expect(result.time).toBeLessThan(10);
@@ -417,14 +399,10 @@ describe('PrefixSumArray Performance Benchmarks', () => {
     it('should benchmark creation', () => {
       const values = Array.from({ length: SIZE }, () => 30);
 
-      const result = benchmark(
-        'Create (1M uniform)',
-        'Large (1M elements)',
-        () => {
-          const psa = new PrefixSumArray({ values });
-          expect(psa.length).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Create (1M uniform)', 'Large (1M elements)', () => {
+        const psa = new PrefixSumArray({ values });
+        expect(psa.length).toBe(SIZE);
+      });
 
       expect(result.time).toBeLessThan(1000); // < 500ms for 1M elements
     });
@@ -468,14 +446,10 @@ describe('PrefixSumArray Performance Benchmarks', () => {
     it('should benchmark memory usage', () => {
       const values = Array.from({ length: SIZE }, () => 30);
 
-      const result = benchmark(
-        'Memory for 1M elements',
-        'Large (1M elements)',
-        () => {
-          const psa = new PrefixSumArray({ values });
-          expect(psa.length).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Memory for 1M elements', 'Large (1M elements)', () => {
+        const psa = new PrefixSumArray({ values });
+        expect(psa.length).toBe(SIZE);
+      });
 
       // Two arrays: values (8MB) + sums (8MB) = ~16MB
       if (result.memory) {
@@ -637,9 +611,7 @@ describe('PrefixSumArray Performance Benchmarks', () => {
 
     it('should benchmark mixed small and large values', () => {
       const SIZE = 10000;
-      const values = Array.from({ length: SIZE }, (_, i) =>
-        i % 100 === 0 ? 1000 : 20
-      ); // Occasional large rows
+      const values = Array.from({ length: SIZE }, (_, i) => (i % 100 === 0 ? 1000 : 20)); // Occasional large rows
       const psa = new PrefixSumArray({ values });
 
       const result = benchmark(

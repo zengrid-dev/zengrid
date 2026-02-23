@@ -16,10 +16,7 @@ export type {
 } from './data-structures/sparse-matrix';
 
 export { PrefixSumArray } from './data-structures/prefix-sum-array';
-export type {
-  IPrefixSumArray,
-  PrefixSumArrayOptions,
-} from './data-structures/prefix-sum-array';
+export type { IPrefixSumArray, PrefixSumArrayOptions } from './data-structures/prefix-sum-array';
 
 export { ColumnStore } from './data-structures/column-store';
 export type {
@@ -62,7 +59,10 @@ export type {
   RangeResult as SkipListRangeResult,
   SkipListStats,
 } from './data-structures/skip-list';
-export { defaultComparator as skipListDefaultComparator, SkipListUtils } from './data-structures/skip-list';
+export {
+  defaultComparator as skipListDefaultComparator,
+  SkipListUtils,
+} from './data-structures/skip-list';
 
 export { DisjointSet } from './data-structures/disjoint-set';
 export type {
@@ -73,11 +73,7 @@ export type {
 export { DisjointSetUtils } from './data-structures/disjoint-set';
 
 export { IndexMap } from './data-structures/index-map';
-export type {
-  IIndexMap,
-  IndexMapEntry,
-  IndexMapOptions,
-} from './data-structures/index-map';
+export type { IIndexMap, IndexMapEntry, IndexMapOptions } from './data-structures/index-map';
 
 export { IntervalTree } from './data-structures/interval-tree';
 export type {
@@ -99,12 +95,7 @@ export type {
 } from './data-structures/rtree';
 
 export { Trie } from './data-structures/trie';
-export type {
-  ITrie,
-  ITrieNode,
-  TrieOptions,
-  TrieSearchResult,
-} from './data-structures/trie';
+export type { ITrie, ITrieNode, TrieOptions, TrieSearchResult } from './data-structures/trie';
 
 export { DependencyGraph } from './data-structures/dependency-graph';
 export type {
@@ -125,34 +116,15 @@ export type {
 } from './data-structures/suffix-array';
 
 // Algorithms
-export {
-  binarySearch,
-  binarySearchLeft,
-  binarySearchRight,
-} from './algorithms/search';
-export type {
-  BinarySearchOptions,
-  BinarySearchResult,
-} from './algorithms/search';
+export { binarySearch, binarySearchLeft, binarySearchRight } from './algorithms/search';
+export type { BinarySearchOptions, BinarySearchResult } from './algorithms/search';
 
-export {
-  detectSequence,
-  generateSequence,
-  autofill,
-} from './algorithms/pattern';
-export type {
-  SequenceType,
-  SequencePattern,
-} from './algorithms/pattern';
+export { detectSequence, generateSequence, autofill } from './algorithms/pattern';
+export type { SequenceType, SequencePattern } from './algorithms/pattern';
 
 export { BloomFilter } from './algorithms/filter';
 
-export {
-  timsort,
-  timsortIndices,
-  numericComparator,
-  stringComparator,
-} from './algorithms/sorting';
+export { timsort, timsortIndices, numericComparator, stringComparator } from './algorithms/sorting';
 
 // Types
 export type {
@@ -167,13 +139,7 @@ export type {
 } from './types';
 
 // Utilities
-export {
-  debounce,
-  throttle,
-  createRAFBatchScheduler,
-  delay,
-  timeout,
-} from './utils/timing';
+export { debounce, throttle, createRAFBatchScheduler, delay, timeout } from './utils/timing';
 export type {
   DebounceOptions,
   DebouncedFunction,

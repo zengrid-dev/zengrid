@@ -141,7 +141,7 @@ export class ObjectPool<T> {
    * Release multiple objects back to pool
    */
   releaseMany(objects: T[]): void {
-    objects.forEach(obj => this.release(obj));
+    objects.forEach((obj) => this.release(obj));
   }
 
   /**

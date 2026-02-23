@@ -6,7 +6,6 @@ import type { CellPool } from '../rendering/cell-pool/cell-pool';
 import type { RendererRegistry } from '../rendering/renderers/renderer-registry';
 import type { RendererCache } from '../rendering/cache';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
-import type { IndexMap } from '../data/index-map';
 
 /**
  * Threshold for detecting fast scroll (pixels per millisecond)
@@ -38,8 +37,7 @@ export class GridScroll {
   private scrollVelocity: { vertical: number; horizontal: number } = { vertical: 0, horizontal: 0 };
 
   // Callbacks
-  private getSortManager: () => any;
-  private getCachedVisibleRows: () => number[] | null;
+  private getViewIndices: () => number[] | undefined;
   private getColumnModel: () => any;
   private emitEvent: (event: string, payload: any) => void;
   private mapRowToDataIndex: (row: number) => number | undefined;
@@ -56,8 +54,7 @@ export class GridScroll {
     cache: RendererCache | null,
     dataAccessor: DataAccessor | null,
     callbacks: {
-      getSortManager: () => any;
-      getCachedVisibleRows: () => number[] | null;
+      getViewIndices: () => number[] | undefined;
       getColumnModel: () => any;
       emitEvent: (event: string, payload: any) => void;
     }
@@ -72,8 +69,7 @@ export class GridScroll {
     this.registry = registry;
     this.cache = cache;
     this.dataAccessor = dataAccessor;
-    this.getSortManager = callbacks.getSortManager;
-    this.getCachedVisibleRows = callbacks.getCachedVisibleRows;
+    this.getViewIndices = callbacks.getViewIndices;
     this.getColumnModel = callbacks.getColumnModel;
     this.emitEvent = callbacks.emitEvent;
     this.mapRowToDataIndex = this.createRowMapper();
@@ -180,13 +176,9 @@ export class GridScroll {
     const viewportHeight = this.scrollContainer.clientHeight;
 
     const columnModel = this.getColumnModel();
-    const visibleColCount = columnModel
-      ? columnModel.getVisibleCount()
-      : this.options.colCount;
+    const visibleColCount = columnModel ? columnModel.getVisibleCount() : this.options.colCount;
 
-    const widthProvider = columnModel
-      ? new ColumnModelWidthProvider(columnModel)
-      : undefined;
+    const widthProvider = columnModel ? new ColumnModelWidthProvider(columnModel) : undefined;
 
     this.scroller = new VirtualScroller({
       rowCount: this.options.rowCount,
@@ -233,20 +225,23 @@ export class GridScroll {
         getColumn: (col: number) => {
           // Map visual column index to column definition
           // When columns are reordered, col is the visual position
-        const columnModel = this.getColumnModel();
-        if (columnModel) {
-          const orderedColumns = columnModel.getVisibleColumnsInOrder();
-          if (orderedColumns && orderedColumns[col]) {
-            return orderedColumns[col].definition;
+          const columnModel = this.getColumnModel();
+          if (columnModel) {
+            const orderedColumns = columnModel.getVisibleColumnsInOrder();
+            if (orderedColumns && orderedColumns[col]) {
+              return orderedColumns[col].definition;
+            }
           }
-        }
           // Fallback to original index if no column model
           return this.options.columns?.[col];
         },
         isSelected: (row: number, col: number) =>
-          this.state.selection.some(range =>
-            row >= range.startRow && row <= range.endRow &&
-            col >= range.startCol && col <= range.endCol
+          this.state.selection.some(
+            (range) =>
+              row >= range.startRow &&
+              row <= range.endRow &&
+              col >= range.startCol &&
+              col <= range.endCol
           ),
         isActive: (row: number, col: number) =>
           this.state.activeCell?.row === row && this.state.activeCell?.col === col,
@@ -265,43 +260,11 @@ export class GridScroll {
   }
 
   private createRowMapper(): (row: number) => number | undefined {
-    let cachedIndexMap: IndexMap | null = null;
-    let cachedVisibleRows: number[] | null = null;
-    let cachedCombined: number[] | null = null;
-
-    const getCombinedRows = (indexMap: IndexMap, visibleRows: number[]): number[] => {
-      if (indexMap === cachedIndexMap && visibleRows === cachedVisibleRows && cachedCombined) {
-        return cachedCombined;
-      }
-
-      const visibleSet = new Set<number>(visibleRows);
-      const combined = indexMap.indices.filter(index => visibleSet.has(index));
-
-      cachedIndexMap = indexMap;
-      cachedVisibleRows = visibleRows;
-      cachedCombined = combined;
-
-      return combined;
-    };
-
     return (row: number) => {
-      const indexMap = this.getSortManager()?.getIndexMap() ?? null;
-      const visibleRows = this.getCachedVisibleRows();
-
-      if (indexMap && visibleRows) {
-        const combined = getCombinedRows(indexMap, visibleRows);
-        return combined[row];
+      const viewIndices = this.getViewIndices();
+      if (viewIndices) {
+        return viewIndices[row];
       }
-
-      if (visibleRows) {
-        return visibleRows[row];
-      }
-
-      if (indexMap) {
-        const mapped = indexMap.toDataIndex(row);
-        return mapped >= 0 ? mapped : undefined;
-      }
-
       return row;
     };
   }
@@ -365,7 +328,7 @@ export class GridScroll {
             this.scrollContainer.scrollTo({
               top: position.y,
               left: position.x,
-              behavior: 'smooth'
+              behavior: 'smooth',
             });
           } else {
             this.scrollContainer.scrollTop = position.y;

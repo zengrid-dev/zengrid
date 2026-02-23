@@ -152,7 +152,7 @@ export class RingBuffer<T> {
     if (index < 0 || index >= this.count) {
       throw new Error(`Index ${index} out of bounds for RingBuffer of size ${this.count}`);
     }
-    
+
     const actualIndex = (this.head + index) % this.capacity;
     return this.buffer[actualIndex];
   }
@@ -165,7 +165,7 @@ export class RingBuffer<T> {
     if (index < 0 || index >= this.count) {
       throw new Error(`Index ${index} out of bounds for RingBuffer of size ${this.count}`);
     }
-    
+
     const actualIndex = (this.head + index) % this.capacity;
     this.buffer[actualIndex] = item;
   }

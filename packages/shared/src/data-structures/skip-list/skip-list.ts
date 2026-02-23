@@ -85,10 +85,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
 
     // Start from highest level and go down
     for (let i = this.currentLevel; i >= 0; i--) {
-      while (
-        current.forward[i] !== null &&
-        this.compare(current.forward[i]!.key, key) < 0
-      ) {
+      while (current.forward[i] !== null && this.compare(current.forward[i]!.key, key) < 0) {
         current = current.forward[i]!;
       }
       update[i] = current;
@@ -143,10 +140,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
 
     // Start from highest level
     for (let i = this.currentLevel; i >= 0; i--) {
-      while (
-        current.forward[i] !== null &&
-        this.compare(current.forward[i]!.key, key) < 0
-      ) {
+      while (current.forward[i] !== null && this.compare(current.forward[i]!.key, key) < 0) {
         current = current.forward[i]!;
       }
     }
@@ -189,10 +183,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
     }
 
     // Update current level if necessary
-    while (
-      this.currentLevel > 0 &&
-      this.head.forward[this.currentLevel] === null
-    ) {
+    while (this.currentLevel > 0 && this.head.forward[this.currentLevel] === null) {
       this.currentLevel--;
     }
 
@@ -254,10 +245,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
 
     // Find starting position
     for (let i = this.currentLevel; i >= 0; i--) {
-      while (
-        current.forward[i] !== null &&
-        this.compare(current.forward[i]!.key, startKey) < 0
-      ) {
+      while (current.forward[i] !== null && this.compare(current.forward[i]!.key, startKey) < 0) {
         current = current.forward[i]!;
       }
     }
@@ -348,10 +336,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
     let floor: SkipListNode<K, V> | null = null;
 
     for (let i = this.currentLevel; i >= 0; i--) {
-      while (
-        current.forward[i] !== null &&
-        this.compare(current.forward[i]!.key, key) <= 0
-      ) {
+      while (current.forward[i] !== null && this.compare(current.forward[i]!.key, key) <= 0) {
         current = current.forward[i]!;
         floor = current;
       }
@@ -371,10 +356,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
     let current = this.head;
 
     for (let i = this.currentLevel; i >= 0; i--) {
-      while (
-        current.forward[i] !== null &&
-        this.compare(current.forward[i]!.key, key) < 0
-      ) {
+      while (current.forward[i] !== null && this.compare(current.forward[i]!.key, key) < 0) {
         current = current.forward[i]!;
       }
     }
@@ -426,8 +408,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
     // Estimate memory: node overhead + pointers
     const bytesPerPointer = 8;
     const bytesPerNode = 32; // key, value, metadata
-    const memoryBytes =
-      this.count * bytesPerNode + totalLevels * bytesPerPointer;
+    const memoryBytes = this.count * bytesPerNode + totalLevels * bytesPerPointer;
 
     return {
       size: this.count,
@@ -455,10 +436,7 @@ export class SkipList<K, V> implements ISkipList<K, V> {
   /**
    * Create skip list from entries
    */
-  static from<K, V>(
-    entries: Array<[K, V]>,
-    options?: SkipListOptions<K>
-  ): SkipList<K, V> {
+  static from<K, V>(entries: Array<[K, V]>, options?: SkipListOptions<K>): SkipList<K, V> {
     const skipList = new SkipList<K, V>(options);
     for (const [key, value] of entries) {
       skipList.set(key, value);

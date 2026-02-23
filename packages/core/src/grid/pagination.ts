@@ -183,12 +183,20 @@ export class GridPagination {
 
     const paginationElement = this.paginator.render(state, handlers);
 
-    if (this.paginationTop && (this.options.pagination?.position === 'top' || this.options.pagination?.position === 'both')) {
+    if (
+      this.paginationTop &&
+      (this.options.pagination?.position === 'top' || this.options.pagination?.position === 'both')
+    ) {
       this.paginationTop.innerHTML = '';
       this.paginationTop.appendChild(paginationElement.cloneNode(true));
     }
 
-    if (this.paginationBottom && (this.options.pagination?.position === 'bottom' || this.options.pagination?.position === 'both' || !this.options.pagination?.position)) {
+    if (
+      this.paginationBottom &&
+      (this.options.pagination?.position === 'bottom' ||
+        this.options.pagination?.position === 'both' ||
+        !this.options.pagination?.position)
+    ) {
       this.paginationBottom.innerHTML = '';
       this.paginationBottom.appendChild(paginationElement);
     }
@@ -210,7 +218,9 @@ export class GridPagination {
     if (this.currentPage >= totalPages) {
       const oldPage = this.currentPage;
       this.currentPage = Math.max(0, totalPages - 1);
-      console.warn(`Current page ${oldPage} exceeds total pages ${totalPages}. Reset to page ${this.currentPage}`);
+      console.warn(
+        `Current page ${oldPage} exceeds total pages ${totalPages}. Reset to page ${this.currentPage}`
+      );
     }
 
     if (this.pageSize <= 0) {

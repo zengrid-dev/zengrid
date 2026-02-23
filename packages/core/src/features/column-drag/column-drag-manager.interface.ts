@@ -20,13 +20,7 @@ export type DragState = 'idle' | 'pending' | 'dragging' | 'dropping' | 'cancelle
 /**
  * Drag event types for StateMachine
  */
-export type DragEvent =
-  | 'mousedown'
-  | 'dragstart'
-  | 'drag'
-  | 'drop'
-  | 'cancel'
-  | 'reset';
+export type DragEvent = 'mousedown' | 'dragstart' | 'drag' | 'drop' | 'cancel' | 'reset';
 
 /**
  * Drop position relative to a column

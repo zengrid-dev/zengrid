@@ -24,6 +24,7 @@ export function createDragStateMachine(
   machine.addTransition('dragging', 'cancel', 'cancelled');
   machine.addTransition('dropping', 'reset', 'idle');
   machine.addTransition('cancelled', 'reset', 'idle');
+  machine.addTransition('idle', 'reset', 'idle'); // reset when already idle (e.g. cancel → idle → reset)
 
   // Listen to transitions for side effects
   machine.onTransition((from, event, to) => {

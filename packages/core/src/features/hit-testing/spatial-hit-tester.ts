@@ -209,12 +209,7 @@ export class SpatialHitTester {
     // Check if this cell is part of any merged cell
     for (const [key, _bounds] of this.mergedCells) {
       const [startRow, startCol, endRow, endCol] = this.parseMergedCellKey(key);
-      if (
-        row >= startRow &&
-        row <= endRow &&
-        col >= startCol &&
-        col <= endCol
-      ) {
+      if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
         return true;
       }
     }
@@ -232,12 +227,7 @@ export class SpatialHitTester {
 
     for (const [key, bounds] of this.mergedCells) {
       const [startRow, startCol, endRow, endCol] = this.parseMergedCellKey(key);
-      if (
-        row >= startRow &&
-        row <= endRow &&
-        col >= startCol &&
-        col <= endCol
-      ) {
+      if (row >= startRow && row <= endRow && col >= startCol && col <= endCol) {
         return bounds;
       }
     }

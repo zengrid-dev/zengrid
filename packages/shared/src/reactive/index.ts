@@ -72,24 +72,24 @@ export type {
 
 export {
   ReactiveState,
-  type StateSubscriber,  // Backward compatible
+  type StateSubscriber, // Backward compatible
 } from './reactive-state';
 
 export {
   EventDelegator,
-  type ElementEventHandlers,  // Backward compatible
-  type EventDelegatorOptions,  // Backward compatible
+  type ElementEventHandlers, // Backward compatible
+  type EventDelegatorOptions, // Backward compatible
 } from './event-delegator';
 
 export {
   ObjectPool,
-  type ObjectPoolOptions,  // Backward compatible
-  type ObjectPoolStats,  // Backward compatible
+  type ObjectPoolOptions, // Backward compatible
+  type ObjectPoolStats, // Backward compatible
 } from './object-pool';
 
 export {
   BatchProcessor,
-  type BatchProcessorOptions,  // Backward compatible
+  type BatchProcessorOptions, // Backward compatible
 } from './batch-processor';
 
 // ========================================

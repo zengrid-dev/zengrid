@@ -22,12 +22,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -69,21 +64,19 @@ function formatResults() {
   console.log('        SparseMatrix Performance Benchmarks      ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(35),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(35), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -91,27 +84,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(35),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(35), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 
@@ -432,10 +418,15 @@ describe('SparseMatrix Performance Benchmarks', () => {
         }
       }
 
-      const result = benchmark('Get row (100 cells)', 'Large (1M cells)', () => {
-        const row = matrix.getRow(5000);
-        expect(row.size).toBe(COLS);
-      }, 10000);
+      const result = benchmark(
+        'Get row (100 cells)',
+        'Large (1M cells)',
+        () => {
+          const row = matrix.getRow(5000);
+          expect(row.size).toBe(COLS);
+        },
+        10000
+      );
 
       // CRITICAL: O(1) even with 1M cells!
       expect(result.time).toBeLessThan(0.1); // < 50 microseconds
@@ -484,19 +475,15 @@ describe('SparseMatrix Performance Benchmarks', () => {
     const ACTUAL_CELLS = 10000;
 
     it('should benchmark sparse fill', () => {
-      const result = benchmark(
-        'Fill 10K cells (1% sparse)',
-        'Very Sparse (1M potential)',
-        () => {
-          const matrix = new SparseMatrix<number>();
-          for (let i = 0; i < ACTUAL_CELLS; i++) {
-            const row = i * 100; // Spread across many rows
-            const col = i % 100;
-            matrix.set(row, col, i);
-          }
-          expect(matrix.size).toBe(ACTUAL_CELLS);
+      const result = benchmark('Fill 10K cells (1% sparse)', 'Very Sparse (1M potential)', () => {
+        const matrix = new SparseMatrix<number>();
+        for (let i = 0; i < ACTUAL_CELLS; i++) {
+          const row = i * 100; // Spread across many rows
+          const col = i % 100;
+          matrix.set(row, col, i);
         }
-      );
+        expect(matrix.size).toBe(ACTUAL_CELLS);
+      });
 
       expect(result.time).toBeLessThan(200);
     });
@@ -546,19 +533,15 @@ describe('SparseMatrix Performance Benchmarks', () => {
     });
 
     it('should benchmark memory efficiency', () => {
-      const result = benchmark(
-        'Memory for 10K cells',
-        'Very Sparse (1M potential)',
-        () => {
-          const matrix = new SparseMatrix<number>();
-          for (let i = 0; i < ACTUAL_CELLS; i++) {
-            const row = i * 100;
-            const col = i % 100;
-            matrix.set(row, col, i);
-          }
-          expect(matrix.size).toBe(ACTUAL_CELLS);
+      const result = benchmark('Memory for 10K cells', 'Very Sparse (1M potential)', () => {
+        const matrix = new SparseMatrix<number>();
+        for (let i = 0; i < ACTUAL_CELLS; i++) {
+          const row = i * 100;
+          const col = i % 100;
+          matrix.set(row, col, i);
         }
-      );
+        expect(matrix.size).toBe(ACTUAL_CELLS);
+      });
 
       // Memory should scale with actual cells, not potential cells
       // Expect roughly 1-2 MB for 10K cells (not 100+ MB for 1M potential)

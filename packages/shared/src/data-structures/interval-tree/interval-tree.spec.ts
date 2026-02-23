@@ -332,15 +332,9 @@ describe('IntervalTree', () => {
 
   describe('IntervalUtils', () => {
     it('should check interval overlap', () => {
-      expect(
-        IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 15, end: 25 })
-      ).toBe(true);
-      expect(
-        IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 21, end: 30 })
-      ).toBe(false);
-      expect(
-        IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 20, end: 30 })
-      ).toBe(true);
+      expect(IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 15, end: 25 })).toBe(true);
+      expect(IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 21, end: 30 })).toBe(false);
+      expect(IntervalUtils.overlaps({ start: 10, end: 20 }, { start: 20, end: 30 })).toBe(true);
     });
 
     it('should check if interval contains point', () => {
@@ -351,31 +345,19 @@ describe('IntervalTree', () => {
     });
 
     it('should check if interval contains another interval', () => {
-      expect(
-        IntervalUtils.containsInterval(
-          { start: 10, end: 30 },
-          { start: 15, end: 25 }
-        )
-      ).toBe(true);
-      expect(
-        IntervalUtils.containsInterval(
-          { start: 10, end: 30 },
-          { start: 10, end: 30 }
-        )
-      ).toBe(true);
-      expect(
-        IntervalUtils.containsInterval(
-          { start: 10, end: 30 },
-          { start: 5, end: 25 }
-        )
-      ).toBe(false);
+      expect(IntervalUtils.containsInterval({ start: 10, end: 30 }, { start: 15, end: 25 })).toBe(
+        true
+      );
+      expect(IntervalUtils.containsInterval({ start: 10, end: 30 }, { start: 10, end: 30 })).toBe(
+        true
+      );
+      expect(IntervalUtils.containsInterval({ start: 10, end: 30 }, { start: 5, end: 25 })).toBe(
+        false
+      );
     });
 
     it('should find intersection', () => {
-      const result = IntervalUtils.intersection(
-        { start: 10, end: 20 },
-        { start: 15, end: 25 }
-      );
+      const result = IntervalUtils.intersection({ start: 10, end: 20 }, { start: 15, end: 25 });
       expect(result).toEqual({ start: 15, end: 20 });
 
       const noIntersection = IntervalUtils.intersection(
@@ -386,16 +368,10 @@ describe('IntervalTree', () => {
     });
 
     it('should find union', () => {
-      const result = IntervalUtils.union(
-        { start: 10, end: 20 },
-        { start: 15, end: 25 }
-      );
+      const result = IntervalUtils.union({ start: 10, end: 20 }, { start: 15, end: 25 });
       expect(result).toEqual({ start: 10, end: 25 });
 
-      const noUnion = IntervalUtils.union(
-        { start: 10, end: 20 },
-        { start: 25, end: 30 }
-      );
+      const noUnion = IntervalUtils.union({ start: 10, end: 20 }, { start: 25, end: 30 });
       expect(noUnion).toBeUndefined();
     });
 
@@ -521,18 +497,9 @@ describe('IntervalTree', () => {
 
       const tree = new IntervalTree<Meeting>();
 
-      tree.insert(
-        { start: 9, end: 10 },
-        { title: 'Team Standup', room: 'Room A' }
-      );
-      tree.insert(
-        { start: 10, end: 11 },
-        { title: 'Design Review', room: 'Room B' }
-      );
-      tree.insert(
-        { start: 9.5, end: 10.5 },
-        { title: 'Client Call', room: 'Room A' }
-      );
+      tree.insert({ start: 9, end: 10 }, { title: 'Team Standup', room: 'Room A' });
+      tree.insert({ start: 10, end: 11 }, { title: 'Design Review', room: 'Room B' });
+      tree.insert({ start: 9.5, end: 10.5 }, { title: 'Client Call', room: 'Room A' });
 
       const conflicts = tree.search({ start: 9.5, end: 10 });
       expect(conflicts).toHaveLength(3); // All 3 overlap: Team Standup [9,10], Client Call [9.5,10.5], Design Review [10,11] (boundary touch)

@@ -16,6 +16,7 @@ pnpm dev
 ```
 
 The demo app provides:
+
 - **Live visualizations** of each data structure
 - **Interactive controls** to test operations
 - **Performance benchmarks** with real-time metrics
@@ -29,14 +30,17 @@ Visit the demo to see how each structure works in action!
 ## 📊 Data Structures
 
 ### 1. **SparseMatrix**
+
 Efficient storage for sparse 2D data where most cells are empty.
 
 **Grid Use Cases:**
+
 - Store cell values without allocating memory for empty cells
 - Handle large grids (millions of rows/columns) with minimal memory
 - Efficient for spreadsheets with sparse data
 
 **Operations:**
+
 - `set(row, col, value)` - O(1) average
 - `get(row, col)` - O(1) average
 - `delete(row, col)` - O(1) average
@@ -46,14 +50,17 @@ Efficient storage for sparse 2D data where most cells are empty.
 ---
 
 ### 2. **PrefixSumArray**
+
 Fast range sum queries for calculating cumulative heights/widths.
 
 **Grid Use Cases:**
+
 - Calculate visible rows/columns in virtual scrolling
 - Compute scroll positions with variable row heights
 - Status bar aggregations (SUM of selected cells)
 
 **Operations:**
+
 - `query(start, end)` - O(log n) for range sums
 - `update(index, value)` - O(log n)
 
@@ -62,15 +69,18 @@ Fast range sum queries for calculating cumulative heights/widths.
 ---
 
 ### 3. **ColumnStore**
+
 Column-oriented storage with typed arrays for high-performance data access.
 
 **Grid Use Cases:**
+
 - Store column data with type safety (numbers, strings, dates)
 - Fast column aggregations (SUM, MIN, MAX, AVG)
 - Efficient sorting and filtering operations
 - Memory-efficient bulk operations
 
 **Operations:**
+
 - `set(row, value)` - O(1)
 - `aggregate(operation)` - O(n) but vectorized
 - `slice(start, end)` - O(k) where k = slice size
@@ -80,15 +90,18 @@ Column-oriented storage with typed arrays for high-performance data access.
 ---
 
 ### 4. **IndexMap**
+
 Bidirectional mapping between visual and logical indices.
 
 **Grid Use Cases:**
+
 - Map visual row/column positions to data model indices
 - Handle hidden rows/columns
 - Support row/column reordering
 - Maintain sort order mappings
 
 **Operations:**
+
 - `visualToLogical(index)` - O(1)
 - `logicalToVisual(index)` - O(1)
 - `swap(index1, index2)` - O(1)
@@ -98,15 +111,18 @@ Bidirectional mapping between visual and logical indices.
 ---
 
 ### 5. **IntervalTree**
+
 Efficient querying of overlapping intervals.
 
 **Grid Use Cases:**
+
 - Manage merged cell regions
 - Track visible row/column ranges during scrolling
 - Handle cell spanning and overlays
 - Optimize viewport rendering
 
 **Operations:**
+
 - `insert(interval)` - O(log n)
 - `query(point)` - O(log n + k) where k = results
 - `queryRange(start, end)` - O(log n + k)
@@ -116,15 +132,18 @@ Efficient querying of overlapping intervals.
 ---
 
 ### 6. **RTree**
+
 Spatial indexing for 2D cell hit testing.
 
 **Grid Use Cases:**
+
 - **Ultra-fast click detection** - O(log n) instead of O(n)
 - Mouse hover cell detection
 - Drag-and-drop target finding
 - Spatial queries for visible cells
 
 **Operations:**
+
 - `insert(bounds, data)` - O(log n)
 - `search(point)` - O(log n) for hit testing
 - `searchBounds(rectangle)` - O(log n + k)
@@ -134,15 +153,18 @@ Spatial indexing for 2D cell hit testing.
 ---
 
 ### 7. **Trie**
+
 Prefix tree for fast autocomplete and filtering.
 
 **Grid Use Cases:**
+
 - **Filter autocomplete** with instant suggestions
 - Column value indexing for fast lookups
 - Type-ahead search in large datasets
 - Unique value tracking
 
 **Operations:**
+
 - `insert(word)` - O(m) where m = word length
 - `search(prefix)` - O(m + k) where k = results
 - `autocomplete(prefix, limit)` - O(m + k)
@@ -152,15 +174,18 @@ Prefix tree for fast autocomplete and filtering.
 ---
 
 ### 8. **DependencyGraph**
+
 Directed graph for formula dependency tracking.
 
 **Grid Use Cases:**
+
 - **Formula dependencies** (e.g., C1 depends on A1, B1)
 - Topological sort for calculation order
 - Circular reference detection
 - Incremental recalculation
 
 **Operations:**
+
 - `addDependency(from, to)` - O(1)
 - `topologicalSort()` - O(V + E)
 - `detectCycle()` - O(V + E)
@@ -170,15 +195,18 @@ Directed graph for formula dependency tracking.
 ---
 
 ### 9. **LRU Cache**
+
 Least Recently Used cache for cell value caching.
 
 **Grid Use Cases:**
+
 - Cache rendered cell content
 - Cache formula calculation results
 - Cache formatted values
 - Bound memory usage with automatic eviction
 
 **Operations:**
+
 - `get(key)` - O(1)
 - `set(key, value)` - O(1)
 - Auto-eviction on capacity
@@ -188,15 +216,18 @@ Least Recently Used cache for cell value caching.
 ---
 
 ### 10. **CommandStack**
+
 Undo/Redo stack with command pattern.
 
 **Grid Use Cases:**
+
 - **Undo/Redo functionality** for all grid operations
 - Cell edit history
 - Formatting change tracking
 - Multi-level undo with bounded memory
 
 **Operations:**
+
 - `execute(command)` - O(1)
 - `undo()` - O(1)
 - `redo()` - O(1)
@@ -206,15 +237,18 @@ Undo/Redo stack with command pattern.
 ---
 
 ### 11. **SegmentTree**
+
 Range aggregation queries with lazy propagation.
 
 **Grid Use Cases:**
+
 - **Status bar aggregations** (SUM/MIN/MAX of selection)
 - Dynamic range queries on sorted data
 - Efficient bulk updates
 - Column statistics
 
 **Operations:**
+
 - `query(start, end)` - O(log n)
 - `update(index, value)` - O(log n)
 - `rangeUpdate(start, end, value)` - O(log n) with lazy propagation
@@ -224,15 +258,18 @@ Range aggregation queries with lazy propagation.
 ---
 
 ### 12. **SkipList**
+
 Probabilistic balanced structure for sorted data.
 
 **Grid Use Cases:**
+
 - Maintain sorted column indices
 - Dynamic sorted sets
 - Alternative to balanced trees (simpler, better cache locality)
 - Range queries on sorted data
 
 **Operations:**
+
 - `set(key, value)` - O(log n) average
 - `get(key)` - O(log n) average
 - `range(start, end)` - O(log n + k)
@@ -243,15 +280,18 @@ Probabilistic balanced structure for sorted data.
 ---
 
 ### 13. **DisjointSet (Union-Find)**
+
 Efficient tracking of merged cell regions.
 
 **Grid Use Cases:**
+
 - **Merged cells management** in spreadsheets
 - Track connected cell regions
 - Near-constant time union and find operations
 - Path compression for optimal performance
 
 **Operations:**
+
 - `union(cell1, cell2)` - O(α(n)) ≈ O(1)
 - `find(cell)` - O(α(n)) ≈ O(1)
 - `connected(cell1, cell2)` - O(α(n)) ≈ O(1)
@@ -261,15 +301,18 @@ Efficient tracking of merged cell regions.
 ---
 
 ### 14. **SuffixArray**
+
 Substring search for advanced filtering.
 
 **Grid Use Cases:**
+
 - **Substring search** (not just prefix matching)
 - Advanced text filtering
 - Pattern matching in cell values
 - Full-text search capabilities
 
 **Operations:**
+
 - `search(pattern)` - O(m log n) where m = pattern length
 - Build: O(n log n)
 
@@ -279,22 +322,22 @@ Substring search for advanced filtering.
 
 ## 🎯 Use Case Matrix
 
-| Data Structure | Primary Use | Performance | Demo Highlight |
-|---------------|-------------|-------------|----------------|
-| SparseMatrix | Cell storage | O(1) get/set | Sparse 1M cell grid |
-| PrefixSumArray | Row heights | O(log n) query | Variable heights |
-| ColumnStore | Column data | O(1) access | 100K row filtering |
-| IndexMap | Row mapping | O(1) lookup | Dynamic reordering |
-| IntervalTree | Merged regions | O(log n) query | Interval overlaps |
-| RTree | Hit testing | O(log n) search | 10K cell clicks |
-| Trie | Autocomplete | O(m + k) search | 10K product names |
-| DependencyGraph | Formulas | O(V + E) sort | Cycle detection |
-| LRU Cache | Cell caching | O(1) get/set | Hit rate tracking |
-| CommandStack | Undo/Redo | O(1) ops | Command history |
-| SegmentTree | Range queries | O(log n) query | 100K aggregations |
-| SkipList | Sorted data | O(log n) ops | Sorted indices |
-| DisjointSet | Merged cells | O(α(n)) ≈ O(1) | 100×100 grid |
-| SuffixArray | Substring search | O(m log n) | Pattern matching |
+| Data Structure  | Primary Use      | Performance     | Demo Highlight      |
+| --------------- | ---------------- | --------------- | ------------------- |
+| SparseMatrix    | Cell storage     | O(1) get/set    | Sparse 1M cell grid |
+| PrefixSumArray  | Row heights      | O(log n) query  | Variable heights    |
+| ColumnStore     | Column data      | O(1) access     | 100K row filtering  |
+| IndexMap        | Row mapping      | O(1) lookup     | Dynamic reordering  |
+| IntervalTree    | Merged regions   | O(log n) query  | Interval overlaps   |
+| RTree           | Hit testing      | O(log n) search | 10K cell clicks     |
+| Trie            | Autocomplete     | O(m + k) search | 10K product names   |
+| DependencyGraph | Formulas         | O(V + E) sort   | Cycle detection     |
+| LRU Cache       | Cell caching     | O(1) get/set    | Hit rate tracking   |
+| CommandStack    | Undo/Redo        | O(1) ops        | Command history     |
+| SegmentTree     | Range queries    | O(log n) query  | 100K aggregations   |
+| SkipList        | Sorted data      | O(log n) ops    | Sorted indices      |
+| DisjointSet     | Merged cells     | O(α(n)) ≈ O(1)  | 100×100 grid        |
+| SuffixArray     | Substring search | O(m log n)      | Pattern matching    |
 
 ---
 
@@ -314,6 +357,7 @@ All data structures include:
 ## 📖 Documentation
 
 Each data structure folder contains:
+
 - `{name}.interface.ts` - TypeScript interfaces and documentation
 - `{name}.ts` - Implementation with inline comments
 - `{name}.spec.ts` - Comprehensive unit tests
@@ -374,6 +418,7 @@ console.log(segmentTree.query(0, 4)); // 15
 ## 🎓 Learning Resources
 
 **Interactive Demos:**
+
 ```bash
 cd apps/demo-ds-algorithms
 pnpm install
@@ -382,11 +427,13 @@ pnpm dev
 ```
 
 **Run Tests:**
+
 ```bash
 pnpm test shared
 ```
 
 **Run Performance Benchmarks:**
+
 ```bash
 pnpm test shared -- .perf.spec.ts
 ```
@@ -410,17 +457,17 @@ All data structures follow these principles:
 
 Performance on typical grid operations:
 
-| Operation | Data Structure | Time (100K elements) |
-|-----------|----------------|---------------------|
-| Cell get/set | SparseMatrix | 0.1ms (1K ops) |
-| Hit testing | RTree | 0.01ms per click |
-| Autocomplete | Trie | 0.5ms (1K matches) |
-| Range sum | SegmentTree | 0.02ms per query |
-| Merge cells | DisjointSet | 0.001ms per union |
-| Undo/Redo | CommandStack | 0.001ms per op |
-| Column filter | ColumnStore | 15ms (100K rows) |
+| Operation     | Data Structure | Time (100K elements) |
+| ------------- | -------------- | -------------------- |
+| Cell get/set  | SparseMatrix   | 0.1ms (1K ops)       |
+| Hit testing   | RTree          | 0.01ms per click     |
+| Autocomplete  | Trie           | 0.5ms (1K matches)   |
+| Range sum     | SegmentTree    | 0.02ms per query     |
+| Merge cells   | DisjointSet    | 0.001ms per union    |
+| Undo/Redo     | CommandStack   | 0.001ms per op       |
+| Column filter | ColumnStore    | 15ms (100K rows)     |
 
-*All benchmarks available in the demo app*
+_All benchmarks available in the demo app_
 
 ---
 

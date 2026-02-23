@@ -72,8 +72,10 @@ export interface IStateMachine<S, E> {
  * @typeParam S - State type (string literal union recommended)
  * @typeParam E - Event type (string literal union recommended)
  */
-export class StateMachine<S extends string = string, E extends string = string>
-  implements IStateMachine<S, E> {
+export class StateMachine<
+  S extends string = string,
+  E extends string = string,
+> implements IStateMachine<S, E> {
   private currentState: S;
   private readonly initialState: S;
   private transitions = new Map<S, Map<E, S>>();

@@ -6,12 +6,12 @@
  * Header type discriminator
  */
 export type HeaderType =
-  | 'text'           // Default text-only header
-  | 'checkbox'       // Checkbox for row selection
-  | 'icon'           // Icon-only header
-  | 'sortable'       // Text with sort indicators
-  | 'filterable'     // Text with filter dropdown
-  | 'custom';        // Fully custom renderer
+  | 'text' // Default text-only header
+  | 'checkbox' // Checkbox for row selection
+  | 'icon' // Icon-only header
+  | 'sortable' // Text with sort indicators
+  | 'filterable' // Text with filter dropdown
+  | 'custom'; // Fully custom renderer
 
 /**
  * Icon position within header
@@ -141,7 +141,9 @@ export interface HeaderConfig {
 /**
  * Resolved header config (after applying defaults)
  */
-export interface ResolvedHeaderConfig extends Required<Pick<HeaderConfig, 'text' | 'type' | 'interactive'>> {
+export interface ResolvedHeaderConfig extends Required<
+  Pick<HeaderConfig, 'text' | 'type' | 'interactive'>
+> {
   leadingIcon?: HeaderIcon;
   trailingIcon?: HeaderIcon;
   tooltip?: HeaderTooltip;

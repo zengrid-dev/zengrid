@@ -46,11 +46,7 @@ describe('SegmentTree', () => {
     });
 
     it('should create custom tree', () => {
-      const tree = SegmentTree.custom(
-        [1, 2, 3, 4],
-        (a, b) => a + b,
-        0
-      );
+      const tree = SegmentTree.custom([1, 2, 3, 4], (a, b) => a + b, 0);
       expect(tree.size).toBe(4);
       expect(tree.total).toBe(10);
     });

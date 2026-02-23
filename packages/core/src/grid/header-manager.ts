@@ -251,10 +251,7 @@ export class HeaderManager extends BaseCoordinator {
       },
     };
 
-    this.columnSubscription = subscribeToColumnChanges(
-      this.config.columnModel,
-      callbacks
-    );
+    this.columnSubscription = subscribeToColumnChanges(this.config.columnModel, callbacks);
   }
 
   /**

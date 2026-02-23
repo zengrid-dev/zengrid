@@ -22,7 +22,8 @@ import type { LoadingState, LoadingConfig } from '../../types';
  * ```
  */
 export class LoadingIndicator {
-  private config: Required<Omit<LoadingConfig, 'customTemplate'>> & Pick<LoadingConfig, 'customTemplate'>;
+  private config: Required<Omit<LoadingConfig, 'customTemplate'>> &
+    Pick<LoadingConfig, 'customTemplate'>;
   private container: HTMLElement | null = null;
   private startTime: number = 0;
   private minDisplayTimeout: number | null = null;

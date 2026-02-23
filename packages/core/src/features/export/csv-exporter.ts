@@ -44,7 +44,8 @@ export class CSVExporter {
     const lines: string[] = [];
 
     if (includeHeaders) {
-      const headers = options.headers ?? columns.map((col) => this.getColumnHeader?.(col) ?? `Column ${col}`);
+      const headers =
+        options.headers ?? columns.map((col) => this.getColumnHeader?.(col) ?? `Column ${col}`);
       lines.push(headers.map((h) => this.formatCell(h, delimiter)).join(delimiter));
     }
 
@@ -67,10 +68,7 @@ export class CSVExporter {
 
     // Wrap in quotes if needed (always quote when quotes are present)
     const needsQuotes =
-      str.includes(delimiter) ||
-      str.includes('\n') ||
-      str.includes('\r') ||
-      str.includes('"');
+      str.includes(delimiter) || str.includes('\n') || str.includes('\r') || str.includes('"');
     if (needsQuotes) {
       str = `"${str}"`;
     }

@@ -377,7 +377,7 @@ export class DependencyGraph implements IDependencyGraph {
     // Add all transitive dependents
     for (const node of changedNodes) {
       const dependents = this.getTransitiveDependents(node);
-      dependents.forEach(d => affectedNodes.add(d));
+      dependents.forEach((d) => affectedNodes.add(d));
     }
 
     // Create subgraph of affected nodes

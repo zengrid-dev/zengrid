@@ -22,8 +22,9 @@ export function renderAllHeaders(
   if (!headerCellsContainer) return;
 
   // Get visible columns in order from column model
-  const columns = columnModel.getColumns()
-    .filter(col => col.visible)
+  const columns = columnModel
+    .getColumns()
+    .filter((col) => col.visible)
     .sort((a, b) => a.order - b.order);
 
   const sortState = config.getSortState?.() ?? [];
@@ -102,8 +103,9 @@ export function updateHeaderByIndex(
   headerHeight: number
 ): void {
   // Find column ID by index
-  const columns = columnModel.getColumns()
-    .filter(col => col.visible)
+  const columns = columnModel
+    .getColumns()
+    .filter((col) => col.visible)
     .sort((a, b) => a.order - b.order);
 
   if (columnIndex >= 0 && columnIndex < columns.length) {

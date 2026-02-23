@@ -12,32 +12,32 @@
  */
 export type StandardFilterOperator =
   // Equality
-  | 'eq'          // equals
-  | 'neq'         // not equals
+  | 'eq' // equals
+  | 'neq' // not equals
 
   // Comparison
-  | 'gt'          // greater than
-  | 'gte'         // greater than or equal
-  | 'lt'          // less than
-  | 'lte'         // less than or equal
+  | 'gt' // greater than
+  | 'gte' // greater than or equal
+  | 'lt' // less than
+  | 'lte' // less than or equal
 
   // String operations
-  | 'contains'    // contains substring
+  | 'contains' // contains substring
   | 'notContains' // does not contain substring
-  | 'startsWith'  // starts with
-  | 'endsWith'    // ends with
+  | 'startsWith' // starts with
+  | 'endsWith' // ends with
 
   // List operations
-  | 'in'          // value in array
-  | 'notIn'       // value not in array
-  | 'between'     // value between min and max
+  | 'in' // value in array
+  | 'notIn' // value not in array
+  | 'between' // value between min and max
 
   // Null checks
-  | 'isNull'      // is null/undefined
-  | 'isNotNull'   // is not null/undefined
+  | 'isNull' // is null/undefined
+  | 'isNotNull' // is not null/undefined
 
   // Pattern matching
-  | 'regex';      // regex match
+  | 'regex'; // regex match
 
 /**
  * Custom operator definition

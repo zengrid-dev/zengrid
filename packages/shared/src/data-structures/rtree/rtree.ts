@@ -92,7 +92,12 @@ export class RTree<T = any> implements IRTree<T> {
   /**
    * Find nearest neighbors to a point
    */
-  nearest(x: number, y: number, maxResults: number = 1, maxDistance: number = Infinity): RTreeSearchResult<T>[] {
+  nearest(
+    x: number,
+    y: number,
+    maxResults: number = 1,
+    maxDistance: number = Infinity
+  ): RTreeSearchResult<T>[] {
     const queue: Array<{ node: RTreeNode<T> | RTreeData<T>; dist: number; isItem: boolean }> = [];
     const results: RTreeSearchResult<T>[] = [];
 
@@ -243,15 +248,19 @@ export class RTree<T = any> implements IRTree<T> {
   rebuild(): void {
     if (this.itemCount === 0) return;
 
-    const items = this.all().map(r => ({ rect: r.rect, data: r.data }));
+    const items = this.all().map((r) => ({ rect: r.rect, data: r.data }));
     this.clear();
 
-    items.forEach(item => this.insert(item.rect, item.data));
+    items.forEach((item) => this.insert(item.rect, item.data));
   }
 
   // ==================== Private Methods ====================
 
-  private createNode(children: (RTreeNode<T> | RTreeData<T>)[], height: number, leaf: boolean): RTreeNode<T> {
+  private createNode(
+    children: (RTreeNode<T> | RTreeData<T>)[],
+    height: number,
+    leaf: boolean
+  ): RTreeNode<T> {
     const node: RTreeNode<T> = {
       children,
       bbox: { minX: 0, minY: 0, maxX: 0, maxY: 0 },
@@ -354,8 +363,10 @@ export class RTree<T = any> implements IRTree<T> {
         const child = node.children[i] as RTreeNode<T>;
         const enlargement = this.enlargementNeeded(child.bbox, bbox);
 
-        if (enlargement < minEnlargement ||
-            (enlargement === minEnlargement && this.area(child.bbox) < this.area(best.bbox))) {
+        if (
+          enlargement < minEnlargement ||
+          (enlargement === minEnlargement && this.area(child.bbox) < this.area(best.bbox))
+        ) {
           minEnlargement = enlargement;
           best = child;
         }
@@ -451,10 +462,7 @@ export class RTree<T = any> implements IRTree<T> {
 
     if (node.leaf) {
       for (const item of node.children as RTreeData<T>[]) {
-        if (
-          this.rectanglesEqual(item.rect, rect) &&
-          (data === undefined || item.data === data)
-        ) {
+        if (this.rectanglesEqual(item.rect, rect) && (data === undefined || item.data === data)) {
           result.push(item);
           path.push(node);
           return;

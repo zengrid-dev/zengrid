@@ -72,12 +72,12 @@ export class FilterCompiler {
     conditions: FilterCondition[],
     logic: 'AND' | 'OR' = 'AND'
   ): FilterPredicate<T> {
-    const predicates = conditions.map(c => this.compile(c));
+    const predicates = conditions.map((c) => this.compile(c));
 
     if (logic === 'AND') {
-      return (value: T) => predicates.every(p => p(value));
+      return (value: T) => predicates.every((p) => p(value));
     } else {
-      return (value: T) => predicates.some(p => p(value));
+      return (value: T) => predicates.some((p) => p(value));
     }
   }
 

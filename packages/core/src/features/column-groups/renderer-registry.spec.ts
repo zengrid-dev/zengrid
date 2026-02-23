@@ -270,22 +270,26 @@ describe('Integration Tests', () => {
   it('should support multiple renderer types', () => {
     const registry = createRendererRegistry();
 
-    registry.register('compact', (opts) =>
-      new ColumnGroupRenderer({
-        ...opts,
-        showChildCount: false,
-        expandedIcon: '−',
-        collapsedIcon: '+',
-      })
+    registry.register(
+      'compact',
+      (opts) =>
+        new ColumnGroupRenderer({
+          ...opts,
+          showChildCount: false,
+          expandedIcon: '−',
+          collapsedIcon: '+',
+        })
     );
 
-    registry.register('detailed', (opts) =>
-      new ColumnGroupRenderer({
-        ...opts,
-        showChildCount: true,
-        expandedIcon: '▼',
-        collapsedIcon: '▶',
-      })
+    registry.register(
+      'detailed',
+      (opts) =>
+        new ColumnGroupRenderer({
+          ...opts,
+          showChildCount: true,
+          expandedIcon: '▼',
+          collapsedIcon: '▶',
+        })
     );
 
     const compact = registry.get('compact');
@@ -311,12 +315,14 @@ describe('Integration Tests', () => {
   it('should handle renderer options correctly', () => {
     const registry = createRendererRegistry();
 
-    registry.register('themed', (opts) =>
-      new ColumnGroupRenderer({
-        expandedIcon: opts?.expandedIcon || '▽',
-        collapsedIcon: opts?.collapsedIcon || '▷',
-        showChildCount: opts?.showChildCount ?? true,
-      })
+    registry.register(
+      'themed',
+      (opts) =>
+        new ColumnGroupRenderer({
+          expandedIcon: opts?.expandedIcon || '▽',
+          collapsedIcon: opts?.collapsedIcon || '▷',
+          showChildCount: opts?.showChildCount ?? true,
+        })
     );
 
     const renderer1 = registry.get('themed');

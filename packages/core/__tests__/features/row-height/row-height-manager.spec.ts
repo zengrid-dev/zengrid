@@ -3,7 +3,10 @@
  * Tests for dynamic row height configuration management
  */
 
-import { RowHeightManager, RowHeightMode } from '../../../src/features/row-height/row-height-manager';
+import {
+  RowHeightManager,
+  RowHeightMode,
+} from '../../../src/features/row-height/row-height-manager';
 import type { HeightProvider } from '../../../src/rendering/height-provider/height-provider.interface';
 import type { ColumnDef } from '../../../src/types/column';
 
@@ -157,17 +160,13 @@ describe('RowHeightManager', () => {
         mode: 'content-aware',
         config: {},
         heightProvider: createMockHeightProvider(),
-        columns: [
-          { field: 'name', header: 'name', width: 100, autoHeight: true },
-        ],
+        columns: [{ field: 'name', header: 'name', width: 100, autoHeight: true }],
       });
 
       const statsBefore = manager.getStats();
       expect(statsBefore.heightAffectingColumns).toBe(1);
 
-      manager.updateColumns([
-        { field: 'name', header: 'name', width: 100 },
-      ]);
+      manager.updateColumns([{ field: 'name', header: 'name', width: 100 }]);
 
       const statsAfter = manager.getStats();
       expect(statsAfter.heightAffectingColumns).toBe(0);

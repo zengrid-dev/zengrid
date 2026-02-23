@@ -139,9 +139,7 @@ export function deepEqual(a: any, b: any): boolean {
 
     if (keysA.length !== keysB.length) return false;
 
-    return keysA.every(key =>
-      keysB.includes(key) && deepEqual(a[key], b[key])
-    );
+    return keysA.every((key) => keysB.includes(key) && deepEqual(a[key], b[key]));
   }
 
   // Primitives (already checked by ===)

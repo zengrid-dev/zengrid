@@ -21,7 +21,9 @@ describe('LRUCache Performance', () => {
       const totalTime = end - start;
       const avgTime = totalTime / 10000;
 
-      console.log(`Set 10,000 items in ${totalTime.toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`);
+      console.log(
+        `Set 10,000 items in ${totalTime.toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`
+      );
 
       expect(totalTime).toBeLessThan(200); // Should be very fast
       expect(avgTime).toBeLessThan(0.02); // Less than 0.01ms per item
@@ -43,7 +45,10 @@ describe('LRUCache Performance', () => {
         timings.push((end - start) / 100);
       }
 
-      console.log('Set timings by cache size:', timings.map((t, i) => `${sizes[i]}: ${t.toFixed(4)}ms`));
+      console.log(
+        'Set timings by cache size:',
+        timings.map((t, i) => `${sizes[i]}: ${t.toFixed(4)}ms`)
+      );
 
       // Time should not grow significantly with cache size (O(1) property)
       const ratio = timings[2] / timings[0];
@@ -70,7 +75,9 @@ describe('LRUCache Performance', () => {
       const totalTime = end - start;
       const avgTime = totalTime / 10000;
 
-      console.log(`Get 10,000 items in ${totalTime.toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`);
+      console.log(
+        `Get 10,000 items in ${totalTime.toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`
+      );
 
       expect(totalTime).toBeLessThan(100);
       expect(avgTime).toBeLessThan(0.02);
@@ -97,7 +104,10 @@ describe('LRUCache Performance', () => {
         timings.push((end - start) / 100);
       }
 
-      console.log('Get timings by cache size:', timings.map((t, i) => `${sizes[i]}: ${t.toFixed(4)}ms`));
+      console.log(
+        'Get timings by cache size:',
+        timings.map((t, i) => `${sizes[i]}: ${t.toFixed(4)}ms`)
+      );
 
       const ratio = timings[2] / timings[0];
       expect(ratio).toBeLessThan(2);
@@ -121,7 +131,9 @@ describe('LRUCache Performance', () => {
       const end = performance.now();
       const avgTime = (end - start) / 1000;
 
-      console.log(`Delete 1,000 items in ${(end - start).toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`);
+      console.log(
+        `Delete 1,000 items in ${(end - start).toFixed(2)}ms (${avgTime.toFixed(4)}ms per item)`
+      );
 
       expect(avgTime).toBeLessThan(0.02);
     });
@@ -238,7 +250,7 @@ describe('LRUCache Performance', () => {
 
       // Access formulas repeatedly (cache should help)
       for (let round = 0; round < 10; round++) {
-        formulas.forEach(formula => {
+        formulas.forEach((formula) => {
           let result = cache.get(formula);
           if (!result) {
             result = computeFormula(formula);

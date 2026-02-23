@@ -9,10 +9,7 @@
  */
 
 import type { CellRenderer, RenderParams } from '../../renderer.interface';
-import type {
-  DateTimePickerRendererOptions,
-  ResolvedDateTimePickerOptions,
-} from './types';
+import type { DateTimePickerRendererOptions, ResolvedDateTimePickerOptions } from './types';
 import {
   PopupManager,
   parseDate,
@@ -52,17 +49,20 @@ function formatDateTime(date: Date | null, dateFormat: string, timeFormat: '12h'
  */
 export class DateTimePickerRenderer implements CellRenderer {
   private options: ResolvedDateTimePickerOptions;
-  private instances: WeakMap<HTMLElement, {
-    container: HTMLElement;
-    trigger: HTMLElement;
-    popup: HTMLElement;
-    calendarWrapper: HTMLElement;
-    calendar: any | null;
-    currentValue: Date | null;
-    params: RenderParams;
-    isDestroyed: boolean;
-    cleanup: (() => void) | null;
-  }>;
+  private instances: WeakMap<
+    HTMLElement,
+    {
+      container: HTMLElement;
+      trigger: HTMLElement;
+      popup: HTMLElement;
+      calendarWrapper: HTMLElement;
+      calendar: any | null;
+      currentValue: Date | null;
+      params: RenderParams;
+      isDestroyed: boolean;
+      cleanup: (() => void) | null;
+    }
+  >;
   private popupManager: PopupManager;
 
   constructor(options: DateTimePickerRendererOptions = {}) {
@@ -188,9 +188,8 @@ export class DateTimePickerRenderer implements CellRenderer {
     hoursInput.max = this.options.timeFormat === '12h' ? '12' : '23';
     hoursInput.placeholder = 'HH';
     if (value) {
-      const hours = this.options.timeFormat === '12h'
-        ? (value.getHours() % 12 || 12)
-        : value.getHours();
+      const hours =
+        this.options.timeFormat === '12h' ? value.getHours() % 12 || 12 : value.getHours();
       hoursInput.value = String(hours).padStart(2, '0');
     }
     timeContainer.appendChild(hoursInput);
@@ -238,7 +237,7 @@ export class DateTimePickerRenderer implements CellRenderer {
       const ampmSelect = document.createElement('select');
       ampmSelect.className = 'zg-datetime-time-ampm';
       ampmSelect.dataset.type = 'ampm';
-      ['AM', 'PM'].forEach(v => {
+      ['AM', 'PM'].forEach((v) => {
         const opt = document.createElement('option');
         opt.value = v;
         opt.textContent = v;
@@ -337,9 +336,8 @@ export class DateTimePickerRenderer implements CellRenderer {
     const ampmSelect = instance.popup.querySelector('[data-type="ampm"]') as HTMLSelectElement;
 
     if (hoursInput) {
-      const hours = this.options.timeFormat === '12h'
-        ? (value.getHours() % 12 || 12)
-        : value.getHours();
+      const hours =
+        this.options.timeFormat === '12h' ? value.getHours() % 12 || 12 : value.getHours();
       hoursInput.value = String(hours).padStart(2, '0');
     }
     if (minutesInput) {
@@ -400,7 +398,7 @@ export class DateTimePickerRenderer implements CellRenderer {
     });
     cleanupFns.push(cleanupKeyboard);
 
-    instance.cleanup = () => cleanupFns.forEach(fn => fn());
+    instance.cleanup = () => cleanupFns.forEach((fn) => fn());
   }
 
   private updateValueFromTimeInputs(instance: any): void {
@@ -468,7 +466,9 @@ export class DateTimePickerRenderer implements CellRenderer {
     if (instance.cleanup) instance.cleanup();
 
     if (instance.calendar?.destroy) {
-      try { instance.calendar.destroy(); } catch (e) {}
+      try {
+        instance.calendar.destroy();
+      } catch (e) {}
     }
 
     instance.popup.remove();
@@ -487,6 +487,8 @@ export class DateTimePickerRenderer implements CellRenderer {
 /**
  * Factory function
  */
-export function createDateTimePickerRenderer(options: DateTimePickerRendererOptions = {}): DateTimePickerRenderer {
+export function createDateTimePickerRenderer(
+  options: DateTimePickerRendererOptions = {}
+): DateTimePickerRenderer {
   return new DateTimePickerRenderer(options);
 }

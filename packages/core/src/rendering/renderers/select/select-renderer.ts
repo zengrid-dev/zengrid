@@ -150,8 +150,8 @@ export class SelectRenderer implements CellRenderer {
           // Multi-select: collect all selected values
           const selectedOptions = Array.from(target.selectedOptions);
           newValue = selectedOptions
-            .filter(opt => opt.value !== '')
-            .map(opt => JSON.parse(opt.value));
+            .filter((opt) => opt.value !== '')
+            .map((opt) => JSON.parse(opt.value));
         } else {
           // Single select: get single value via selectedIndex (more reliable across environments)
           const selectedIdx = target.selectedIndex;
@@ -227,8 +227,9 @@ export class SelectRenderer implements CellRenderer {
     }
 
     // Check if any option actually matches the current value
-    const hasExplicitSelection = !this.options.multiple &&
-      this.options.options.some(opt => this.isValueSelected(opt.value, params.value));
+    const hasExplicitSelection =
+      !this.options.multiple &&
+      this.options.options.some((opt) => this.isValueSelected(opt.value, params.value));
     if (!hasExplicitSelection && !this.options.multiple) {
       select.selectedIndex = -1;
     }
@@ -310,7 +311,7 @@ export class SelectRenderer implements CellRenderer {
    */
   private isValueSelected(optionValue: any, currentValue: any): boolean {
     if (this.options.multiple && Array.isArray(currentValue)) {
-      return currentValue.some(v => deepEqual(v, optionValue));
+      return currentValue.some((v) => deepEqual(v, optionValue));
     }
 
     return deepEqual(optionValue, currentValue);
@@ -369,8 +370,6 @@ export class SelectRenderer implements CellRenderer {
  * });
  * ```
  */
-export function createSelectRenderer(
-  options: SelectRendererOptions
-): SelectRenderer {
+export function createSelectRenderer(options: SelectRendererOptions): SelectRenderer {
   return new SelectRenderer(options);
 }

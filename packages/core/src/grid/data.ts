@@ -124,7 +124,8 @@ export class GridData {
   } {
     const visibleRange = this.getVisibleRange();
     const visibleCells = visibleRange
-      ? (visibleRange.endRow - visibleRange.startRow) * (visibleRange.endCol - visibleRange.startCol)
+      ? (visibleRange.endRow - visibleRange.startRow) *
+        (visibleRange.endCol - visibleRange.startCol)
       : 0;
 
     return {

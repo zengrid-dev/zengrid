@@ -90,10 +90,7 @@ export function timsortIndices<T>(
  * @param comparator - Comparison function
  * @returns True if sorted
  */
-export function isSorted<T>(
-  array: readonly T[],
-  comparator: Comparator<T>
-): boolean {
+export function isSorted<T>(array: readonly T[], comparator: Comparator<T>): boolean {
   for (let i = 1; i < array.length; i++) {
     if (comparator(array[i - 1], array[i]) > 0) {
       return false;

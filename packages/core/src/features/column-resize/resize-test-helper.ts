@@ -84,9 +84,7 @@ export class ResizeTestHelper {
   /**
    * Create a mock resize manager for testing
    */
-  static createMockResizeManager(
-    options?: Partial<ColumnResizeOptions>
-  ): {
+  static createMockResizeManager(options?: Partial<ColumnResizeOptions>): {
     manager: ColumnResizeManager;
     dataSource: MockResizableDataSource;
     container: HTMLElement;
@@ -147,11 +145,7 @@ export class ResizeTestHelper {
   /**
    * Simulate a mouse drag resize
    */
-  static simulateMouseDrag(
-    container: HTMLElement,
-    startX: number,
-    endX: number
-  ): void {
+  static simulateMouseDrag(container: HTMLElement, startX: number, endX: number): void {
     // Simulate mousedown
     const mouseDownEvent = new MouseEvent('mousedown', {
       clientX: startX,
@@ -203,9 +197,7 @@ export class ResizeTestHelper {
   ): boolean {
     const colCount = dataSource.getColumnCount();
     if (colCount !== expected.length) {
-      console.error(
-        `Column count mismatch: expected ${expected.length}, got ${colCount}`
-      );
+      console.error(`Column count mismatch: expected ${expected.length}, got ${colCount}`);
       return false;
     }
 
@@ -213,9 +205,7 @@ export class ResizeTestHelper {
       const actual = dataSource.getColumnWidth(col);
       const exp = expected[col];
       if (Math.abs(actual - exp) > tolerance) {
-        console.error(
-          `Width mismatch at column ${col}: expected ${exp}, got ${actual}`
-        );
+        console.error(`Width mismatch at column ${col}: expected ${exp}, got ${actual}`);
         return false;
       }
     }

@@ -6,10 +6,10 @@
  * Loading indicator template type - 4 built-in styles
  */
 export type LoadingTemplate =
-  | 'simple'      // Simple text "Loading..."
-  | 'animated'    // Animated spinner with rotating dots
-  | 'modern'      // Modern circular loader
-  | 'skeleton';   // Skeleton screen shimmer effect
+  | 'simple' // Simple text "Loading..."
+  | 'animated' // Animated spinner with rotating dots
+  | 'modern' // Modern circular loader
+  | 'skeleton'; // Skeleton screen shimmer effect
 
 /**
  * Loading indicator state

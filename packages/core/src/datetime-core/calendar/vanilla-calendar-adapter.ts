@@ -135,7 +135,8 @@ export class VanillaCalendarAdapter {
    * Build configuration for vanilla-calendar-pro
    */
   private buildConfig(): VanillaCalendarConfig {
-    const { type, theme, minDate, maxDate, selectedDates, disablePast, onSelect, onRangeSelect } = this.options;
+    const { type, theme, minDate, maxDate, selectedDates, disablePast, onSelect, onRangeSelect } =
+      this.options;
 
     const config: VanillaCalendarConfig = {
       input: false,
@@ -152,10 +153,12 @@ export class VanillaCalendarAdapter {
 
     // Date constraints
     if (minDate) {
-      config.settings!.range!.min = minDate instanceof Date ? formatDateForCalendar(minDate) : minDate;
+      config.settings!.range!.min =
+        minDate instanceof Date ? formatDateForCalendar(minDate) : minDate;
     }
     if (maxDate) {
-      config.settings!.range!.max = maxDate instanceof Date ? formatDateForCalendar(maxDate) : maxDate;
+      config.settings!.range!.max =
+        maxDate instanceof Date ? formatDateForCalendar(maxDate) : maxDate;
     }
     if (disablePast) {
       config.settings!.range!.disablePast = true;

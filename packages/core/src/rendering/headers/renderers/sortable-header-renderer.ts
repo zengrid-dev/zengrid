@@ -204,7 +204,12 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
           columnIndex: params.columnIndex,
           column: params.column,
           currentDirection: params.sortDirection,
-          nextDirection: params.sortDirection === 'asc' ? 'desc' : params.sortDirection === 'desc' ? null : 'asc',
+          nextDirection:
+            params.sortDirection === 'asc'
+              ? 'desc'
+              : params.sortDirection === 'desc'
+                ? null
+                : 'asc',
         });
       }
 

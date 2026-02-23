@@ -157,5 +157,5 @@ export class SelectEditor implements CellEditor<any> {
   private handleKeyDown(event: KeyboardEvent): void {
     // Stop propagation to prevent grid navigation
     event.stopPropagation();
-  };
+  }
 }

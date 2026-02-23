@@ -43,10 +43,7 @@ export function closeDropdown(
 /**
  * Highlight next option in dropdown
  */
-export function highlightNext(
-  currentIndex: number,
-  filteredOptionsLength: number
-): number {
+export function highlightNext(currentIndex: number, filteredOptionsLength: number): number {
   if (filteredOptionsLength === 0) {
     return -1;
   }
@@ -61,10 +58,7 @@ export function highlightNext(
 /**
  * Highlight previous option in dropdown
  */
-export function highlightPrevious(
-  currentIndex: number,
-  filteredOptionsLength: number
-): number {
+export function highlightPrevious(currentIndex: number, filteredOptionsLength: number): number {
   if (filteredOptionsLength === 0) {
     return -1;
   }

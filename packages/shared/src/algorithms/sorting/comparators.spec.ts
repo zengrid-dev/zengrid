@@ -92,11 +92,7 @@ describe('Comparators', () => {
 
   describe('dateComparator', () => {
     it('should sort dates in ascending order', () => {
-      const dates = [
-        new Date('2023-03-15'),
-        new Date('2023-01-01'),
-        new Date('2023-12-31'),
-      ];
+      const dates = [new Date('2023-03-15'), new Date('2023-01-01'), new Date('2023-12-31')];
       dates.sort(dateComparator());
       expect(dates[0].toISOString()).toContain('2023-01-01');
       expect(dates[1].toISOString()).toContain('2023-03-15');
@@ -165,11 +161,7 @@ describe('Comparators', () => {
     });
 
     it('should detect date type', () => {
-      const values = [
-        new Date('2023-03-15'),
-        new Date('2023-01-01'),
-        new Date('2023-12-31'),
-      ];
+      const values = [new Date('2023-03-15'), new Date('2023-01-01'), new Date('2023-12-31')];
       values.sort(autoComparator(values));
       expect(values[0].toISOString()).toContain('2023-01-01');
     });

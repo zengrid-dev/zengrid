@@ -2,11 +2,7 @@
  * Disjoint Set (Union-Find) implementation for ZenGrid
  */
 
-import type {
-  IDisjointSet,
-  DisjointSetOptions,
-  DisjointSetStats,
-} from './disjoint-set.interface';
+import type { IDisjointSet, DisjointSetOptions, DisjointSetStats } from './disjoint-set.interface';
 
 /**
  * Default hash function for elements
@@ -231,9 +227,7 @@ export class DisjointSet<T> implements IDisjointSet<T> {
     // If removing the root, we need to restructure the set
     if (this.equalityFn(element, root)) {
       // Get all elements in this set except the root
-      const setElements = this.getSet(element).filter(
-        (el) => !this.equalityFn(el, element)
-      );
+      const setElements = this.getSet(element).filter((el) => !this.equalityFn(el, element));
 
       // Remove ALL elements in this set from the maps first
       const allElements = this.getSet(element);
@@ -298,9 +292,7 @@ export class DisjointSet<T> implements IDisjointSet<T> {
       numSets: sets.size,
       largestSetSize: setSizes.length > 0 ? Math.max(...setSizes) : 0,
       averageSetSize:
-        setSizes.length > 0
-          ? setSizes.reduce((a, b) => a + b, 0) / setSizes.length
-          : 0,
+        setSizes.length > 0 ? setSizes.reduce((a, b) => a + b, 0) / setSizes.length : 0,
       memoryBytes: this.parent.size * 32 * 3, // Approximate
     };
   }

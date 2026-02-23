@@ -7,9 +7,7 @@ export class PipelineRegistry {
   registerPhase(name: string, phase: number, key: string): void {
     const existing = this.phases.find((p) => p.phase === phase);
     if (existing) {
-      throw new Error(
-        `Pipeline phase ${phase} already registered as "${existing.name}"`,
-      );
+      throw new Error(`Pipeline phase ${phase} already registered as "${existing.name}"`);
     }
 
     const entry: PipelinePhase = { name, phase, key };
@@ -34,7 +32,7 @@ export class PipelineRegistry {
         return store.getUnphased('rows.indices') as number[];
       },
       'core',
-      Infinity, // viewIndices is the final derived value
+      Infinity // viewIndices is the final derived value
     );
 
     store.computed(
@@ -44,7 +42,7 @@ export class PipelineRegistry {
         return indices?.length ?? 0;
       },
       'core',
-      Infinity,
+      Infinity
     );
   }
 

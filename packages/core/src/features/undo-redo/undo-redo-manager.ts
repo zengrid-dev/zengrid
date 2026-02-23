@@ -434,9 +434,7 @@ export class UndoRedoManager {
   /**
    * Flush pending batch edits
    */
-  private flushBatchEdits(
-    setValue: (row: number, col: number, value: any) => void
-  ): void {
+  private flushBatchEdits(setValue: (row: number, col: number, value: any) => void): void {
     if (this.pendingBatchEdits.length === 0) return;
 
     if (this.pendingBatchEdits.length === 1) {
@@ -450,10 +448,7 @@ export class UndoRedoManager {
       );
       this.commandStack.execute(command);
     } else {
-      const command = new BatchCellEditCommand(
-        [...this.pendingBatchEdits],
-        setValue
-      );
+      const command = new BatchCellEditCommand([...this.pendingBatchEdits], setValue);
       this.commandStack.execute(command);
     }
 

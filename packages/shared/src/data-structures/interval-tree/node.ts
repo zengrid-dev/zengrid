@@ -33,11 +33,7 @@ export function getHeight<T>(node: IntervalNode<T> | null): number {
  * Update max value for a node based on its interval and children
  */
 export function updateMax<T>(node: IntervalNode<T>): void {
-  node.max = Math.max(
-    node.interval.end,
-    node.left?.max ?? -Infinity,
-    node.right?.max ?? -Infinity
-  );
+  node.max = Math.max(node.interval.end, node.left?.max ?? -Infinity, node.right?.max ?? -Infinity);
 }
 
 /**
@@ -50,9 +46,7 @@ export function updateHeight<T>(node: IntervalNode<T>): void {
 /**
  * Find minimum node in a subtree (leftmost node)
  */
-export function findMinNode<T>(
-  node: IntervalNode<T> | null
-): IntervalNode<T> | null {
+export function findMinNode<T>(node: IntervalNode<T> | null): IntervalNode<T> | null {
   if (node === null) return null;
   while (node.left !== null) {
     node = node.left;

@@ -17,10 +17,7 @@ export class HandleCoordinator {
    * Update handle positions (call after scroll or column changes)
    * Note: Handles are not updated during active resize to avoid visual glitches
    */
-  updateHandles(
-    handleRenderer: ResizeHandleRenderer | null,
-    container: HTMLElement | null
-  ): void {
+  updateHandles(handleRenderer: ResizeHandleRenderer | null, container: HTMLElement | null): void {
     if (!handleRenderer || !container) return;
 
     // Don't update handles during active resize to prevent visual artifacts

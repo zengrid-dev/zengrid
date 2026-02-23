@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {
-  CheckboxEditor,
-  createCheckboxEditor,
-  type CheckboxEditorOptions,
-} from '../checkbox';
+import { CheckboxEditor, createCheckboxEditor, type CheckboxEditorOptions } from '../checkbox';
 import type { EditorParams } from '../cell-editor.interface';
 
 describe('CheckboxEditor', () => {

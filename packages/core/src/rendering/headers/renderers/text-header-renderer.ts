@@ -133,7 +133,7 @@ export class TextHeaderRenderer implements HeaderRenderer {
     if (customClass) {
       // Remove old custom classes (all except base classes)
       const baseClasses = ['zg-header-cell', 'zg-header-interactive'];
-      element.className = baseClasses.filter(cls => element.classList.contains(cls)).join(' ');
+      element.className = baseClasses.filter((cls) => element.classList.contains(cls)).join(' ');
       element.classList.add(customClass);
     }
   }
@@ -274,10 +274,6 @@ export class TextHeaderRenderer implements HeaderRenderer {
     const menuItems = params.config.contextMenu;
     if (!menuItems || menuItems.length === 0) return;
 
-    // Simple implementation - can be enhanced with a custom context menu component
-    console.log('Context menu for column', params.columnIndex, menuItems);
-
     // TODO: Implement proper context menu UI
-    // For now, log to console as placeholder
   }
 }

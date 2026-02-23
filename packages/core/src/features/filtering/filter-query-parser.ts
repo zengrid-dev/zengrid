@@ -125,7 +125,9 @@ export class FilterQueryParser {
    */
   private isPartOfKeyword(sql: string, value: string): boolean {
     const keywords = ['AND', 'OR', 'NOT', 'LIKE', 'BETWEEN', 'IN', 'NULL', 'IS'];
-    return keywords.some(keyword => sql.includes(`${value}${keyword}`) || sql.includes(`${keyword}${value}`));
+    return keywords.some(
+      (keyword) => sql.includes(`${value}${keyword}`) || sql.includes(`${keyword}${value}`)
+    );
   }
 
   /**
@@ -139,7 +141,9 @@ export class FilterQueryParser {
 
     // For now, we'll support simple cases
     // Complex queries should use backend filtering
-    console.warn('FilterQueryParser.parseToModels(): Converting SQL to FilterModels has limitations. Consider using backend filtering for complex queries.');
+    console.warn(
+      'FilterQueryParser.parseToModels(): Converting SQL to FilterModels has limitations. Consider using backend filtering for complex queries.'
+    );
 
     return models;
   }
@@ -156,7 +160,7 @@ export class FilterQueryParser {
       '<': 'lessThan',
       '>=': 'greaterThanOrEqual',
       '<=': 'lessThanOrEqual',
-      'LIKE': 'contains',
+      LIKE: 'contains',
       'NOT LIKE': 'notContains',
     };
 

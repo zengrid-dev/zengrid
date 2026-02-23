@@ -29,10 +29,7 @@ export class ProgrammaticOperations {
 
     const oldWidth = this.config.dataSource.getColumnWidth(column);
     const optimalWidth = this.config.autoFitCalculator.calculateOptimalWidth(column);
-    const constrainedWidth = this.config.constraintManager.applyConstraints(
-      column,
-      optimalWidth
-    );
+    const constrainedWidth = this.config.constraintManager.applyConstraints(column, optimalWidth);
 
     this.config.dataSource.setColumnWidth(column, constrainedWidth);
 
@@ -68,10 +65,7 @@ export class ProgrammaticOperations {
    */
   resizeColumn(column: number, width: number): void {
     const oldWidth = this.config.dataSource.getColumnWidth(column);
-    const constrainedWidth = this.config.constraintManager.applyConstraints(
-      column,
-      width
-    );
+    const constrainedWidth = this.config.constraintManager.applyConstraints(column, width);
 
     this.config.dataSource.setColumnWidth(column, constrainedWidth);
 

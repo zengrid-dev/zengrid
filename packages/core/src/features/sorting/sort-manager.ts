@@ -114,7 +114,7 @@ export class SortManager {
 
     if (!this.enableMultiSort || !additive) {
       // Single column sort - clear others
-      const existing = this.sortState.find(s => s.column === column);
+      const existing = this.sortState.find((s) => s.column === column);
 
       if (existing) {
         // Cycle: asc -> desc -> null
@@ -126,14 +126,16 @@ export class SortManager {
         }
       } else {
         // New sort
-        this.sortState = [{
-          column,
-          direction: 'asc',
-        }];
+        this.sortState = [
+          {
+            column,
+            direction: 'asc',
+          },
+        ];
       }
     } else {
       // Multi-column sort
-      const existingIndex = this.sortState.findIndex(s => s.column === column);
+      const existingIndex = this.sortState.findIndex((s) => s.column === column);
 
       if (existingIndex >= 0) {
         const existing = this.sortState[existingIndex];
@@ -213,7 +215,7 @@ export class SortManager {
    * @returns Sort direction or null
    */
   getColumnSort(column: number): SortDirection {
-    const state = this.sortState.find(s => s.column === column);
+    const state = this.sortState.find((s) => s.column === column);
     return state?.direction ?? null;
   }
 
@@ -247,7 +249,9 @@ export class SortManager {
       let cancelled = false;
       this.events.emit('sort:beforeSort', {
         sortState: this.sortState,
-        cancel: () => { cancelled = true; },
+        cancel: () => {
+          cancelled = true;
+        },
       });
 
       if (cancelled) return;
@@ -255,7 +259,6 @@ export class SortManager {
 
     // Backend mode - delegate to application
     if (this.sortMode === 'backend') {
-
       this.indexMap = null; // Clear index map for backend sorting
 
       if (this.onSortRequest) {
@@ -264,23 +267,25 @@ export class SortManager {
 
         // Handle promise if async
         if (result && typeof result === 'object' && 'then' in result) {
-          result.then(() => {
-            // Emit after-sort event when backend completes
-            if (this.events) {
-              this.events.emit('sort:afterSort', {
-                sortState: this.sortState,
-                rowsAffected: this.rowCount,
-              });
-            }
-          }).catch((error) => {
-            if (this.events) {
-              this.events.emit('error', {
-                message: 'Backend sort failed',
-                error,
-                context: { sortState: this.sortState },
-              });
-            }
-          });
+          result
+            .then(() => {
+              // Emit after-sort event when backend completes
+              if (this.events) {
+                this.events.emit('sort:afterSort', {
+                  sortState: this.sortState,
+                  rowsAffected: this.rowCount,
+                });
+              }
+            })
+            .catch((error) => {
+              if (this.events) {
+                this.events.emit('error', {
+                  message: 'Backend sort failed',
+                  error,
+                  context: { sortState: this.sortState },
+                });
+              }
+            });
         } else {
           // Synchronous backend handler
           if (this.events) {
@@ -307,7 +312,8 @@ export class SortManager {
       getValue: this.getValue,
       getRow: (row: number) => {
         const values: [number, any][] = [];
-        for (let col = 0; col < 1; col++) { // Only primary column for now
+        for (let col = 0; col < 1; col++) {
+          // Only primary column for now
           values.push([col, this.getValue(row, col)]);
         }
         return values;

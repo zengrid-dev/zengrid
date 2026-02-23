@@ -25,7 +25,7 @@ import {
   ComparatorFn,
   MultiColumnSorterOptions,
   SortDirection,
-  Comparators
+  Comparators,
 } from './types';
 
 /**
@@ -63,7 +63,7 @@ export class MultiColumnSorter {
     this.options = {
       maxSortColumns: options.maxSortColumns ?? 10,
       defaultDirection: options.defaultDirection ?? 'asc',
-      stableSort: options.stableSort ?? true
+      stableSort: options.stableSort ?? true,
     };
   }
 
@@ -126,7 +126,7 @@ export class MultiColumnSorter {
     comparator?: ComparatorFn
   ): number[] {
     return this.sort(data, {
-      columns: [{ field, direction, comparator }]
+      columns: [{ field, direction, comparator }],
     });
   }
 
@@ -142,7 +142,7 @@ export class MultiColumnSorter {
     return limitedColumns
       .map((col, index) => ({
         ...col,
-        priority: col.priority ?? index
+        priority: col.priority ?? index,
       }))
       .sort((a, b) => a.priority! - b.priority!);
   }
@@ -220,7 +220,7 @@ export class MultiColumnSorter {
    * @returns New array with data reordered according to indices
    */
   applySortedIndices<T>(data: T[], sortedIndices: number[]): T[] {
-    return sortedIndices.map(index => data[index]);
+    return sortedIndices.map((index) => data[index]);
   }
 
   /**
@@ -253,13 +253,11 @@ export class MultiColumnSorter {
    */
   addSortColumn(sortModel: SortModel, column: SortColumn): SortModel {
     // Remove existing sort for this field
-    const filteredColumns = sortModel.columns.filter(
-      col => col.field !== column.field
-    );
+    const filteredColumns = sortModel.columns.filter((col) => col.field !== column.field);
 
     // Add new sort column at highest priority (beginning)
     return {
-      columns: [column, ...filteredColumns].slice(0, this.options.maxSortColumns)
+      columns: [column, ...filteredColumns].slice(0, this.options.maxSortColumns),
     };
   }
 
@@ -272,7 +270,7 @@ export class MultiColumnSorter {
    */
   removeSortColumn(sortModel: SortModel, field: string): SortModel {
     return {
-      columns: sortModel.columns.filter(col => col.field !== field)
+      columns: sortModel.columns.filter((col) => col.field !== field),
     };
   }
 
@@ -288,26 +286,22 @@ export class MultiColumnSorter {
    * @param comparator - Optional custom comparator
    * @returns New sort model with toggled direction
    */
-  toggleSortColumn(
-    sortModel: SortModel,
-    field: string,
-    comparator?: ComparatorFn
-  ): SortModel {
-    const existingSort = sortModel.columns.find(col => col.field === field);
+  toggleSortColumn(sortModel: SortModel, field: string, comparator?: ComparatorFn): SortModel {
+    const existingSort = sortModel.columns.find((col) => col.field === field);
 
     if (!existingSort) {
       // Not currently sorted - add with default direction
       return this.addSortColumn(sortModel, {
         field,
         direction: this.options.defaultDirection,
-        comparator
+        comparator,
       });
     } else if (existingSort.direction === 'asc') {
       // Currently ascending - change to descending
       return {
-        columns: sortModel.columns.map(col =>
+        columns: sortModel.columns.map((col) =>
           col.field === field ? { ...col, direction: 'desc' as SortDirection } : col
-        )
+        ),
       };
     } else {
       // Currently descending - remove sort
@@ -332,7 +326,7 @@ export class MultiColumnSorter {
    * @returns Sort direction or null if not sorted
    */
   getSortDirection(sortModel: SortModel, field: string): SortDirection | null {
-    const column = sortModel.columns.find(col => col.field === field);
+    const column = sortModel.columns.find((col) => col.field === field);
     return column?.direction ?? null;
   }
 
@@ -344,7 +338,7 @@ export class MultiColumnSorter {
    * @returns Sort priority (0-based) or null if not sorted
    */
   getSortPriority(sortModel: SortModel, field: string): number | null {
-    const index = sortModel.columns.findIndex(col => col.field === field);
+    const index = sortModel.columns.findIndex((col) => col.field === field);
     return index >= 0 ? index : null;
   }
 }

@@ -19,9 +19,7 @@ export class SparseMatrixAccessor<T = any> implements DataAccessor<T> {
 
   getValue(row: number, col: number | string): T | undefined {
     if (typeof col === 'string') {
-      throw new TypeError(
-        'SparseMatrixAccessor requires numeric column indices, got string'
-      );
+      throw new TypeError('SparseMatrixAccessor requires numeric column indices, got string');
     }
     return this.matrix.get(row, col);
   }
@@ -34,9 +32,7 @@ export class SparseMatrixAccessor<T = any> implements DataAccessor<T> {
 
   getColumn(col: number | string): Iterable<[number, T]> {
     if (typeof col === 'string') {
-      throw new TypeError(
-        'SparseMatrixAccessor requires numeric column indices, got string'
-      );
+      throw new TypeError('SparseMatrixAccessor requires numeric column indices, got string');
     }
     const colMap = this.matrix.getColumn(col);
     // Convert Map<number, T> to array of [number, T] tuples

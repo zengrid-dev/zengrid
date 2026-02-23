@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {
-  DropdownRenderer,
-  createDropdownRenderer,
-  type DropdownOption,
-} from '../dropdown';
+import { DropdownRenderer, createDropdownRenderer, type DropdownOption } from '../dropdown';
 import type { RenderParams } from '../renderer.interface';
 
 describe('DropdownRenderer', () => {
@@ -39,7 +35,7 @@ describe('DropdownRenderer', () => {
   afterEach(() => {
     // Clean up any open dropdowns
     const dropdowns = document.querySelectorAll('.zg-dropdown-wrapper');
-    dropdowns.forEach(dropdown => {
+    dropdowns.forEach((dropdown) => {
       const menu = dropdown.querySelector('.zg-dropdown-menu') as HTMLElement;
       if (menu) {
         menu.style.display = 'none';
@@ -201,7 +197,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const activeOption = Array.from(options).find(opt =>
+      const activeOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('active')
       );
 
@@ -272,10 +268,10 @@ describe('DropdownRenderer', () => {
       renderer.update(element, params2);
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const pendingOption = Array.from(options).find(opt =>
+      const pendingOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('pending')
       );
-      const activeOption = Array.from(options).find(opt =>
+      const activeOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('active')
       );
 
@@ -479,7 +475,7 @@ describe('DropdownRenderer', () => {
       trigger.click();
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const inactiveOption = Array.from(options).find(opt =>
+      const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       ) as HTMLElement;
 
@@ -552,7 +548,7 @@ describe('DropdownRenderer', () => {
       trigger.click();
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const pendingOption = Array.from(options).find(opt =>
+      const pendingOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('pending')
       ) as HTMLElement;
 
@@ -575,7 +571,7 @@ describe('DropdownRenderer', () => {
       trigger.click();
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const activeOption = Array.from(options).find(opt =>
+      const activeOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('active')
       ) as HTMLElement;
 
@@ -633,15 +629,13 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'pend';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
-        opt => (opt as HTMLElement).style.display !== 'none'
+        (opt) => (opt as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleOptions.length).toBe(1);
@@ -658,15 +652,13 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'PENDING';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
-        opt => (opt as HTMLElement).style.display !== 'none'
+        (opt) => (opt as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleOptions.length).toBe(1);
@@ -683,15 +675,13 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'ACTIVE';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
-        opt => (opt as HTMLElement).style.display !== 'none'
+        (opt) => (opt as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleOptions.length).toBe(0);
@@ -707,9 +697,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'act';
       searchInput.dispatchEvent(new Event('input'));
 
@@ -721,7 +709,7 @@ describe('DropdownRenderer', () => {
       trigger.click(); // Reopen
       const options = element.querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
-        opt => (opt as HTMLElement).style.display !== 'none'
+        (opt) => (opt as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleOptions.length).toBe(3);
@@ -737,15 +725,13 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = '';
       searchInput.dispatchEvent(new Event('input'));
 
       const options = element.querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
-        opt => (opt as HTMLElement).style.display !== 'none'
+        (opt) => (opt as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleOptions.length).toBe(3);
@@ -794,15 +780,13 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector(
-        '.zg-dropdown-search-input'
-      ) as HTMLInputElement;
+      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'red';
       searchInput.dispatchEvent(new Event('input'));
 
       const groupHeaders = element.querySelectorAll('.zg-dropdown-group-header');
       const visibleHeaders = Array.from(groupHeaders).filter(
-        header => (header as HTMLElement).style.display !== 'none'
+        (header) => (header as HTMLElement).style.display !== 'none'
       );
 
       expect(visibleHeaders.length).toBe(1);
@@ -903,7 +887,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const inactiveOption = Array.from(options).find(opt =>
+      const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       );
 
@@ -929,7 +913,7 @@ describe('DropdownRenderer', () => {
       trigger.click();
 
       const options = element.querySelectorAll('.zg-dropdown-option');
-      const inactiveOption = Array.from(options).find(opt =>
+      const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       ) as HTMLElement;
 

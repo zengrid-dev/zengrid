@@ -77,8 +77,6 @@ export class ColumnStoreAccessor implements DataAccessor<any> {
  * accessor.getValue(0, 1); // Get by column index
  * ```
  */
-export function createColumnStoreAccessor(
-  store: IColumnStore
-): DataAccessor<any> {
+export function createColumnStoreAccessor(store: IColumnStore): DataAccessor<any> {
   return new ColumnStoreAccessor(store);
 }

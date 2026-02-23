@@ -117,9 +117,10 @@ export class TimeEditor implements CellEditor<TimeValue | null> {
     this.hoursInput.max = this.options.format === '12h' ? '12' : '23';
     this.hoursInput.placeholder = 'HH';
     if (this.currentValue) {
-      const displayHours = this.options.format === '12h'
-        ? (this.currentValue.hours % 12 || 12)
-        : this.currentValue.hours;
+      const displayHours =
+        this.options.format === '12h'
+          ? this.currentValue.hours % 12 || 12
+          : this.currentValue.hours;
       this.hoursInput.value = String(displayHours).padStart(2, '0');
     }
     timeContainer.appendChild(this.hoursInput);
@@ -216,7 +217,7 @@ export class TimeEditor implements CellEditor<TimeValue | null> {
     };
 
     // Input change handlers
-    [this.hoursInput, this.minutesInput, this.secondsInput].forEach(input => {
+    [this.hoursInput, this.minutesInput, this.secondsInput].forEach((input) => {
       if (input) {
         const handler = () => updateValue();
         input.addEventListener('input', handler);
@@ -248,7 +249,7 @@ export class TimeEditor implements CellEditor<TimeValue | null> {
         }, 100);
       };
 
-      [this.hoursInput, this.minutesInput, this.secondsInput, this.ampmSelect].forEach(el => {
+      [this.hoursInput, this.minutesInput, this.secondsInput, this.ampmSelect].forEach((el) => {
         if (el) {
           el.addEventListener('blur', handleBlur);
           cleanupFns.push(() => el.removeEventListener('blur', handleBlur));
@@ -264,7 +265,7 @@ export class TimeEditor implements CellEditor<TimeValue | null> {
     cleanupFns.push(cleanupKeyboard);
 
     this.cleanup = () => {
-      cleanupFns.forEach(fn => fn());
+      cleanupFns.forEach((fn) => fn());
     };
   }
 
@@ -272,7 +273,10 @@ export class TimeEditor implements CellEditor<TimeValue | null> {
     if (this.isDestroyed || !this.params) return;
 
     const validationResult = this.isValid();
-    if (validationResult === true || (typeof validationResult === 'object' && validationResult.valid)) {
+    if (
+      validationResult === true ||
+      (typeof validationResult === 'object' && validationResult.valid)
+    ) {
       this.params.onComplete?.(this.currentValue, false);
     }
   }

@@ -107,11 +107,7 @@ describe('Timsort', () => {
       const values = ['Charlie', 'Alice', 'Bob'];
       const indices = [0, 1, 2];
 
-      const sorted = timsortIndices(
-        indices,
-        (i) => values[i],
-        stringComparator()
-      );
+      const sorted = timsortIndices(indices, (i) => values[i], stringComparator());
 
       expect(sorted).toEqual([1, 2, 0]); // Alice, Bob, Charlie
       expect(values[sorted[0]]).toBe('Alice');
@@ -132,11 +128,7 @@ describe('Timsort', () => {
       const values = [30, 10, 50, 20, 40];
       const indices = [0, 1, 2, 3, 4];
 
-      const sorted = timsortIndices(
-        indices,
-        (i) => values[i],
-        numericComparator()
-      );
+      const sorted = timsortIndices(indices, (i) => values[i], numericComparator());
 
       expect(sorted).toEqual([1, 3, 0, 4, 2]); // 10, 20, 30, 40, 50
     });
@@ -145,11 +137,7 @@ describe('Timsort', () => {
       const values = [2, 1, 2, 1, 2];
       const indices = [0, 1, 2, 3, 4];
 
-      const sorted = timsortIndices(
-        indices,
-        (i) => values[i],
-        numericComparator()
-      );
+      const sorted = timsortIndices(indices, (i) => values[i], numericComparator());
 
       // Values of 1 should appear at indices 1, 3 (in that order)
       expect(values[sorted[0]]).toBe(1);
@@ -168,11 +156,7 @@ describe('Timsort', () => {
 
       const indices = [1, 2, 5, 8];
 
-      const sorted = timsortIndices(
-        indices,
-        (i) => sparseData.get(i) ?? 0,
-        numericComparator()
-      );
+      const sorted = timsortIndices(indices, (i) => sparseData.get(i) ?? 0, numericComparator());
 
       expect(sorted).toEqual([1, 2, 5, 8]); // 25, 50, 100, 150
       expect(sparseData.get(sorted[0])).toBe(25);
@@ -185,11 +169,7 @@ describe('Timsort', () => {
       const values = Array.from({ length: 1000 }, () => Math.floor(Math.random() * 1000));
       const indices = Array.from({ length: 1000 }, (_, i) => i);
 
-      const sorted = timsortIndices(
-        indices,
-        (i) => values[i],
-        numericComparator()
-      );
+      const sorted = timsortIndices(indices, (i) => values[i], numericComparator());
 
       // Verify sorted order
       for (let i = 1; i < sorted.length; i++) {

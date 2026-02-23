@@ -68,11 +68,7 @@ export class FilterOptimizer {
 
     // Try cache first
     if (this.filterCache) {
-      const cached = this.filterCache.get(
-        filterStateHash,
-        rowCount,
-        this.dataVersion
-      );
+      const cached = this.filterCache.get(filterStateHash, rowCount, this.dataVersion);
       if (cached) {
         return [...cached.visibleRows];
       }
@@ -83,12 +79,7 @@ export class FilterOptimizer {
     if (optimizedResult) {
       // Cache the result
       if (this.filterCache) {
-        this.filterCache.set(
-          filterStateHash,
-          rowCount,
-          this.dataVersion,
-          optimizedResult
-        );
+        this.filterCache.set(filterStateHash, rowCount, this.dataVersion, optimizedResult);
       }
       return optimizedResult;
     }
@@ -98,12 +89,7 @@ export class FilterOptimizer {
 
     // Cache the result
     if (this.filterCache) {
-      this.filterCache.set(
-        filterStateHash,
-        rowCount,
-        this.dataVersion,
-        visible
-      );
+      this.filterCache.set(filterStateHash, rowCount, this.dataVersion, visible);
     }
 
     return visible;

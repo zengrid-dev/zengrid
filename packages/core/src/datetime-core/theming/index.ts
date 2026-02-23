@@ -2,11 +2,7 @@
  * Theming for datetime components
  */
 
-export {
-  ThemeManager,
-  setDatetimeTheme,
-  setDatetimeThemeConfig,
-} from './theme-manager';
+export { ThemeManager, setDatetimeTheme, setDatetimeThemeConfig } from './theme-manager';
 export type { DatetimeTheme, ThemeConfig } from './theme-manager';
 
 // CSS import helper

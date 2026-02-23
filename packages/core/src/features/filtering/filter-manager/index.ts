@@ -76,11 +76,8 @@ export class FilterManager {
 
   constructor(options: FilterManagerOptions) {
     // Initialize core filter management
-    this.core = new FilterCore(
-      options.colCount,
-      options.getValue,
-      options.events,
-      () => this.optimizer?.invalidateCache()
+    this.core = new FilterCore(options.colCount, options.getValue, options.events, () =>
+      this.optimizer?.invalidateCache()
     );
 
     // Initialize query handler
@@ -126,11 +123,7 @@ export class FilterManager {
   /**
    * Set filter for a column
    */
-  setColumnFilter(
-    column: number,
-    conditions: any[],
-    logic: 'AND' | 'OR' = 'AND'
-  ): void {
+  setColumnFilter(column: number, conditions: any[], logic: 'AND' | 'OR' = 'AND'): void {
     this.core.setColumnFilter(column, conditions, logic);
   }
 

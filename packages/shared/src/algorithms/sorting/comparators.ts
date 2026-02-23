@@ -56,9 +56,7 @@ function compareWithNulls<T>(
  * // [1, 2, 3, null, undefined]
  * ```
  */
-export function numericComparator(
-  nullPosition: NullPosition = 'last'
-): Comparator<any> {
+export function numericComparator(nullPosition: NullPosition = 'last'): Comparator<any> {
   return (a: any, b: any) => {
     return compareWithNulls(a, b, nullPosition, (x, y) => {
       const numX = Number(x);
@@ -86,9 +84,7 @@ export function numericComparator(
  * // ['alice', 'Bob', 'Charlie']
  * ```
  */
-export function stringComparator(
-  options: StringComparatorOptions = {}
-): Comparator<any> {
+export function stringComparator(options: StringComparatorOptions = {}): Comparator<any> {
   const {
     caseInsensitive = false,
     localeCompare = false,
@@ -128,9 +124,7 @@ export function stringComparator(
  * // [2023-01-01, 2023-01-15, null]
  * ```
  */
-export function dateComparator(
-  nullPosition: NullPosition = 'last'
-): Comparator<any> {
+export function dateComparator(nullPosition: NullPosition = 'last'): Comparator<any> {
   return (a: any, b: any) => {
     return compareWithNulls(a, b, nullPosition, (x, y) => {
       const dateA = x instanceof Date ? x : new Date(x);
@@ -161,9 +155,7 @@ export function dateComparator(
  * // [false, true, true, null]
  * ```
  */
-export function booleanComparator(
-  nullPosition: NullPosition = 'last'
-): Comparator<any> {
+export function booleanComparator(nullPosition: NullPosition = 'last'): Comparator<any> {
   return (a: any, b: any) => {
     return compareWithNulls(a, b, nullPosition, (x, y) => {
       const boolA = Boolean(x);
@@ -194,9 +186,7 @@ export function autoComparator(
   const { nullPosition = 'last' } = options;
 
   // Find first non-null value to determine type
-  const sample = sampleValues.find(
-    (v) => v !== null && v !== undefined && !Number.isNaN(v)
-  );
+  const sample = sampleValues.find((v) => v !== null && v !== undefined && !Number.isNaN(v));
 
   if (sample === undefined) {
     // All nulls, use numeric comparator
@@ -232,9 +222,7 @@ export function autoComparator(
  * // [3, 2, 1]
  * ```
  */
-export function reverseComparator<T>(
-  comparator: Comparator<T>
-): Comparator<T> {
+export function reverseComparator<T>(comparator: Comparator<T>): Comparator<T> {
   return (a: T, b: T) => comparator(b, a);
 }
 
@@ -260,9 +248,7 @@ export function reverseComparator<T>(
  * // Alice (25), Bob (30), Charlie (30)
  * ```
  */
-export function chainComparators<T>(
-  ...comparators: Comparator<T>[]
-): Comparator<T> {
+export function chainComparators<T>(...comparators: Comparator<T>[]): Comparator<T> {
   return (a: T, b: T) => {
     for (const comparator of comparators) {
       const result = comparator(a, b);

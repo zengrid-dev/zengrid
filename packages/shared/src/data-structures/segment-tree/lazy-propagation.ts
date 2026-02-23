@@ -15,13 +15,7 @@ export function pushDown<T>(
     return;
   }
 
-  tree[node] = applyUpdate(
-    tree[node],
-    lazy[node],
-    end - start + 1,
-    aggregate,
-    type
-  );
+  tree[node] = applyUpdate(tree[node], lazy[node], end - start + 1, aggregate, type);
 
   if (start !== end) {
     const leftChild = SegmentTreeUtils.leftChild(node);

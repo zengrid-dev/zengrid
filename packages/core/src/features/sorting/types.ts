@@ -152,5 +152,5 @@ export const Comparators = {
 
     // Default to string comparison
     return Comparators.string(a, b);
-  }
+  },
 };

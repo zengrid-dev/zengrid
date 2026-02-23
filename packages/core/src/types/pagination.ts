@@ -36,11 +36,11 @@ export interface PaginationState {
  * Pagination template type - 5 built-in styles
  */
 export type PaginationTemplate =
-  | 'simple'      // Minimal: < 1 2 3 >
-  | 'material'    // Material Design style
-  | 'bootstrap'   // Bootstrap style with ellipsis
-  | 'compact'     // Compact with page input
-  | 'full';       // Full featured with all controls
+  | 'simple' // Minimal: < 1 2 3 >
+  | 'material' // Material Design style
+  | 'bootstrap' // Bootstrap style with ellipsis
+  | 'compact' // Compact with page input
+  | 'full'; // Full featured with all controls
 
 /**
  * Pagination configuration

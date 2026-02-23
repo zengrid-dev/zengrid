@@ -287,7 +287,7 @@ export class DateEditor implements CellEditor<Date | null> {
     cleanupFns.push(cleanupKeyboard);
 
     this.cleanup = () => {
-      cleanupFns.forEach(fn => fn());
+      cleanupFns.forEach((fn) => fn());
     };
   }
 
@@ -375,7 +375,10 @@ export class DateEditor implements CellEditor<Date | null> {
     if (this.isDestroyed || !this.params) return;
 
     const validationResult = this.isValid();
-    if (validationResult === true || (typeof validationResult === 'object' && validationResult.valid)) {
+    if (
+      validationResult === true ||
+      (typeof validationResult === 'object' && validationResult.valid)
+    ) {
       this.params.onComplete?.(this.currentValue, false);
     }
   }

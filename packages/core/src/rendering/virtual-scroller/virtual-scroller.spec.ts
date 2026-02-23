@@ -432,9 +432,7 @@ describe('VirtualScroller', () => {
         viewportHeight: 600,
       });
 
-      expect(() => scroller.updateRowHeight(10, 40)).toThrow(
-        'does not support setHeight'
-      );
+      expect(() => scroller.updateRowHeight(10, 40)).toThrow('does not support setHeight');
     });
 
     it('should update column width for variable provider', () => {
@@ -464,9 +462,7 @@ describe('VirtualScroller', () => {
         viewportHeight: 600,
       });
 
-      expect(() => scroller.updateColWidth(10, 150)).toThrow(
-        'does not support setWidth'
-      );
+      expect(() => scroller.updateColWidth(10, 150)).toThrow('does not support setWidth');
     });
   });
 
@@ -520,12 +516,8 @@ describe('VirtualScroller', () => {
         viewportHeight: 600,
       });
 
-      expect(() => scroller.setViewport(0, 600)).toThrow(
-        'Viewport dimensions must be positive'
-      );
-      expect(() => scroller.setViewport(800, -1)).toThrow(
-        'Viewport dimensions must be positive'
-      );
+      expect(() => scroller.setViewport(0, 600)).toThrow('Viewport dimensions must be positive');
+      expect(() => scroller.setViewport(800, -1)).toThrow('Viewport dimensions must be positive');
     });
   });
 

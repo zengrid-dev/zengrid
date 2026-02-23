@@ -46,11 +46,7 @@ export class FilterCore {
    * @param conditions - Filter conditions
    * @param logic - Logic operator ('AND' or 'OR')
    */
-  setColumnFilter(
-    column: number,
-    conditions: any[],
-    logic: 'AND' | 'OR' = 'AND'
-  ): void {
+  setColumnFilter(column: number, conditions: any[], logic: 'AND' | 'OR' = 'AND'): void {
     if (column < 0 || column >= this.colCount) {
       throw new RangeError(`Column ${column} out of bounds`);
     }
@@ -194,7 +190,7 @@ export class FilterCore {
    * Update filter state array and hash
    */
   private updateFilterState(): void {
-    this.filterState = Array.from(this.columnFilters.values()).map(f => f.getModel());
+    this.filterState = Array.from(this.columnFilters.values()).map((f) => f.getModel());
 
     // Update hash for cache key
     this.filterStateHash = JSON.stringify(this.filterState);

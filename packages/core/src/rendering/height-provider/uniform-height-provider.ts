@@ -37,18 +37,14 @@ export class UniformHeightProvider implements HeightProvider {
 
   getHeight(index: number): number {
     if (index < 0 || index >= this.rowCount) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.rowCount - 1}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.rowCount - 1}]`);
     }
     return this.rowHeight;
   }
 
   getOffset(index: number): number {
     if (index < 0 || index > this.rowCount) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.rowCount}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.rowCount}]`);
     }
     return index * this.rowHeight;
   }

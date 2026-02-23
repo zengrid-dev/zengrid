@@ -1,7 +1,4 @@
-import type {
-  ColumnConstraints,
-  ResizeValidationResult,
-} from './column-resize-manager.interface';
+import type { ColumnConstraints, ResizeValidationResult } from './column-resize-manager.interface';
 
 /**
  * Configuration for constraint manager

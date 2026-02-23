@@ -146,11 +146,7 @@ export function parseDateTime(str: string): Date | null {
 /**
  * Validate that a date is within a range
  */
-export function isDateInRange(
-  date: Date,
-  minDate?: Date | null,
-  maxDate?: Date | null
-): boolean {
+export function isDateInRange(date: Date, minDate?: Date | null, maxDate?: Date | null): boolean {
   if (minDate && date < minDate) {
     return false;
   }

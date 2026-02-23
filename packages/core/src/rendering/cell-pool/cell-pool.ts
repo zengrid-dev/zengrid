@@ -1,8 +1,4 @@
-import type {
-  CellPool as ICellPool,
-  CellPoolOptions,
-  CellPoolStats,
-} from './cell-pool.interface';
+import type { CellPool as ICellPool, CellPoolOptions, CellPoolStats } from './cell-pool.interface';
 
 /**
  * CellPool - DOM element pooling for performance

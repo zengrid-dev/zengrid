@@ -243,7 +243,7 @@ export class ColumnGroupRenderer {
 
     // Count all columns in descendants
     let totalColumns = columnCount;
-    descendants.forEach(desc => {
+    descendants.forEach((desc) => {
       totalColumns += desc.columnFields.length;
     });
 
@@ -264,9 +264,10 @@ export class ColumnGroupRenderer {
     }
 
     const expanded = params.model.isExpanded(params.group.groupId);
-    classes.push(expanded ?
-      `${this.options.classPrefix}-column-group-expanded` :
-      `${this.options.classPrefix}-column-group-collapsed`
+    classes.push(
+      expanded
+        ? `${this.options.classPrefix}-column-group-expanded`
+        : `${this.options.classPrefix}-column-group-collapsed`
     );
 
     if (params.group.children.length === 0) {
@@ -390,13 +391,14 @@ export class ColumnGroupRenderer {
     element.style.padding = '8px 12px';
     element.style.backgroundColor = '#f5f5f5';
     element.style.borderBottom = '1px solid #ddd';
-    element.style.cursor = this.options.collapsible && params.group.children.length > 0 ? 'pointer' : 'default';
+    element.style.cursor =
+      this.options.collapsible && params.group.children.length > 0 ? 'pointer' : 'default';
     element.style.userSelect = 'none';
 
     // Add level-based indentation
     const level = params.group.level ?? 0;
     if (level > 0) {
-      element.style.paddingLeft = `${12 + (level * 16)}px`;
+      element.style.paddingLeft = `${12 + level * 16}px`;
     }
 
     // Add hover effect if collapsible
@@ -434,13 +436,13 @@ export class ColumnGroupRenderer {
       // Render children if expanded
       if (model.isExpanded(group.groupId)) {
         const children = model.getChildGroups(group.groupId);
-        children.forEach(child => renderGroupRecursive(child));
+        children.forEach((child) => renderGroupRecursive(child));
       }
     };
 
     // Clear container and render all groups
     container.innerHTML = '';
-    groups.forEach(group => renderGroupRecursive(group));
+    groups.forEach((group) => renderGroupRecursive(group));
   }
 
   /**

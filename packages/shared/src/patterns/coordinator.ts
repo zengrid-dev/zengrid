@@ -63,9 +63,7 @@ export abstract class BaseCoordinator implements ICoordinator {
    */
   initialize(): void {
     if (this._initialized) {
-      console.warn(
-        `${this.constructor.name}: Already initialized, skipping`
-      );
+      console.warn(`${this.constructor.name}: Already initialized, skipping`);
       return;
     }
 
@@ -73,10 +71,7 @@ export abstract class BaseCoordinator implements ICoordinator {
       this.onInitialize();
       this._initialized = true;
     } catch (error) {
-      console.error(
-        `${this.constructor.name}: Initialization failed:`,
-        error
-      );
+      console.error(`${this.constructor.name}: Initialization failed:`, error);
       throw error;
     }
   }
@@ -96,10 +91,7 @@ export abstract class BaseCoordinator implements ICoordinator {
       this.onCleanup();
       this._initialized = false;
     } catch (error) {
-      console.error(
-        `${this.constructor.name}: Cleanup failed:`,
-        error
-      );
+      console.error(`${this.constructor.name}: Cleanup failed:`, error);
       throw error;
     }
   }
@@ -132,9 +124,7 @@ export abstract class BaseCoordinator implements ICoordinator {
    */
   protected assertInitialized(): void {
     if (!this._initialized) {
-      throw new Error(
-        `${this.constructor.name}: Not initialized. Call initialize() first.`
-      );
+      throw new Error(`${this.constructor.name}: Not initialized. Call initialize() first.`);
     }
   }
 }

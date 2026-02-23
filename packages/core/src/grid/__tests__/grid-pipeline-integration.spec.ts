@@ -1,0 +1,111 @@
+import { Grid } from '../grid-core';
+import { resetTracking } from '../../reactive/tracking';
+import { resetDebug } from '../../reactive/debug';
+import { resetScheduler } from '../../reactive/effect-scheduler';
+
+let container: HTMLElement;
+let grid: Grid;
+
+const DATA = [
+  [30, 'Charlie'],
+  [10, 'Alice'],
+  [20, 'Bob'],
+  [40, 'Diana'],
+  [5, 'Eve'],
+];
+
+beforeEach(() => {
+  resetTracking();
+  resetDebug();
+  resetScheduler();
+  container = document.createElement('div');
+  Object.defineProperty(container, 'clientWidth', { value: 400, configurable: true });
+  Object.defineProperty(container, 'clientHeight', { value: 300, configurable: true });
+  document.body.appendChild(container);
+  grid = new Grid(container, { rowCount: 5, colCount: 2, rowHeight: 30, colWidth: 100 });
+  grid.setData(DATA);
+});
+
+afterEach(() => {
+  grid.destroy();
+  if (container.parentNode) container.parentNode.removeChild(container);
+});
+
+describe('Pipeline Integration: core only', () => {
+  it('rows.viewIndices = [0..N-1] with no sort/filter', () => {
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    expect(viewIndices).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('rows.viewCount = N with no sort/filter', () => {
+    const store = grid.getStore();
+    expect(store.get('rows.viewCount')).toBe(5);
+  });
+});
+
+describe('Pipeline Integration: after sort', () => {
+  it('rows.viewIndices = sorted order', () => {
+    grid.sort(0, 'asc');
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    // Ascending by col 0: 5(4), 10(1), 20(2), 30(0), 40(3)
+    expect(viewIndices).toEqual([4, 1, 2, 0, 3]);
+  });
+});
+
+describe('Pipeline Integration: sort + filter', () => {
+  it('rows.viewIndices = sorted+filtered', () => {
+    grid.sort(0, 'asc');
+    // Filter: col 0 > 15 → keeps idx 0(30), 2(20), 3(40)
+    grid.setColumnFilter(0, [{ operator: 'greaterThan', value: 15 }]);
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    // Sorted ascending among {0,2,3}: 20(2), 30(0), 40(3)
+    expect(viewIndices).toEqual([2, 0, 3]);
+  });
+
+  it('clear filter → falls back to sorted', () => {
+    grid.sort(0, 'asc');
+    grid.setColumnFilter(0, [{ operator: 'greaterThan', value: 15 }]);
+    grid.clearFilters();
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    // Back to full sorted: 5(4), 10(1), 20(2), 30(0), 40(3)
+    expect(viewIndices).toEqual([4, 1, 2, 0, 3]);
+  });
+
+  it('clear sort → falls back to raw indices', () => {
+    grid.sort(0, 'asc');
+    grid.clearSort();
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    expect(viewIndices).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it('rows.viewCount tracks filtered count', () => {
+    grid.setColumnFilter(0, [{ operator: 'greaterThan', value: 15 }]);
+    const store = grid.getStore();
+    expect(store.get('rows.viewCount')).toBe(3);
+  });
+});
+
+describe('Pipeline Integration: setData propagation', () => {
+  it('setData with new data propagates through pipeline', () => {
+    grid.sort(0, 'asc');
+    // Replace data
+    const newData = [
+      [100, 'Z'],
+      [50, 'Y'],
+    ];
+    grid.setData(newData);
+    // Re-sort after data change (store has new data, need to re-trigger sort)
+    grid.sort(0, 'asc');
+    const store = grid.getStore();
+    expect(store.get('rows.raw')).toEqual(newData);
+    expect(store.get('rows.count')).toBe(2);
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    // Ascending: 50(1), 100(0)
+    expect(viewIndices).toEqual([1, 0]);
+  });
+});

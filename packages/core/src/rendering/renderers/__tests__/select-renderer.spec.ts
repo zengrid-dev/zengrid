@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 
-import {
-  SelectRenderer,
-  createSelectRenderer,
-  type SelectOption,
-} from '../select';
+import { SelectRenderer, createSelectRenderer, type SelectOption } from '../select';
 import type { RenderParams } from '../renderer.interface';
 
 describe('SelectRenderer', () => {
@@ -520,7 +516,7 @@ describe('SelectRenderer', () => {
 
       const select = element.querySelector('select') as HTMLSelectElement;
       const options = Array.from(select.querySelectorAll('option'));
-      options.forEach(opt => (opt.selected = false));
+      options.forEach((opt) => (opt.selected = false));
       select.dispatchEvent(new Event('change'));
 
       expect(onChange).toHaveBeenCalledWith([], params2);
@@ -559,7 +555,7 @@ describe('SelectRenderer', () => {
 
       const select = element.querySelector('select');
       const directOptions = Array.from(select?.children || []).filter(
-        child => child.tagName === 'OPTION'
+        (child) => child.tagName === 'OPTION'
       );
 
       expect(directOptions.length).toBe(1);

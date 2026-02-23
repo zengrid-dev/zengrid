@@ -90,7 +90,11 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     this.inputElement.placeholder = this.options.placeholder;
     this.inputElement.readOnly = true;
     if (this.currentValue) {
-      this.inputElement.value = formatDateTime(this.currentValue, this.options.dateFormat, this.options.timeFormat);
+      this.inputElement.value = formatDateTime(
+        this.currentValue,
+        this.options.dateFormat,
+        this.options.timeFormat
+      );
     }
     wrapper.appendChild(this.inputElement);
 
@@ -137,7 +141,8 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     // Time section
     const timeSection = document.createElement('div');
     timeSection.className = 'zg-datetime-time-section';
-    timeSection.style.cssText = 'padding: 12px; border-top: 1px solid var(--zg-datetime-border-color);';
+    timeSection.style.cssText =
+      'padding: 12px; border-top: 1px solid var(--zg-datetime-border-color);';
 
     const timeLabel = document.createElement('div');
     timeLabel.textContent = 'Time';
@@ -156,9 +161,10 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     hoursInput.max = this.options.timeFormat === '12h' ? '12' : '23';
     hoursInput.placeholder = 'HH';
     if (this.currentValue) {
-      const hours = this.options.timeFormat === '12h'
-        ? (this.currentValue.getHours() % 12 || 12)
-        : this.currentValue.getHours();
+      const hours =
+        this.options.timeFormat === '12h'
+          ? this.currentValue.getHours() % 12 || 12
+          : this.currentValue.getHours();
       hoursInput.value = String(hours).padStart(2, '0');
     }
     timeContainer.appendChild(hoursInput);
@@ -200,7 +206,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
       const ampmSelect = document.createElement('select');
       ampmSelect.className = 'zg-datetime-time-ampm';
       ampmSelect.dataset.type = 'ampm';
-      ['AM', 'PM'].forEach(v => {
+      ['AM', 'PM'].forEach((v) => {
         const opt = document.createElement('option');
         opt.value = v;
         opt.textContent = v;
@@ -217,7 +223,8 @@ export class DateTimeEditor implements CellEditor<Date | null> {
 
     // Buttons
     const buttonSection = document.createElement('div');
-    buttonSection.style.cssText = 'display: flex; justify-content: flex-end; gap: 8px; padding: 12px; border-top: 1px solid var(--zg-datetime-border-color);';
+    buttonSection.style.cssText =
+      'display: flex; justify-content: flex-end; gap: 8px; padding: 12px; border-top: 1px solid var(--zg-datetime-border-color);';
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
@@ -229,7 +236,8 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     applyBtn.type = 'button';
     applyBtn.className = 'zg-datetime-btn zg-datetime-btn-primary';
     applyBtn.textContent = 'Apply';
-    applyBtn.style.cssText = 'background: var(--zg-datetime-primary-color); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;';
+    applyBtn.style.cssText =
+      'background: var(--zg-datetime-primary-color); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;';
     applyBtn.onclick = () => this.commit();
 
     buttonSection.appendChild(cancelBtn);
@@ -336,8 +344,10 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     // Time input changes
     if (this.popup) {
       const handleTimeChange = () => this.updateValueFromTimeInputs();
-      const timeInputs = this.popup.querySelectorAll('.zg-datetime-time-input, .zg-datetime-time-ampm');
-      timeInputs.forEach(input => {
+      const timeInputs = this.popup.querySelectorAll(
+        '.zg-datetime-time-input, .zg-datetime-time-ampm'
+      );
+      timeInputs.forEach((input) => {
         input.addEventListener('change', handleTimeChange);
         input.addEventListener('input', handleTimeChange);
         cleanupFns.push(() => {
@@ -354,7 +364,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     });
     cleanupFns.push(cleanupKeyboard);
 
-    this.cleanup = () => cleanupFns.forEach(fn => fn());
+    this.cleanup = () => cleanupFns.forEach((fn) => fn());
   }
 
   private updateValueFromTimeInputs(): void {
@@ -414,7 +424,10 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     if (this.isDestroyed || !this.params) return;
 
     const validationResult = this.isValid();
-    if (validationResult === true || (typeof validationResult === 'object' && validationResult.valid)) {
+    if (
+      validationResult === true ||
+      (typeof validationResult === 'object' && validationResult.valid)
+    ) {
       this.hidePopup();
       this.params.onComplete?.(this.currentValue, false);
     }
@@ -494,7 +507,9 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     }
 
     if (this.calendar?.destroy) {
-      try { this.calendar.destroy(); } catch (e) {}
+      try {
+        this.calendar.destroy();
+      } catch (e) {}
       this.calendar = null;
     }
 

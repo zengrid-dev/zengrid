@@ -179,8 +179,16 @@ export class EventHandlers {
    * Handle mouse up to end resize
    */
   private async handleMouseUp(e: MouseEvent): Promise<void> {
-    const { dataSource, strategy, constraintManager, stateManager, previewRenderer, events, onWidthChange, onUpdateHandles } =
-      this.config;
+    const {
+      dataSource,
+      strategy,
+      constraintManager,
+      stateManager,
+      previewRenderer,
+      events,
+      onWidthChange,
+      onUpdateHandles,
+    } = this.config;
 
     if (!stateManager.isActive()) return;
 
@@ -322,8 +330,14 @@ export class EventHandlers {
   private handleTouchMove(e: TouchEvent): void {
     if (e.touches.length !== 1) return;
 
-    const { dataSource, strategy, constraintManager, stateManager, previewRenderer, getScrollLeft } =
-      this.config;
+    const {
+      dataSource,
+      strategy,
+      constraintManager,
+      stateManager,
+      previewRenderer,
+      getScrollLeft,
+    } = this.config;
 
     if (!stateManager.isActive()) return;
 

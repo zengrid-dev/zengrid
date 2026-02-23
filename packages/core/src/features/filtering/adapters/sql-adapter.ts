@@ -7,7 +7,12 @@
 
 import type { FilterAdapter, AdapterConfig } from './adapter.interface';
 import type { SQLFilterExport } from './types';
-import type { FieldFilterState, FieldFilterGroup, FieldFilterCondition, StandardFilterOperator } from '../types';
+import type {
+  FieldFilterState,
+  FieldFilterGroup,
+  FieldFilterCondition,
+  StandardFilterOperator,
+} from '../types';
 
 /**
  * SQL parameter styles
@@ -192,7 +197,9 @@ export class SQLFilterAdapter implements FilterAdapter<SQLFilterExport> {
     // Handle between operator
     if (operator === 'between') {
       if (condition.valueTo === undefined) {
-        console.warn(`SQL Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`);
+        console.warn(
+          `SQL Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`
+        );
         return '';
       }
       const param1 = this.addParam(condition.value);
@@ -209,7 +216,7 @@ export class SQLFilterAdapter implements FilterAdapter<SQLFilterExport> {
         return operator === 'in' ? '1=0' : '1=1';
       }
 
-      const params = values.map(v => this.addParam(v));
+      const params = values.map((v) => this.addParam(v));
       const operatorSQL = operator === 'in' ? 'IN' : 'NOT IN';
       return `${field} ${operatorSQL} (${params.join(', ')})`;
     }
@@ -221,8 +228,10 @@ export class SQLFilterAdapter implements FilterAdapter<SQLFilterExport> {
     // Handle case-insensitive string operations
     if (
       this.options.caseInsensitive &&
-      (operator === 'contains' || operator === 'notContains' ||
-       operator === 'startsWith' || operator === 'endsWith')
+      (operator === 'contains' ||
+        operator === 'notContains' ||
+        operator === 'startsWith' ||
+        operator === 'endsWith')
     ) {
       return `LOWER(${field}) ${sqlOperator} LOWER(${param})`;
     }

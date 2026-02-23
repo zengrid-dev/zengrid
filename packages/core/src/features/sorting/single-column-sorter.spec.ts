@@ -250,11 +250,7 @@ describe('SingleColumnSorter', () => {
 
   describe('Date sorting', () => {
     it('should sort dates in ascending order', () => {
-      const data = [
-        [new Date('2023-01-15')],
-        [new Date('2023-01-10')],
-        [new Date('2023-01-20')],
-      ];
+      const data = [[new Date('2023-01-15')], [new Date('2023-01-10')], [new Date('2023-01-20')]];
       const accessor = new MockDataAccessor(data);
 
       const indexMap = sorter.sort(accessor, 0, { direction: 'asc' });
@@ -265,11 +261,7 @@ describe('SingleColumnSorter', () => {
     });
 
     it('should sort dates in descending order', () => {
-      const data = [
-        [new Date('2023-01-15')],
-        [new Date('2023-01-10')],
-        [new Date('2023-01-20')],
-      ];
+      const data = [[new Date('2023-01-15')], [new Date('2023-01-10')], [new Date('2023-01-20')]];
       const accessor = new MockDataAccessor(data);
 
       const indexMap = sorter.sort(accessor, 0, { direction: 'desc' });
@@ -434,14 +426,7 @@ describe('SingleColumnSorter', () => {
     });
 
     it('should handle special characters in strings', () => {
-      const data = [
-        ['hello'],
-        ['héllo'],
-        ['hello!'],
-        ['@hello'],
-        ['#hello'],
-        ['hello123'],
-      ];
+      const data = [['hello'], ['héllo'], ['hello!'], ['@hello'], ['#hello'], ['hello123']];
       const accessor = new MockDataAccessor(data);
 
       const indexMap = sorter.sort(accessor, 0, { direction: 'asc' });

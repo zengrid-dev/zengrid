@@ -117,7 +117,9 @@ export class ScrollHandler {
       } else if (target === window) {
         window.removeEventListener('scroll', handler, { passive: true } as EventListenerOptions);
       } else if (target instanceof EventTarget) {
-        (target as Element).removeEventListener('scroll', handler, { passive: true } as EventListenerOptions);
+        (target as Element).removeEventListener('scroll', handler, {
+          passive: true,
+        } as EventListenerOptions);
       }
     }
 
@@ -147,7 +149,11 @@ export class ScrollHandler {
         overflowX === 'scroll';
 
       // Include if scrollable or if it has scroll dimensions
-      if (isScrollable || parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth) {
+      if (
+        isScrollable ||
+        parent.scrollHeight > parent.clientHeight ||
+        parent.scrollWidth > parent.clientWidth
+      ) {
         ancestors.push(parent);
       }
 
@@ -177,7 +183,11 @@ export class ScrollHandler {
     let parent = anchor.parentElement;
     while (parent && parent !== document.body) {
       const style = window.getComputedStyle(parent);
-      if (style.overflow !== 'visible' || style.overflowY !== 'visible' || style.overflowX !== 'visible') {
+      if (
+        style.overflow !== 'visible' ||
+        style.overflowY !== 'visible' ||
+        style.overflowX !== 'visible'
+      ) {
         const parentRect = parent.getBoundingClientRect();
         if (
           rect.bottom < parentRect.top ||

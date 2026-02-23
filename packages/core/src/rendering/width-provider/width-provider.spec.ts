@@ -9,21 +9,15 @@ describe('UniformWidthProvider', () => {
     });
 
     it('should throw on negative width', () => {
-      expect(() => new UniformWidthProvider(-1, 50)).toThrow(
-        'Width must be positive'
-      );
+      expect(() => new UniformWidthProvider(-1, 50)).toThrow('Width must be positive');
     });
 
     it('should throw on zero width', () => {
-      expect(() => new UniformWidthProvider(0, 50)).toThrow(
-        'Width must be positive'
-      );
+      expect(() => new UniformWidthProvider(0, 50)).toThrow('Width must be positive');
     });
 
     it('should throw on negative column count', () => {
-      expect(() => new UniformWidthProvider(100, -1)).toThrow(
-        'Column count must be non-negative'
-      );
+      expect(() => new UniformWidthProvider(100, -1)).toThrow('Column count must be non-negative');
     });
 
     it('should allow zero columns', () => {

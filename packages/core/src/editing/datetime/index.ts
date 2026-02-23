@@ -14,7 +14,10 @@ export type { TimeEditorOptions, TimeValue, TimeFormat } from './time-editor';
 
 // DateTime Editor
 export { DateTimeEditor, createDateTimeEditor } from './datetime-editor';
-export type { DateTimeEditorOptions, TimeFormat as DateTimeEditorTimeFormat } from './datetime-editor';
+export type {
+  DateTimeEditorOptions,
+  TimeFormat as DateTimeEditorTimeFormat,
+} from './datetime-editor';
 
 // Date Range Editor
 export { DateRangeEditor, createDateRangeEditor } from './date-range-editor';

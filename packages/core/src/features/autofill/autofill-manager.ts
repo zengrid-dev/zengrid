@@ -131,11 +131,7 @@ export class AutofillManager {
    * @param pattern - Custom pattern to apply
    * @returns Filled array
    */
-  fillWithPattern(
-    sourceValues: any[],
-    targetLength: number,
-    _pattern: SequencePattern
-  ): any[] {
+  fillWithPattern(sourceValues: any[], targetLength: number, _pattern: SequencePattern): any[] {
     if (sourceValues.length === 0) return [];
     if (targetLength <= sourceValues.length) {
       return sourceValues.slice(0, targetLength);

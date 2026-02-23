@@ -101,9 +101,9 @@ describe('PipelineRegistry', () => {
 
   it('throws on duplicate phase number', () => {
     pipeline.registerPhase('sort', 10, 'pipeline.sort');
-    expect(() =>
-      pipeline.registerPhase('other', 10, 'pipeline.other'),
-    ).toThrow(/phase 10 already registered/);
+    expect(() => pipeline.registerPhase('other', 10, 'pipeline.other')).toThrow(
+      /phase 10 already registered/
+    );
   });
 
   it('getPhases returns sorted list', () => {

@@ -109,7 +109,6 @@ export class CellPositioner implements ICellPositioner {
     this.renderCellsInRange(range);
   }
 
-
   /**
    * Render cells in a specific range with two-phase auto-height measurement
    *
@@ -254,13 +253,6 @@ export class CellPositioner implements ICellPositioner {
     if (cacheKey && this.cache) {
       const cached = this.cache.get(cacheKey);
       if (cached) {
-        console.log(`[CellPositioner] CACHE HIT row=${row}, col=${col}`, {
-          rendererName,
-          cachedClasses: cached.classes,
-          elementClassesBefore: element.className,
-          cachedHtml: cached.html.substring(0, 100)
-        });
-
         // Use cached content
         element.innerHTML = cached.html;
 
@@ -279,10 +271,6 @@ export class CellPositioner implements ICellPositioner {
         // Apply overflow mode class (from column config) - even for cached content
         this.applyOverflowClass(element, column);
 
-        console.log(`[CellPositioner] CACHE HIT AFTER row=${row}, col=${col}`, {
-          elementClassesAfter: element.className
-        });
-
         // CRITICAL: Measure row height even for cached content
         // Cached content still needs height measurement for auto-height columns
         this.measureRowIfNeeded(row, col, element);
@@ -293,12 +281,6 @@ export class CellPositioner implements ICellPositioner {
 
     // Render or update (cache miss or no cache)
     const lastRenderer = this.renderedCells.get(key);
-    console.log(`[CellPositioner] CACHE MISS row=${row}, col=${col}`, {
-      rendererName,
-      lastRenderer,
-      willRender: lastRenderer !== rendererName || !lastRenderer,
-      elementClassesBefore: element.className
-    });
 
     // Capture classes before render for delta calculation
     const classesBefore = new Set(Array.from(element.classList));
@@ -323,10 +305,6 @@ export class CellPositioner implements ICellPositioner {
         element.classList.add(rendererClass);
       }
     }
-
-    console.log(`[CellPositioner] AFTER RENDER row=${row}, col=${col}`, {
-      elementClassesAfter: element.className
-    });
 
     // Cache the rendered content with all classes added by renderer
     if (cacheKey && this.cache) {

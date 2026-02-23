@@ -24,7 +24,7 @@ import {
   SortChangedEvent,
   SortDirection,
   ComparatorFn,
-  MultiColumnSorterOptions
+  MultiColumnSorterOptions,
 } from './types';
 
 /**
@@ -76,7 +76,7 @@ export class SortStateManager {
    */
   getSortModel(): SortModel {
     return {
-      columns: [...this.currentSortModel.columns]
+      columns: [...this.currentSortModel.columns],
     };
   }
 
@@ -125,7 +125,7 @@ export class SortStateManager {
   setSortModel(sortModel: SortModel): void {
     const previousModel = this.currentSortModel;
     this.currentSortModel = {
-      columns: [...sortModel.columns]
+      columns: [...sortModel.columns],
     };
 
     this.updateSortedIndices();
@@ -152,7 +152,7 @@ export class SortStateManager {
    */
   removeSortColumn(field: string): void {
     const previousModel = this.currentSortModel;
-    const removedColumn = this.currentSortModel.columns.find(col => col.field === field);
+    const removedColumn = this.currentSortModel.columns.find((col) => col.field === field);
 
     this.currentSortModel = this.sorter.removeSortColumn(this.currentSortModel, field);
 
@@ -170,15 +170,11 @@ export class SortStateManager {
    */
   toggleSortColumn(field: string, comparator?: ComparatorFn): void {
     const previousModel = this.currentSortModel;
-    const previousColumn = this.currentSortModel.columns.find(col => col.field === field);
+    const previousColumn = this.currentSortModel.columns.find((col) => col.field === field);
 
-    this.currentSortModel = this.sorter.toggleSortColumn(
-      this.currentSortModel,
-      field,
-      comparator
-    );
+    this.currentSortModel = this.sorter.toggleSortColumn(this.currentSortModel, field, comparator);
 
-    const newColumn = this.currentSortModel.columns.find(col => col.field === field);
+    const newColumn = this.currentSortModel.columns.find((col) => col.field === field);
 
     this.updateSortedIndices();
     this.emitSortChanged(previousModel, newColumn ?? previousColumn);
@@ -191,10 +187,7 @@ export class SortStateManager {
     const previousModel = this.currentSortModel;
     this.currentSortModel = this.sorter.clearSort();
 
-    this.currentSortedIndices = Array.from(
-      { length: this.currentData.length },
-      (_, i) => i
-    );
+    this.currentSortedIndices = Array.from({ length: this.currentData.length }, (_, i) => i);
 
     this.eventEmitter.emit('sortCleared', { previousModel });
     this.emitSortChanged(previousModel);
@@ -314,7 +307,7 @@ export class SortStateManager {
     this.eventEmitter.emit('sortChanged', {
       sortModel: this.getSortModel(),
       changedColumn,
-      sortedIndices: this.getSortedIndices()
+      sortedIndices: this.getSortedIndices(),
     });
   }
 }

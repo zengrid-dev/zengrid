@@ -1,9 +1,4 @@
-import type {
-  ITrie,
-  ITrieNode,
-  TrieOptions,
-  TrieSearchResult,
-} from './trie.interface';
+import type { ITrie, ITrieNode, TrieOptions, TrieSearchResult } from './trie.interface';
 
 /**
  * Trie Node implementation
@@ -191,7 +186,7 @@ export class Trie implements ITrie {
 
     // Restore original case if needed
     if (!this.options.caseSensitive && prefix) {
-      return suggestions.map(word => this.restoreCase(word, prefix));
+      return suggestions.map((word) => this.restoreCase(word, prefix));
     }
 
     return suggestions;
@@ -378,11 +373,7 @@ export class Trie implements ITrie {
   /**
    * Recursively delete a word from the trie
    */
-  private deleteRecursive(
-    node: ITrieNode,
-    word: string,
-    index: number
-  ): boolean {
+  private deleteRecursive(node: ITrieNode, word: string, index: number): boolean {
     if (index === word.length) {
       if (!node.isEndOfWord) {
         return false; // Word doesn't exist

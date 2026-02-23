@@ -69,7 +69,9 @@ export interface ProgressBarRendererOptions {
  * ```
  */
 export class ProgressBarRenderer implements CellRenderer {
-  private options: Required<Omit<ProgressBarRendererOptions, 'color' | 'colorThresholds' | 'valueFormatter' | 'onClick'>> & {
+  private options: Required<
+    Omit<ProgressBarRendererOptions, 'color' | 'colorThresholds' | 'valueFormatter' | 'onClick'>
+  > & {
     color?: string;
     colorThresholds?: ProgressColorThreshold[];
     valueFormatter?: (value: number, percentage: number) => string;
@@ -175,7 +177,9 @@ export class ProgressBarRenderer implements CellRenderer {
 
     // Update value text (if enabled)
     if (this.options.showValue) {
-      const valueText = container.querySelector(`.${this.options.className}-text`) as HTMLSpanElement;
+      const valueText = container.querySelector(
+        `.${this.options.className}-text`
+      ) as HTMLSpanElement;
       if (valueText) {
         if (this.options.valueFormatter) {
           valueText.textContent = this.options.valueFormatter(rawValue, clampedPercentage);
@@ -312,11 +316,7 @@ export class ProgressBarRenderer implements CellRenderer {
   /**
    * Set ARIA attributes for accessibility
    */
-  private setAriaAttributes(
-    container: HTMLElement,
-    percentage: number,
-    value: number
-  ): void {
+  private setAriaAttributes(container: HTMLElement, percentage: number, value: number): void {
     container.setAttribute('role', 'progressbar');
     container.setAttribute('aria-valuenow', String(value));
     container.setAttribute('aria-valuemin', String(this.options.min));

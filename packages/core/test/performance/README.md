@@ -4,17 +4,17 @@ Automated performance tests to ensure ZenGrid meets performance targets.
 
 ## Performance Targets
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Initial Render (1K rows) | < 50ms | ✅ |
-| Initial Render (10K rows) | < 75ms | ✅ |
-| Initial Render (100K rows) | < 100ms | ✅ |
-| Scroll FPS | ≥ 60 FPS | ✅ |
-| Memory Usage (100K rows) | < 100MB | ✅ |
-| Cell Update Latency | < 16ms | ✅ |
-| Single Cell Update | < 10ms | ✅ |
-| 100 Cell Updates | < 50ms | ✅ |
-| Pool Reuse Rate | > 95% | ✅ |
+| Metric                     | Target   | Status |
+| -------------------------- | -------- | ------ |
+| Initial Render (1K rows)   | < 50ms   | ✅     |
+| Initial Render (10K rows)  | < 75ms   | ✅     |
+| Initial Render (100K rows) | < 100ms  | ✅     |
+| Scroll FPS                 | ≥ 60 FPS | ✅     |
+| Memory Usage (100K rows)   | < 100MB  | ✅     |
+| Cell Update Latency        | < 16ms   | ✅     |
+| Single Cell Update         | < 10ms   | ✅     |
+| 100 Cell Updates           | < 50ms   | ✅     |
+| Pool Reuse Rate            | > 95%    | ✅     |
 
 ## Running Benchmarks
 
@@ -49,6 +49,7 @@ node --expose-gc node_modules/.bin/jest packages/core/test/performance/benchmark
 ### 1. Render Performance
 
 Tests initial render time for various dataset sizes:
+
 - 1K rows: < 50ms
 - 10K rows: < 75ms
 - 100K rows: < 100ms
@@ -56,35 +57,41 @@ Tests initial render time for various dataset sizes:
 ### 2. Scroll Performance
 
 Simulates scrolling and measures FPS:
+
 - Target: ≥ 60 FPS
 - Minimum acceptable: ≥ 55 FPS
 
 ### 3. Memory Usage
 
 Tests memory consumption:
+
 - 100K rows: < 100MB
 - Memory leak detection on destroy
 
 ### 4. Data Structure Performance
 
 Tests core data structure operations:
+
 - SparseMatrix: 10K writes < 50ms
 - ColumnStore: 30K writes < 50ms
 
 ### 5. Cell Update Performance
 
 Tests cell update latency:
+
 - Single cell: < 10ms
 - 100 cells: < 50ms
 
 ### 6. Cell Pool Performance
 
 Tests DOM element recycling efficiency:
+
 - Reuse rate: > 95%
 
 ### 7. Regression Tests
 
 Ensures performance doesn't degrade over time:
+
 - Max 20% degradation over 100 operations
 
 ## Performance Optimization Tips
@@ -140,6 +147,7 @@ Ensures performance doesn't degrade over time:
 ### FPS Monitoring
 
 Enable FPS meter in Chrome:
+
 1. Open DevTools
 2. Press Cmd+Shift+P (Mac) or Ctrl+Shift+P (Windows)
 3. Type "Show frame"
@@ -148,6 +156,7 @@ Enable FPS meter in Chrome:
 ## Continuous Integration
 
 Performance tests run automatically on:
+
 - Pull requests
 - Main branch commits
 - Nightly builds
@@ -155,6 +164,7 @@ Performance tests run automatically on:
 ### CI Performance Thresholds
 
 Tests fail if:
+
 - Any render target is missed by >20%
 - FPS drops below 55
 - Memory usage exceeds 120MB

@@ -75,7 +75,9 @@ export interface DateRangeRendererOptions {
  * ```
  */
 export class DateRangeRenderer implements CellRenderer {
-  private options: Required<Omit<DateRangeRendererOptions, 'timeZone' | 'onClick' | 'startColor' | 'endColor'>> & {
+  private options: Required<
+    Omit<DateRangeRendererOptions, 'timeZone' | 'onClick' | 'startColor' | 'endColor'>
+  > & {
     timeZone?: string;
     onClick?: (range: DateRange | null, params: RenderParams) => void;
     startColor?: string;
@@ -438,13 +440,17 @@ export class DateRangeRenderer implements CellRenderer {
       margin: 2px;
     `;
 
-    startSpan.style.cssText = chipStyle + `
+    startSpan.style.cssText =
+      chipStyle +
+      `
       background: ${this.options.startColor ? this.options.startColor + '20' : '#e3f2fd'};
       color: ${this.options.startColor ?? '#1976d2'};
       border: 1px solid ${this.options.startColor ?? '#1976d2'};
     `;
 
-    endSpan.style.cssText = chipStyle + `
+    endSpan.style.cssText =
+      chipStyle +
+      `
       background: ${this.options.endColor ? this.options.endColor + '20' : '#f3e5f5'};
       color: ${this.options.endColor ?? '#7b1fa2'};
       border: 1px solid ${this.options.endColor ?? '#7b1fa2'};
@@ -466,11 +472,7 @@ export class DateRangeRenderer implements CellRenderer {
   /**
    * Set ARIA attributes for accessibility
    */
-  private setAriaAttributes(
-    element: HTMLElement,
-    range: DateRange,
-    params: RenderParams
-  ): void {
+  private setAriaAttributes(element: HTMLElement, range: DateRange, params: RenderParams): void {
     element.setAttribute('role', 'text');
 
     const fieldLabel = params.column?.header || params.column?.field || 'Date Range';
@@ -518,8 +520,6 @@ export class DateRangeRenderer implements CellRenderer {
 /**
  * Factory function to create DateRangeRenderer
  */
-export function createDateRangeRenderer(
-  options: DateRangeRendererOptions = {}
-): DateRangeRenderer {
+export function createDateRangeRenderer(options: DateRangeRendererOptions = {}): DateRangeRenderer {
   return new DateRangeRenderer(options);
 }

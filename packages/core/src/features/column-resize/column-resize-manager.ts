@@ -1,7 +1,4 @@
-import type {
-  ColumnResizeOptions,
-  ColumnConstraints,
-} from './column-resize-manager.interface';
+import type { ColumnResizeOptions, ColumnConstraints } from './column-resize-manager.interface';
 import { initializeComponents } from './initialization';
 import { HandleCoordinator } from './handle-coordinator';
 import { WidthNotifier } from './width-notifier';
@@ -41,10 +38,7 @@ export class ColumnResizeManager {
       () => options.getHeaderHeight?.() ?? 40
     );
 
-    this.widthNotifier = new WidthNotifier(
-      components.dataSource,
-      components.stateManager
-    );
+    this.widthNotifier = new WidthNotifier(components.dataSource, components.stateManager);
 
     this.operations = new ProgrammaticOperations({
       dataSource: components.dataSource,

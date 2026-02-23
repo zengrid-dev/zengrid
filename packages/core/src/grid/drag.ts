@@ -73,10 +73,7 @@ export class GridDrag {
       ...this.options.columnDrag,
     };
 
-    this.dragManager = new ColumnDragManager(
-      dragOptions as ColumnDragOptions,
-      this.reorderPlugin
-    );
+    this.dragManager = new ColumnDragManager(dragOptions as ColumnDragOptions, this.reorderPlugin);
   }
 
   /**

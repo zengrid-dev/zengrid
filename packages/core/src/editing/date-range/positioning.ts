@@ -20,8 +20,7 @@ export function findScrollContainer(element: HTMLElement): HTMLElement | null {
       overflowX === 'scroll';
 
     const hasScrollableContent =
-      current.scrollHeight > current.clientHeight ||
-      current.scrollWidth > current.clientWidth;
+      current.scrollHeight > current.clientHeight || current.scrollWidth > current.clientWidth;
 
     if (isScrollable && hasScrollableContent) {
       return current;

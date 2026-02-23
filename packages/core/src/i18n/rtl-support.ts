@@ -223,8 +223,8 @@ export class RTLSupport {
     }
 
     // Check document direction
-    const docDir = document.documentElement.getAttribute('dir') ||
-                   document.body.getAttribute('dir');
+    const docDir =
+      document.documentElement.getAttribute('dir') || document.body.getAttribute('dir');
     if (docDir === 'rtl' || docDir === 'ltr') {
       return docDir as 'ltr' | 'rtl';
     }
@@ -233,7 +233,7 @@ export class RTLSupport {
     const lang = document.documentElement.lang || navigator.language;
     const rtlLanguages = ['ar', 'he', 'fa', 'ur', 'yi']; // Arabic, Hebrew, Persian, Urdu, Yiddish
 
-    if (rtlLanguages.some(rtlLang => lang.startsWith(rtlLang))) {
+    if (rtlLanguages.some((rtlLang) => lang.startsWith(rtlLang))) {
       return 'rtl';
     }
 

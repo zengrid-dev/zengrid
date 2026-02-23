@@ -1,7 +1,4 @@
-import type {
-  ResizableDataSource,
-  ResizeZoneResult,
-} from './column-resize-manager.interface';
+import type { ResizableDataSource, ResizeZoneResult } from './column-resize-manager.interface';
 
 /**
  * Configuration for zone detector

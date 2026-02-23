@@ -7,7 +7,12 @@
 
 import type { FilterAdapter, AdapterConfig } from './adapter.interface';
 import type { RESTFilterExport } from './types';
-import type { FieldFilterState, FieldFilterGroup, FieldFilterCondition, StandardFilterOperator } from '../types';
+import type {
+  FieldFilterState,
+  FieldFilterGroup,
+  FieldFilterCondition,
+  StandardFilterOperator,
+} from '../types';
 
 /**
  * REST adapter configuration
@@ -131,7 +136,10 @@ export class RESTFilterAdapter implements FilterAdapter<RESTFilterExport> {
   /**
    * Add a single condition to params
    */
-  private addConditionToParams(condition: FieldFilterCondition, params: Record<string, string>): void {
+  private addConditionToParams(
+    condition: FieldFilterCondition,
+    params: Record<string, string>
+  ): void {
     const field = this.options.fieldTransform(condition.field);
     const operator = condition.operator as StandardFilterOperator;
 
@@ -156,7 +164,9 @@ export class RESTFilterAdapter implements FilterAdapter<RESTFilterExport> {
     // Handle between operator (two values)
     if (operator === 'between') {
       if (condition.valueTo === undefined) {
-        console.warn(`REST Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`);
+        console.warn(
+          `REST Adapter: BETWEEN operator requires valueTo for field "${condition.field}", skipping condition`
+        );
         return;
       }
       const key1 = this.buildParamKey(field, 'gte');
@@ -198,7 +208,7 @@ export class RESTFilterAdapter implements FilterAdapter<RESTFilterExport> {
     params: Record<string, string>
   ): void {
     // Filter out undefined/null values unless explicitly needed
-    const filteredValues = values.filter(v => v !== undefined && v !== null);
+    const filteredValues = values.filter((v) => v !== undefined && v !== null);
 
     if (filteredValues.length === 0) {
       console.warn(`REST Adapter: Array parameter for "${field}" has no valid values, skipping`);
@@ -215,13 +225,13 @@ export class RESTFilterAdapter implements FilterAdapter<RESTFilterExport> {
       }
       case 'comma': {
         const key = this.buildParamKey(field, operator);
-        params[key] = filteredValues.map(v => this.serializeValue(v)).join(',');
+        params[key] = filteredValues.map((v) => this.serializeValue(v)).join(',');
         break;
       }
       case 'repeat': {
         const key = this.buildParamKey(field, operator);
         // Will be handled in buildQueryString
-        params[key] = filteredValues.map(v => this.serializeValue(v)).join('|REPEAT|');
+        params[key] = filteredValues.map((v) => this.serializeValue(v)).join('|REPEAT|');
         break;
       }
     }
@@ -283,7 +293,7 @@ export class RESTFilterAdapter implements FilterAdapter<RESTFilterExport> {
     // For now, return the body as-is
     return {
       root: input.body,
-      activeFields: input.body.conditions.map(c => c.field),
+      activeFields: input.body.conditions.map((c) => c.field),
       timestamp: Date.now(),
     };
   }

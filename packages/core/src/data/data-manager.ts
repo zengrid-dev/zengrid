@@ -70,7 +70,9 @@ export interface DataManagerOptions {
  * await dataManager.loadRange(0, 100);
  * ```
  */
-export class DataManager extends OperationModeManager<(request: DataLoadRequest) => Promise<DataLoadResponse>> {
+export class DataManager extends OperationModeManager<
+  (request: DataLoadRequest) => Promise<DataLoadResponse>
+> {
   private rowCount: number;
   private events?: EventEmitter<GridEvents>;
   private data: any[][] = [];
@@ -103,7 +105,9 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
     }
 
     if (this.isBackendMode()) {
-      console.warn('setData() called in backend mode. Data will be stored but not used unless mode changes.');
+      console.warn(
+        'setData() called in backend mode. Data will be stored but not used unless mode changes.'
+      );
     }
 
     // Validate that it's actually a 2D array
@@ -202,7 +206,10 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
 
     // Handle out of bounds (if totalRows is known)
     if (this.totalRows > 0 && startRow >= this.totalRows) {
-      console.warn('loadRange() startRow exceeds totalRows:', { startRow, totalRows: this.totalRows });
+      console.warn('loadRange() startRow exceeds totalRows:', {
+        startRow,
+        totalRows: this.totalRows,
+      });
       return;
     }
 
@@ -228,7 +235,14 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
     }
 
     // Create loading promise
-    const loadPromise = this.executeLoadRange(startRow, endRow, sortState, filterState, filterExports, cacheKey);
+    const loadPromise = this.executeLoadRange(
+      startRow,
+      endRow,
+      sortState,
+      filterState,
+      filterExports,
+      cacheKey
+    );
 
     // Track pending request
     this.pendingRequests.set(cacheKey, loadPromise);
@@ -249,12 +263,14 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
     endRow: number,
     sortState: SortState[] | undefined,
     filterState: FilterModel[] | undefined,
-    filterExports: {
-      filter?: import('../features/filtering/types').FieldFilterState;
-      queryString?: string;
-      graphqlWhere?: Record<string, any>;
-      sql?: import('../features/filtering/adapters/types').SQLFilterExport;
-    } | undefined,
+    filterExports:
+      | {
+          filter?: import('../features/filtering/types').FieldFilterState;
+          queryString?: string;
+          graphqlWhere?: Record<string, any>;
+          sql?: import('../features/filtering/adapters/types').SQLFilterExport;
+        }
+      | undefined,
     cacheKey: string
   ): Promise<void> {
     const loadStartTime = Date.now();
@@ -287,16 +303,18 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
       sortState,
       filterState,
       filter: filterExports?.filter,
-      filterExport: filterExports ? {
-        queryString: filterExports.queryString || '',
-        graphqlWhere: filterExports.graphqlWhere || {},
-        sql: filterExports.sql || {
-          whereClause: '',
-          positionalParams: [],
-          namedParams: {},
-          namedSql: '',
-        },
-      } : undefined,
+      filterExport: filterExports
+        ? {
+            queryString: filterExports.queryString || '',
+            graphqlWhere: filterExports.graphqlWhere || {},
+            sql: filterExports.sql || {
+              whereClause: '',
+              positionalParams: [],
+              namedParams: {},
+              namedSql: '',
+            },
+          }
+        : undefined,
       pagination: {
         page,
         pageSize,
@@ -371,7 +389,11 @@ export class DataManager extends OperationModeManager<(request: DataLoadRequest)
   /**
    * Validate load response
    */
-  private validateLoadResponse(response: DataLoadResponse, requestedStart: number, _requestedEnd: number): void {
+  private validateLoadResponse(
+    response: DataLoadResponse,
+    requestedStart: number,
+    _requestedEnd: number
+  ): void {
     if (!response) {
       throw new Error('Backend returned null/undefined response');
     }

@@ -63,9 +63,7 @@ export function createDisplayElement(
 /**
  * Create dropdown menu element
  */
-export function createDropdownMenu(
-  options: DropdownEditorNormalizedOptions
-): HTMLDivElement {
+export function createDropdownMenu(options: DropdownEditorNormalizedOptions): HTMLDivElement {
   const menu = document.createElement('div');
   menu.className = `${options.className}-menu`;
   menu.id = 'dropdown-menu';

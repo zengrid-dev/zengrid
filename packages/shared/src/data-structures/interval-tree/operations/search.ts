@@ -46,10 +46,7 @@ export function searchOverlap<T>(
  * @param interval - Query interval
  * @returns true if any overlap exists
  */
-export function hasOverlap<T>(
-  node: IntervalNode<T> | null,
-  interval: Interval
-): boolean {
+export function hasOverlap<T>(node: IntervalNode<T> | null, interval: Interval): boolean {
   if (node === null) return false;
 
   // Check left subtree

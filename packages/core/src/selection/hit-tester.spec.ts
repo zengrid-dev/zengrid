@@ -7,7 +7,10 @@ import type { IHeightProvider, IWidthProvider } from './hit-tester.interface';
 
 // Mock uniform height provider
 class MockUniformHeightProvider implements IHeightProvider {
-  constructor(private height: number, private count: number) {}
+  constructor(
+    private height: number,
+    private count: number
+  ) {}
 
   getHeight(_index: number): number {
     return this.height;
@@ -28,7 +31,10 @@ class MockUniformHeightProvider implements IHeightProvider {
 
 // Mock uniform width provider
 class MockUniformWidthProvider implements IWidthProvider {
-  constructor(private width: number, private count: number) {}
+  constructor(
+    private width: number,
+    private count: number
+  ) {}
 
   getWidth(_index: number): number {
     return this.width;

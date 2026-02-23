@@ -26,22 +26,22 @@
  * Sequence pattern types
  */
 export type SequenceType =
-  | 'arithmetic'   // Linear: a, a+d, a+2d, ...
-  | 'geometric'    // Exponential: a, a*r, a*r^2, ...
-  | 'date'         // Date progression
-  | 'text'         // Text with number suffix
-  | 'constant'     // Same value repeated
-  | 'none';        // No pattern detected
+  | 'arithmetic' // Linear: a, a+d, a+2d, ...
+  | 'geometric' // Exponential: a, a*r, a*r^2, ...
+  | 'date' // Date progression
+  | 'text' // Text with number suffix
+  | 'constant' // Same value repeated
+  | 'none'; // No pattern detected
 
 /**
  * Detected sequence pattern
  */
 export interface SequencePattern {
   type: SequenceType;
-  step?: number;         // For arithmetic (difference)
-  ratio?: number;        // For geometric (multiplier)
-  template?: string;     // For text patterns
-  confidence: number;    // 0-1, how confident we are
+  step?: number; // For arithmetic (difference)
+  ratio?: number; // For geometric (multiplier)
+  template?: string; // For text patterns
+  confidence: number; // 0-1, how confident we are
 }
 
 /**
@@ -56,8 +56,8 @@ export function detectSequence(values: any[]): SequencePattern {
   }
 
   // Try numeric sequences first
-  if (values.every(v => typeof v === 'number' || !isNaN(Number(v)))) {
-    const numbers = values.map(v => Number(v));
+  if (values.every((v) => typeof v === 'number' || !isNaN(Number(v)))) {
+    const numbers = values.map((v) => Number(v));
 
     // Check arithmetic sequence
     const arithmeticPattern = detectArithmetic(numbers);
@@ -73,13 +73,13 @@ export function detectSequence(values: any[]): SequencePattern {
   }
 
   // Try text patterns
-  const textPattern = detectTextPattern(values.map(v => String(v)));
+  const textPattern = detectTextPattern(values.map((v) => String(v)));
   if (textPattern.confidence > 0.7) {
     return textPattern;
   }
 
   // Check for constant value
-  if (values.every(v => v === values[0])) {
+  if (values.every((v) => v === values[0])) {
     return { type: 'constant', confidence: 1.0 };
   }
 
@@ -102,7 +102,8 @@ function detectArithmetic(numbers: number[]): SequencePattern {
 
   // Check if all differences are the same (within small tolerance)
   const avgDiff = differences.reduce((a, b) => a + b, 0) / differences.length;
-  const variance = differences.reduce((sum, d) => sum + Math.pow(d - avgDiff, 2), 0) / differences.length;
+  const variance =
+    differences.reduce((sum, d) => sum + Math.pow(d - avgDiff, 2), 0) / differences.length;
 
   if (variance < 0.01) {
     return {
@@ -119,7 +120,7 @@ function detectArithmetic(numbers: number[]): SequencePattern {
  * Detect geometric sequence (constant ratio)
  */
 function detectGeometric(numbers: number[]): SequencePattern {
-  if (numbers.length < 2 || numbers.some(n => n === 0)) {
+  if (numbers.length < 2 || numbers.some((n) => n === 0)) {
     return { type: 'none', confidence: 0 };
   }
 
@@ -154,7 +155,7 @@ function detectTextPattern(strings: string[]): SequencePattern {
   }
 
   // Extract text prefix and number suffix
-  const parts = strings.map(s => {
+  const parts = strings.map((s) => {
     const match = s.match(/^(.*?)(\d+)$/);
     if (match) {
       return { prefix: match[1], number: parseInt(match[2], 10) };
@@ -163,11 +164,11 @@ function detectTextPattern(strings: string[]): SequencePattern {
   });
 
   // Check if all have the same prefix
-  if (parts.every(p => p !== null)) {
+  if (parts.every((p) => p !== null)) {
     const prefix = parts[0]!.prefix;
 
-    if (parts.every(p => p!.prefix === prefix)) {
-      const numbers = parts.map(p => p!.number);
+    if (parts.every((p) => p!.prefix === prefix)) {
+      const numbers = parts.map((p) => p!.number);
       const arithmeticPattern = detectArithmetic(numbers);
 
       if (arithmeticPattern.type === 'arithmetic') {

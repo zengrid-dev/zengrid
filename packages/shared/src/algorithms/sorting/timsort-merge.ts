@@ -24,7 +24,14 @@ export function mergeRuns<T>(
 
   // Optimization: Find where last element of run1 goes in run2
   // Elements after that can be ignored
-  len2 = gallopLeft(state.array[base1 + len1 - 1], state.array, base2, len2, len2 - 1, state.comparator);
+  len2 = gallopLeft(
+    state.array[base1 + len1 - 1],
+    state.array,
+    base2,
+    len2,
+    len2 - 1,
+    state.comparator
+  );
 
   if (len2 === 0) {
     return;
@@ -55,9 +62,9 @@ function mergeLo<T>(
     tmp[i] = array[base1 + i];
   }
 
-  let cursor1 = 0;           // Index in tmp
-  let cursor2 = base2;       // Index in array
-  let dest = base1;          // Index in array
+  let cursor1 = 0; // Index in tmp
+  let cursor2 = base2; // Index in array
+  let dest = base1; // Index in array
 
   // Move first element of run2
   array[dest++] = array[cursor2++];
@@ -168,9 +175,9 @@ function mergeHi<T>(
     tmp[i] = array[base2 + i];
   }
 
-  let cursor1 = base1 + len1 - 1;  // Index in array (run1, from end)
-  let cursor2 = len2 - 1;          // Index in tmp (from end)
-  let dest = base2 + len2 - 1;     // Index in array (from end)
+  let cursor1 = base1 + len1 - 1; // Index in array (run1, from end)
+  let cursor2 = len2 - 1; // Index in tmp (from end)
+  let dest = base2 + len2 - 1; // Index in array (from end)
 
   // Move last element of run1
   array[dest--] = array[cursor1--];

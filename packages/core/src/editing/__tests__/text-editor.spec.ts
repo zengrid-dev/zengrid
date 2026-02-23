@@ -534,7 +534,7 @@ describe('TextEditor', () => {
       input.dispatchEvent(new Event('blur'));
 
       // Wait for blur timeout
-      return new Promise<void>(resolve => {
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
           expect(onComplete).not.toHaveBeenCalled();
           resolve();
@@ -556,7 +556,7 @@ describe('TextEditor', () => {
       input.dispatchEvent(new Event('blur'));
 
       // Wait for blur timeout
-      return new Promise<void>(resolve => {
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
           expect(onComplete).toHaveBeenCalledWith('modified', false);
           resolve();
@@ -576,7 +576,7 @@ describe('TextEditor', () => {
       input.dispatchEvent(new Event('blur'));
 
       // Wait for blur timeout
-      return new Promise<void>(resolve => {
+      return new Promise<void>((resolve) => {
         setTimeout(() => {
           expect(onComplete).not.toHaveBeenCalled();
           resolve();

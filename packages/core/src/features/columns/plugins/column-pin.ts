@@ -44,13 +44,17 @@ export class ColumnPinPlugin {
 
     if (column.pinned === position) return; // Already pinned
 
-    this.columnModel.updateState(columnId, { pinned: position }, {
-      type: 'pin',
+    this.columnModel.updateState(
       columnId,
-      oldValue: column.pinned,
-      newValue: position,
-      state: { ...column, pinned: position },
-    });
+      { pinned: position },
+      {
+        type: 'pin',
+        columnId,
+        oldValue: column.pinned,
+        newValue: position,
+        state: { ...column, pinned: position },
+      }
+    );
   }
 
   /**
@@ -64,13 +68,17 @@ export class ColumnPinPlugin {
 
     if (column.pinned === null) return; // Already unpinned
 
-    this.columnModel.updateState(columnId, { pinned: null }, {
-      type: 'unpin',
+    this.columnModel.updateState(
       columnId,
-      oldValue: column.pinned,
-      newValue: null,
-      state: { ...column, pinned: null },
-    });
+      { pinned: null },
+      {
+        type: 'unpin',
+        columnId,
+        oldValue: column.pinned,
+        newValue: null,
+        state: { ...column, pinned: null },
+      }
+    );
   }
 
   /**
@@ -82,7 +90,7 @@ export class ColumnPinPlugin {
   getPinnedColumns(position: 'left' | 'right'): ColumnState[] {
     return this.columnModel
       .getColumns()
-      .filter(col => col.pinned === position)
+      .filter((col) => col.pinned === position)
       .sort((a, b) => a.order - b.order);
   }
 

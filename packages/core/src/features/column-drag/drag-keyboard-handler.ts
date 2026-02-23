@@ -32,10 +32,7 @@ export class DragKeyboardHandler {
   private originalOrder = -1;
   private currentOrder = -1;
 
-  constructor(
-    options: KeyboardHandlerOptions,
-    reorderPlugin: ColumnReorderPlugin
-  ) {
+  constructor(options: KeyboardHandlerOptions, reorderPlugin: ColumnReorderPlugin) {
     this.columnModel = options.columnModel;
     this.reorderPlugin = reorderPlugin;
     this.events = options.events;

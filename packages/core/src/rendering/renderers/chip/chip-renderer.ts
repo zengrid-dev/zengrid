@@ -140,7 +140,15 @@ export interface ChipRendererOptions {
  */
 export class ChipRenderer implements CellRenderer {
   private options: Required<
-    Pick<ChipRendererOptions, 'defaultColor' | 'defaultTextColor' | 'size' | 'removable' | 'overflowMode' | 'showOverflowTooltip'>
+    Pick<
+      ChipRendererOptions,
+      | 'defaultColor'
+      | 'defaultTextColor'
+      | 'size'
+      | 'removable'
+      | 'overflowMode'
+      | 'showOverflowTooltip'
+    >
   > &
     ChipRendererOptions;
   private eventHandlers: Map<
@@ -217,7 +225,11 @@ export class ChipRenderer implements CellRenderer {
     let chipsToShow: Chip[];
     let overflowCount = 0;
 
-    if (this.options.overflowMode === 'collapse' && this.options.maxChips && this.options.maxChips > 0) {
+    if (
+      this.options.overflowMode === 'collapse' &&
+      this.options.maxChips &&
+      this.options.maxChips > 0
+    ) {
       // Collapse mode: limit to maxChips
       chipsToShow = chips.slice(0, this.options.maxChips);
       overflowCount = chips.length - this.options.maxChips;
@@ -248,7 +260,7 @@ export class ChipRenderer implements CellRenderer {
 
     // Add tooltip if enabled and there are chips
     if (this.options.showOverflowTooltip && chips.length > 0) {
-      const tooltipText = chips.map(chip => chip.label).join(', ');
+      const tooltipText = chips.map((chip) => chip.label).join(', ');
       container.setAttribute('title', tooltipText);
     }
 
@@ -346,8 +358,7 @@ export class ChipRenderer implements CellRenderer {
     chipEl.appendChild(labelSpan);
 
     // Store handlers temporarily on chip element (will be moved to parent)
-    const chipHandlers: Array<{ element: HTMLElement; type: string; handler: EventListener }> =
-      [];
+    const chipHandlers: Array<{ element: HTMLElement; type: string; handler: EventListener }> = [];
 
     // Add remove button if removable
     const isRemovable = chip.removable !== undefined ? chip.removable : this.options.removable;

@@ -50,13 +50,7 @@ export function deleteNode<T>(
     const successor = findMinNode(node.right);
     if (successor) {
       node.interval = successor.interval;
-      node.right = deleteNode(
-        node.right,
-        successor.interval,
-        comparator,
-        balanced,
-        onDelete
-      );
+      node.right = deleteNode(node.right, successor.interval, comparator, balanced, onDelete);
     }
   } else {
     const cmp = comparator(interval, node.interval);
@@ -64,13 +58,7 @@ export function deleteNode<T>(
     if (cmp < 0) {
       node.left = deleteNode(node.left, interval, comparator, balanced, onDelete);
     } else {
-      node.right = deleteNode(
-        node.right,
-        interval,
-        comparator,
-        balanced,
-        onDelete
-      );
+      node.right = deleteNode(node.right, interval, comparator, balanced, onDelete);
     }
   }
 

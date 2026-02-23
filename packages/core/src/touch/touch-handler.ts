@@ -228,8 +228,7 @@ export class TouchHandler {
 
       // Calculate movement distance
       const distance = Math.sqrt(
-        Math.pow(current.x - this.touchStart.x, 2) +
-        Math.pow(current.y - this.touchStart.y, 2)
+        Math.pow(current.x - this.touchStart.x, 2) + Math.pow(current.y - this.touchStart.y, 2)
       );
 
       // Cancel long-press if moved too much
@@ -281,8 +280,7 @@ export class TouchHandler {
 
     // Calculate distance and time
     const distance = Math.sqrt(
-      Math.pow(end.x - this.touchStart.x, 2) +
-      Math.pow(end.y - this.touchStart.y, 2)
+      Math.pow(end.x - this.touchStart.x, 2) + Math.pow(end.y - this.touchStart.y, 2)
     );
     const duration = end.time - this.touchStart.time;
 
@@ -360,7 +358,6 @@ export class TouchHandler {
     // TODO: Implement swipe event emission
     // const dx = end.x - start.x;
     // const dy = end.y - start.y;
-
     // Determine swipe direction
     // let gesture: TouchGesture;
     // if (Math.abs(dx) > Math.abs(dy)) {
@@ -370,7 +367,6 @@ export class TouchHandler {
     //   // Vertical swipe
     //   gesture = dy > 0 ? 'swipe-down' : 'swipe-up';
     // }
-
     // Could emit swipe events here
     // console.log('Swipe detected:', gesture);
   }

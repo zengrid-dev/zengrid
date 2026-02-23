@@ -9,16 +9,8 @@
  */
 
 import type { CellRenderer, RenderParams } from '../../renderer.interface';
-import type {
-  TimePickerRendererOptions,
-  ResolvedTimePickerOptions,
-  TimeValue,
-} from './types';
-import {
-  PopupManager,
-  setupDatetimeKeyboard,
-  ThemeManager,
-} from '../../../../datetime-core';
+import type { TimePickerRendererOptions, ResolvedTimePickerOptions, TimeValue } from './types';
+import { PopupManager, setupDatetimeKeyboard, ThemeManager } from '../../../../datetime-core';
 
 /**
  * Clock icon SVG
@@ -73,7 +65,11 @@ function parseTimeValue(value: any): TimeValue | null {
 /**
  * Format time value for display
  */
-function formatTimeDisplay(value: TimeValue | null, format: '12h' | '24h', showSeconds: boolean): string {
+function formatTimeDisplay(
+  value: TimeValue | null,
+  format: '12h' | '24h',
+  showSeconds: boolean
+): string {
   if (!value) return '';
 
   let { hours, minutes, seconds } = value;
@@ -97,15 +93,18 @@ function formatTimeDisplay(value: TimeValue | null, format: '12h' | '24h', showS
  */
 export class TimePickerRenderer implements CellRenderer {
   private options: ResolvedTimePickerOptions;
-  private instances: WeakMap<HTMLElement, {
-    container: HTMLElement;
-    trigger: HTMLElement;
-    popup: HTMLElement;
-    currentValue: TimeValue | null;
-    params: RenderParams;
-    isDestroyed: boolean;
-    cleanup: (() => void) | null;
-  }>;
+  private instances: WeakMap<
+    HTMLElement,
+    {
+      container: HTMLElement;
+      trigger: HTMLElement;
+      popup: HTMLElement;
+      currentValue: TimeValue | null;
+      params: RenderParams;
+      isDestroyed: boolean;
+      cleanup: (() => void) | null;
+    }
+  >;
   private popupManager: PopupManager;
 
   constructor(options: TimePickerRendererOptions = {}) {
@@ -209,7 +208,12 @@ export class TimePickerRenderer implements CellRenderer {
     hoursInput.className = 'zg-datetime-time-input';
     hoursInput.min = this.options.format === '12h' ? '1' : '0';
     hoursInput.max = this.options.format === '12h' ? '12' : '23';
-    hoursInput.value = value ? String(this.options.format === '12h' ? (value.hours % 12 || 12) : value.hours).padStart(2, '0') : '';
+    hoursInput.value = value
+      ? String(this.options.format === '12h' ? value.hours % 12 || 12 : value.hours).padStart(
+          2,
+          '0'
+        )
+      : '';
     hoursInput.placeholder = 'HH';
     container.appendChild(hoursInput);
 
@@ -242,7 +246,8 @@ export class TimePickerRenderer implements CellRenderer {
       secondsInput.className = 'zg-datetime-time-input';
       secondsInput.min = '0';
       secondsInput.max = '59';
-      secondsInput.value = value?.seconds !== undefined ? String(value.seconds).padStart(2, '0') : '';
+      secondsInput.value =
+        value?.seconds !== undefined ? String(value.seconds).padStart(2, '0') : '';
       secondsInput.placeholder = 'SS';
       container.appendChild(secondsInput);
     }
@@ -356,6 +361,8 @@ export class TimePickerRenderer implements CellRenderer {
 /**
  * Factory function
  */
-export function createTimePickerRenderer(options: TimePickerRendererOptions = {}): TimePickerRenderer {
+export function createTimePickerRenderer(
+  options: TimePickerRendererOptions = {}
+): TimePickerRenderer {
   return new TimePickerRenderer(options);
 }

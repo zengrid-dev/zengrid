@@ -77,7 +77,9 @@ export class IntervalTree<T> implements IIntervalTree<T> {
       this.comparator,
       this.allowDuplicates,
       this.balanced,
-      () => { inserted = true; }
+      () => {
+        inserted = true;
+      }
     );
 
     if (inserted) {
@@ -154,29 +156,19 @@ export class IntervalTree<T> implements IIntervalTree<T> {
   }
 
   filter(predicate: (interval: IntervalData<T>) => boolean): IIntervalTree<T> {
-    return filterHelper(
-      this,
-      this.root,
-      predicate,
-      {
-        balanced: this.balanced,
-        allowDuplicates: this.allowDuplicates,
-        comparator: this.comparator,
-      }
-    );
+    return filterHelper(this, this.root, predicate, {
+      balanced: this.balanced,
+      allowDuplicates: this.allowDuplicates,
+      comparator: this.comparator,
+    });
   }
 
   map<U>(mapper: (data: T, interval: Interval) => U): IIntervalTree<U> {
-    return mapHelper(
-      this,
-      this.root,
-      mapper,
-      {
-        balanced: this.balanced,
-        allowDuplicates: this.allowDuplicates,
-        comparator: this.comparator,
-      }
-    );
+    return mapHelper(this, this.root, mapper, {
+      balanced: this.balanced,
+      allowDuplicates: this.allowDuplicates,
+      comparator: this.comparator,
+    });
   }
 
   clear(): void {

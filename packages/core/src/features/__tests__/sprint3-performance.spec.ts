@@ -53,7 +53,7 @@ describe('Sprint 3 Performance Tests', () => {
 
       // Log performance metrics
       console.log(`✓ Sorted 100K rows × 3 columns in ${duration.toFixed(2)}ms`);
-      console.log(`  Performance: ${(100000 / duration * 1000).toFixed(0)} rows/second`);
+      console.log(`  Performance: ${((100000 / duration) * 1000).toFixed(0)} rows/second`);
     });
 
     it('should sort 10K rows × 5 columns in < 100ms', () => {
@@ -119,7 +119,9 @@ describe('Sprint 3 Performance Tests', () => {
       sorter.sort(data, sortModel);
       const duration3 = performance.now() - start3;
 
-      console.log(`Sort performance: cold=${duration1.toFixed(2)}ms, warm=${duration2.toFixed(2)}ms, hot=${duration3.toFixed(2)}ms`);
+      console.log(
+        `Sort performance: cold=${duration1.toFixed(2)}ms, warm=${duration2.toFixed(2)}ms, hot=${duration3.toFixed(2)}ms`
+      );
 
       // All sorts should be reasonably fast
       expect(duration1).toBeLessThan(300);

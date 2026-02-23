@@ -35,9 +35,7 @@ export function checkPhase(targetPhase: number): void {
 }
 
 export function getCurrentEvalPhase(): EvalFrame | undefined {
-  return evaluationStack.length > 0
-    ? evaluationStack[evaluationStack.length - 1]
-    : undefined;
+  return evaluationStack.length > 0 ? evaluationStack[evaluationStack.length - 1] : undefined;
 }
 
 // --- Phantom dependencies ---

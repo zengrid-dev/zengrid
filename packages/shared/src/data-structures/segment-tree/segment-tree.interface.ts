@@ -218,11 +218,7 @@ export const SegmentTreeUtils = {
    * Check if range is valid
    */
   isValidRange(left: number, right: number, size: number): boolean {
-    return (
-      left >= 0 &&
-      right < size &&
-      left <= right
-    );
+    return left >= 0 && right < size && left <= right;
   },
 
   /**

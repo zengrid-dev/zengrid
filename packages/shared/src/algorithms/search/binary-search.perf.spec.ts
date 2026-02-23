@@ -24,12 +24,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -71,21 +66,19 @@ function formatResults() {
   console.log('      Binary Search Performance Benchmarks      ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(40),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(40), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -93,27 +86,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(40),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(40), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 

@@ -23,11 +23,11 @@ describe('MultiColumnSorter', () => {
       const data = [
         { id: 3, name: 'C' },
         { id: 1, name: 'A' },
-        { id: 2, name: 'B' }
+        { id: 2, name: 'B' },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'id', direction: 'asc' }]
+        columns: [{ field: 'id', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -38,11 +38,11 @@ describe('MultiColumnSorter', () => {
       const data = [
         { id: 3, name: 'C' },
         { id: 1, name: 'A' },
-        { id: 2, name: 'B' }
+        { id: 2, name: 'B' },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'id', direction: 'desc' }]
+        columns: [{ field: 'id', direction: 'desc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -50,14 +50,10 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should sort strings in ascending order', () => {
-      const data = [
-        { name: 'Charlie' },
-        { name: 'Alice' },
-        { name: 'Bob' }
-      ];
+      const data = [{ name: 'Charlie' }, { name: 'Alice' }, { name: 'Bob' }];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'name', direction: 'asc' }]
+        columns: [{ field: 'name', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -65,14 +61,10 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should sort strings in descending order', () => {
-      const data = [
-        { name: 'Alice' },
-        { name: 'Charlie' },
-        { name: 'Bob' }
-      ];
+      const data = [{ name: 'Alice' }, { name: 'Charlie' }, { name: 'Bob' }];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'name', direction: 'desc' }]
+        columns: [{ field: 'name', direction: 'desc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -82,7 +74,7 @@ describe('MultiColumnSorter', () => {
     it('should handle empty data array', () => {
       const data: any[] = [];
       const sortModel: SortModel = {
-        columns: [{ field: 'id', direction: 'asc' }]
+        columns: [{ field: 'id', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -90,11 +82,7 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should handle empty sort columns', () => {
-      const data = [
-        { id: 3 },
-        { id: 1 },
-        { id: 2 }
-      ];
+      const data = [{ id: 3 }, { id: 1 }, { id: 2 }];
       const sortModel: SortModel = { columns: [] };
 
       const result = sorter.sort(data, sortModel);
@@ -104,7 +92,7 @@ describe('MultiColumnSorter', () => {
     it('should handle single element array', () => {
       const data = [{ id: 1 }];
       const sortModel: SortModel = {
-        columns: [{ field: 'id', direction: 'asc' }]
+        columns: [{ field: 'id', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -118,15 +106,15 @@ describe('MultiColumnSorter', () => {
         { dept: 'Sales', age: 30, name: 'John' },
         { dept: 'Engineering', age: 25, name: 'Alice' },
         { dept: 'Engineering', age: 30, name: 'Bob' },
-        { dept: 'Sales', age: 25, name: 'Carol' }
+        { dept: 'Sales', age: 25, name: 'Carol' },
       ];
 
       const sortModel: SortModel = {
         columns: [
           { field: 'dept', direction: 'asc', priority: 0 },
           { field: 'age', direction: 'desc', priority: 1 },
-          { field: 'name', direction: 'asc', priority: 2 }
-        ]
+          { field: 'name', direction: 'asc', priority: 2 },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -143,14 +131,14 @@ describe('MultiColumnSorter', () => {
       const data = [
         { dept: 'B', level: 2 },
         { dept: 'A', level: 1 },
-        { dept: 'A', level: 2 }
+        { dept: 'A', level: 2 },
       ];
 
       const sortModel: SortModel = {
         columns: [
           { field: 'dept', direction: 'asc' },
-          { field: 'level', direction: 'asc' }
-        ]
+          { field: 'level', direction: 'asc' },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -162,14 +150,14 @@ describe('MultiColumnSorter', () => {
       const data = [
         { a: 2, b: 2 },
         { a: 1, b: 1 },
-        { a: 1, b: 2 }
+        { a: 1, b: 2 },
       ];
 
       const sortModel: SortModel = {
         columns: [
           { field: 'b', direction: 'asc', priority: 0 }, // Higher priority
-          { field: 'a', direction: 'asc', priority: 1 }  // Lower priority
-        ]
+          { field: 'a', direction: 'asc', priority: 1 }, // Lower priority
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -181,11 +169,7 @@ describe('MultiColumnSorter', () => {
 
   describe('Custom Comparators', () => {
     it('should use custom comparator when provided', () => {
-      const data = [
-        { value: 'a' },
-        { value: 'C' },
-        { value: 'B' }
-      ];
+      const data = [{ value: 'a' }, { value: 'C' }, { value: 'B' }];
 
       // Case-insensitive comparator
       const caseInsensitiveComparator = (a: any, b: any) => {
@@ -193,11 +177,13 @@ describe('MultiColumnSorter', () => {
       };
 
       const sortModel: SortModel = {
-        columns: [{
-          field: 'value',
-          direction: 'asc',
-          comparator: caseInsensitiveComparator
-        }]
+        columns: [
+          {
+            field: 'value',
+            direction: 'asc',
+            comparator: caseInsensitiveComparator,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -208,7 +194,7 @@ describe('MultiColumnSorter', () => {
       const data = [
         { name: 'alice', score: '90' },
         { name: 'Bob', score: '100' },
-        { name: 'Charlie', score: '85' }
+        { name: 'Charlie', score: '85' },
       ];
 
       const sortModel: SortModel = {
@@ -216,14 +202,14 @@ describe('MultiColumnSorter', () => {
           {
             field: 'name',
             direction: 'asc',
-            comparator: Comparators.stringCaseInsensitive
+            comparator: Comparators.stringCaseInsensitive,
           },
           {
             field: 'score',
             direction: 'desc',
-            comparator: Comparators.number
-          }
-        ]
+            comparator: Comparators.number,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -239,23 +225,25 @@ describe('MultiColumnSorter', () => {
         { value: null },
         { value: 3 },
         { value: undefined },
-        { value: 1 }
+        { value: 1 },
       ];
 
       const sortModel: SortModel = {
-        columns: [{
-          field: 'value',
-          direction: 'asc',
-          comparator: Comparators.number
-        }]
+        columns: [
+          {
+            field: 'value',
+            direction: 'asc',
+            comparator: Comparators.number,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
-      const sortedValues = result.map(i => data[i].value);
+      const sortedValues = result.map((i) => data[i].value);
 
       // Separate numbers from null/undefined values
-      const numbers = sortedValues.filter(v => typeof v === 'number' && !isNaN(v));
-      const nullish = sortedValues.filter(v => v == null);
+      const numbers = sortedValues.filter((v) => typeof v === 'number' && !isNaN(v));
+      const nullish = sortedValues.filter((v) => v == null);
 
       // Numbers should be sorted (1, 3, 5)
       expect(numbers).toEqual([1, 3, 5]);
@@ -270,15 +258,17 @@ describe('MultiColumnSorter', () => {
       const data = [
         { date: new Date('2024-03-15') },
         { date: new Date('2024-01-10') },
-        { date: new Date('2024-12-25') }
+        { date: new Date('2024-12-25') },
       ];
 
       const sortModel: SortModel = {
-        columns: [{
-          field: 'date',
-          direction: 'asc',
-          comparator: Comparators.date
-        }]
+        columns: [
+          {
+            field: 'date',
+            direction: 'asc',
+            comparator: Comparators.date,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -286,23 +276,20 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should handle boolean values with boolean comparator', () => {
-      const data = [
-        { active: true },
-        { active: false },
-        { active: true },
-        { active: false }
-      ];
+      const data = [{ active: true }, { active: false }, { active: true }, { active: false }];
 
       const sortModel: SortModel = {
-        columns: [{
-          field: 'active',
-          direction: 'asc',
-          comparator: Comparators.boolean
-        }]
+        columns: [
+          {
+            field: 'active',
+            direction: 'asc',
+            comparator: Comparators.boolean,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
-      const sortedValues = result.map(i => data[i].active);
+      const sortedValues = result.map((i) => data[i].active);
 
       // false < true, so false values come first
       expect(sortedValues[0]).toBe(false);
@@ -312,19 +299,16 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should auto-detect types with auto comparator', () => {
-      const data = [
-        { value: 10 },
-        { value: 'apple' },
-        { value: 5 },
-        { value: 'banana' }
-      ];
+      const data = [{ value: 10 }, { value: 'apple' }, { value: 5 }, { value: 'banana' }];
 
       const sortModel: SortModel = {
-        columns: [{
-          field: 'value',
-          direction: 'asc',
-          comparator: Comparators.auto
-        }]
+        columns: [
+          {
+            field: 'value',
+            direction: 'asc',
+            comparator: Comparators.auto,
+          },
+        ],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -339,11 +323,11 @@ describe('MultiColumnSorter', () => {
       const data = [
         { user: { name: 'Charlie', age: 30 } },
         { user: { name: 'Alice', age: 25 } },
-        { user: { name: 'Bob', age: 35 } }
+        { user: { name: 'Bob', age: 35 } },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'user.name', direction: 'asc' }]
+        columns: [{ field: 'user.name', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -354,11 +338,11 @@ describe('MultiColumnSorter', () => {
       const data = [
         { company: { department: { team: { lead: 'Z' } } } },
         { company: { department: { team: { lead: 'A' } } } },
-        { company: { department: { team: { lead: 'M' } } } }
+        { company: { department: { team: { lead: 'M' } } } },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'company.department.team.lead', direction: 'asc' }]
+        columns: [{ field: 'company.department.team.lead', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -369,28 +353,24 @@ describe('MultiColumnSorter', () => {
       const data = [
         { user: { name: 'Alice' } },
         { user: {} }, // name is missing
-        { user: { name: 'Bob' } }
+        { user: { name: 'Bob' } },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'user.name', direction: 'asc' }]
+        columns: [{ field: 'user.name', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
       // Undefined values should sort to end
-      const sortedData = result.map(i => data[i].user.name);
+      const sortedData = result.map((i) => data[i].user.name);
       expect(sortedData[2]).toBeUndefined();
     });
 
     it('should handle null objects in path', () => {
-      const data = [
-        { user: { name: 'Alice' } },
-        { user: null },
-        { user: { name: 'Bob' } }
-      ];
+      const data = [{ user: { name: 'Alice' } }, { user: null }, { user: { name: 'Bob' } }];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'user.name', direction: 'asc' }]
+        columns: [{ field: 'user.name', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
@@ -402,12 +382,12 @@ describe('MultiColumnSorter', () => {
   describe('Sort Model Operations', () => {
     it('should add a sort column', () => {
       const sortModel: SortModel = {
-        columns: [{ field: 'name', direction: 'asc' }]
+        columns: [{ field: 'name', direction: 'asc' }],
       };
 
       const newSortModel = sorter.addSortColumn(sortModel, {
         field: 'age',
-        direction: 'desc'
+        direction: 'desc',
       });
 
       expect(newSortModel.columns.length).toBe(2);
@@ -419,17 +399,17 @@ describe('MultiColumnSorter', () => {
       const sortModel: SortModel = {
         columns: [
           { field: 'name', direction: 'asc' },
-          { field: 'age', direction: 'desc' }
-        ]
+          { field: 'age', direction: 'desc' },
+        ],
       };
 
       const newSortModel = sorter.addSortColumn(sortModel, {
         field: 'age',
-        direction: 'asc' // Changed direction
+        direction: 'asc', // Changed direction
       });
 
       expect(newSortModel.columns.length).toBe(2);
-      const ageColumn = newSortModel.columns.find(c => c.field === 'age');
+      const ageColumn = newSortModel.columns.find((c) => c.field === 'age');
       expect(ageColumn?.direction).toBe('asc');
     });
 
@@ -437,8 +417,8 @@ describe('MultiColumnSorter', () => {
       const sortModel: SortModel = {
         columns: [
           { field: 'name', direction: 'asc' },
-          { field: 'age', direction: 'desc' }
-        ]
+          { field: 'age', direction: 'desc' },
+        ],
       };
 
       const newSortModel = sorter.removeSortColumn(sortModel, 'age');
@@ -474,8 +454,8 @@ describe('MultiColumnSorter', () => {
       const sortModel: SortModel = {
         columns: [
           { field: 'name', direction: 'asc' },
-          { field: 'age', direction: 'desc' }
-        ]
+          { field: 'age', direction: 'desc' },
+        ],
       };
 
       expect(sorter.getSortDirection(sortModel, 'name')).toBe('asc');
@@ -488,8 +468,8 @@ describe('MultiColumnSorter', () => {
         columns: [
           { field: 'name', direction: 'asc' },
           { field: 'age', direction: 'desc' },
-          { field: 'dept', direction: 'asc' }
-        ]
+          { field: 'dept', direction: 'asc' },
+        ],
       };
 
       expect(sorter.getSortPriority(sortModel, 'name')).toBe(0);
@@ -500,7 +480,9 @@ describe('MultiColumnSorter', () => {
 
     it('should check if sort model is empty', () => {
       expect(sorter.isSortModelEmpty({ columns: [] })).toBe(true);
-      expect(sorter.isSortModelEmpty({ columns: [{ field: 'name', direction: 'asc' }] })).toBe(false);
+      expect(sorter.isSortModelEmpty({ columns: [{ field: 'name', direction: 'asc' }] })).toBe(
+        false
+      );
     });
   });
 
@@ -525,11 +507,7 @@ describe('MultiColumnSorter', () => {
     });
 
     it('should sort by column convenience method', () => {
-      const data = [
-        { name: 'Charlie' },
-        { name: 'Alice' },
-        { name: 'Bob' }
-      ];
+      const data = [{ name: 'Charlie' }, { name: 'Alice' }, { name: 'Bob' }];
 
       const result = sorter.sortByColumn(data, 'name', 'asc');
       expect(result).toEqual([1, 2, 0]); // Alice, Bob, Charlie
@@ -544,8 +522,8 @@ describe('MultiColumnSorter', () => {
           { field: 'a', direction: 'asc' },
           { field: 'b', direction: 'asc' },
           { field: 'c', direction: 'asc' },
-          { field: 'd', direction: 'asc' }
-        ]
+          { field: 'd', direction: 'asc' },
+        ],
       };
 
       const data = [{ a: 1, b: 2, c: 3, d: 4 }];
@@ -577,11 +555,11 @@ describe('MultiColumnSorter', () => {
         { value: 'text' },
         { value: 5 },
         { value: null },
-        { value: undefined }
+        { value: undefined },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'value', direction: 'asc' }]
+        columns: [{ field: 'value', direction: 'asc' }],
       };
 
       // Should not throw
@@ -592,11 +570,11 @@ describe('MultiColumnSorter', () => {
       const size = 1000;
       const data = Array.from({ length: size }, (_, i) => ({
         id: size - i, // Reverse order
-        name: `Item ${i}`
+        name: `Item ${i}`,
       }));
 
       const sortModel: SortModel = {
-        columns: [{ field: 'id', direction: 'asc' }]
+        columns: [{ field: 'id', direction: 'asc' }],
       };
 
       const startTime = performance.now();
@@ -616,17 +594,17 @@ describe('MultiColumnSorter', () => {
         { group: 'A', id: 0 },
         { group: 'A', id: 1 },
         { group: 'B', id: 2 },
-        { group: 'A', id: 3 }
+        { group: 'A', id: 3 },
       ];
 
       const sortModel: SortModel = {
-        columns: [{ field: 'group', direction: 'asc' }]
+        columns: [{ field: 'group', direction: 'asc' }],
       };
 
       const result = sorter.sort(data, sortModel);
 
       // All 'A' groups should maintain original order (0, 1, 3)
-      const aIndices = result.filter(i => data[i].group === 'A');
+      const aIndices = result.filter((i) => data[i].group === 'A');
       expect(aIndices).toEqual([0, 1, 3]);
     });
   });
@@ -637,14 +615,14 @@ describe('MultiColumnSorter', () => {
       const data = Array.from({ length: size }, (_, i) => ({
         id: Math.floor(Math.random() * size),
         name: `Item ${i}`,
-        category: ['A', 'B', 'C'][i % 3]
+        category: ['A', 'B', 'C'][i % 3],
       }));
 
       const sortModel: SortModel = {
         columns: [
           { field: 'category', direction: 'asc' },
-          { field: 'id', direction: 'desc' }
-        ]
+          { field: 'id', direction: 'desc' },
+        ],
       };
 
       const startTime = performance.now();

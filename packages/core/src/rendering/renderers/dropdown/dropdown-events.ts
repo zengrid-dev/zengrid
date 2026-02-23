@@ -187,7 +187,7 @@ export class DropdownEventManager {
 
     if (multiSelect) {
       const currentValues = this.state.normalizeValue(params.value);
-      const index = currentValues.findIndex(v => deepEqual(v, value));
+      const index = currentValues.findIndex((v) => deepEqual(v, value));
 
       if (index >= 0) {
         currentValues.splice(index, 1);

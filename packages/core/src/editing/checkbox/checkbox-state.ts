@@ -4,9 +4,11 @@ import type { CheckboxEditorOptions } from './checkbox-types';
  * Manages checkbox state and value normalization
  */
 export class CheckboxState {
-  constructor(private options: Required<Omit<CheckboxEditorOptions, 'validator'>> & {
-    validator?: (value: boolean | null) => boolean | string;
-  }) {}
+  constructor(
+    private options: Required<Omit<CheckboxEditorOptions, 'validator'>> & {
+      validator?: (value: boolean | null) => boolean | string;
+    }
+  ) {}
 
   /**
    * Normalize value to boolean or null

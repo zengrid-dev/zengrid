@@ -29,8 +29,8 @@ const EVENT_MAP: Record<keyof ElementEventHandlers, EventConfig> = {
   onMouseEnter: { domEvent: 'mouseenter', useCapture: false },
   onMouseLeave: { domEvent: 'mouseleave', useCapture: false },
   onContextMenu: { domEvent: 'contextmenu', useCapture: false },
-  onFocus: { domEvent: 'focus', useCapture: true },  // Focus doesn't bubble
-  onBlur: { domEvent: 'blur', useCapture: true },    // Blur doesn't bubble
+  onFocus: { domEvent: 'focus', useCapture: true }, // Focus doesn't bubble
+  onBlur: { domEvent: 'blur', useCapture: true }, // Blur doesn't bubble
 };
 
 export class EventMapper {

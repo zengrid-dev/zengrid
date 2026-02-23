@@ -1,8 +1,4 @@
-import type {
-  ICommand,
-  ICommandStack,
-  ICommandStackOptions,
-} from './command-stack.interface';
+import type { ICommand, ICommandStack, ICommandStackOptions } from './command-stack.interface';
 
 /**
  * Implementation of a command stack for undo/redo functionality.
@@ -125,17 +121,13 @@ export class CommandStack implements ICommandStack {
    * Gets the descriptions of all commands in the undo stack.
    */
   getUndoHistory(): string[] {
-    return this.undoStack.map(
-      (cmd, idx) => cmd.description ?? `Command ${idx + 1}`
-    );
+    return this.undoStack.map((cmd, idx) => cmd.description ?? `Command ${idx + 1}`);
   }
 
   /**
    * Gets the descriptions of all commands in the redo stack.
    */
   getRedoHistory(): string[] {
-    return this.redoStack.map(
-      (cmd, idx) => cmd.description ?? `Command ${idx + 1}`
-    );
+    return this.redoStack.map((cmd, idx) => cmd.description ?? `Command ${idx + 1}`);
   }
 }

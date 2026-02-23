@@ -66,7 +66,8 @@ export function calculatePosition(
   // Note: spaceLeft/spaceRight could be used for future horizontal flip logic
   const _spaceLeft = anchorRect.left - containerBounds.left - viewportPadding;
   const _spaceRight = containerBounds.right - anchorRect.right - viewportPadding;
-  void _spaceLeft; void _spaceRight; // Suppress unused warnings
+  void _spaceLeft;
+  void _spaceRight; // Suppress unused warnings
 
   // Determine vertical placement
   let showAbove = placement.startsWith('top');

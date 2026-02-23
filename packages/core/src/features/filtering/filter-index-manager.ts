@@ -5,10 +5,7 @@
  * numeric and typed column filtering.
  */
 
-import {
-  ColumnStore,
-  ColumnType,
-} from '@zengrid/shared';
+import { ColumnStore, ColumnType } from '@zengrid/shared';
 
 /**
  * Column index entry
@@ -87,9 +84,9 @@ export class FilterIndexManager {
     if (this.memoryUsage + estimatedSizeMB > this.maxMemoryMB) {
       console.warn(
         `FilterIndexManager: Memory limit would be exceeded. ` +
-        `Current: ${this.memoryUsage.toFixed(2)}MB, ` +
-        `Estimated: ${estimatedSizeMB.toFixed(2)}MB, ` +
-        `Limit: ${this.maxMemoryMB}MB`
+          `Current: ${this.memoryUsage.toFixed(2)}MB, ` +
+          `Estimated: ${estimatedSizeMB.toFixed(2)}MB, ` +
+          `Limit: ${this.maxMemoryMB}MB`
       );
       return;
     }
@@ -203,11 +200,7 @@ export class FilterIndexManager {
         }
         for (let row = 0; row < entry.rowCount; row++) {
           const value = store.getValue(row, columnName);
-          if (
-            value != null &&
-            value >= operation.value &&
-            value <= operation.valueTo
-          ) {
+          if (value != null && value >= operation.value && value <= operation.valueTo) {
             results.push(row);
           }
         }
@@ -228,10 +221,7 @@ export class FilterIndexManager {
    * @param operation - Aggregation operation
    * @returns Aggregated value or null
    */
-  aggregate(
-    col: number,
-    operation: 'min' | 'max' | 'sum' | 'avg' | 'count'
-  ): number | null {
+  aggregate(col: number, operation: 'min' | 'max' | 'sum' | 'avg' | 'count'): number | null {
     const entry = this.columnIndexes.get(col);
     if (!entry) return null;
 

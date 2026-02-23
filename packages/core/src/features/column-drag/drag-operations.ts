@@ -10,11 +10,7 @@ import type { ColumnReorderPlugin } from '../columns/plugins/column-reorder';
 import type { DragStateManager } from './drag-state-manager';
 import type { DropZoneDetector } from './drop-zone-detector';
 import type { DragVisualFeedback } from './drag-visual-feedback';
-import type {
-  DragState,
-  DragEvent,
-  ColumnDragOptions,
-} from './column-drag-manager.interface';
+import type { DragState, DragEvent, ColumnDragOptions } from './column-drag-manager.interface';
 
 export class DragOperations {
   constructor(
@@ -47,11 +43,7 @@ export class DragOperations {
     const dropZone = this.dropZoneDetector.detect(containerX, sourceColumnId);
 
     // Update drop target in state
-    this.stateManager.updateDropTarget(
-      dropZone.columnId,
-      dropZone.columnIndex,
-      dropZone.position
-    );
+    this.stateManager.updateDropTarget(dropZone.columnId, dropZone.columnIndex, dropZone.position);
 
     // Update visual feedback during drag
     this.visualFeedback.updateGhostPosition(x, y);

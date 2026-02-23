@@ -19,8 +19,8 @@ describe('SortStateManager', () => {
       const initialSortModel: SortModel = {
         columns: [
           { field: 'name', direction: 'asc' },
-          { field: 'age', direction: 'desc' }
-        ]
+          { field: 'age', direction: 'desc' },
+        ],
       };
 
       const manager = new SortStateManager({ initialSortModel });
@@ -33,7 +33,7 @@ describe('SortStateManager', () => {
     it('should accept sorter options', () => {
       const manager = new SortStateManager({
         maxSortColumns: 5,
-        defaultDirection: 'desc'
+        defaultDirection: 'desc',
       });
 
       expect(manager).toBeDefined();
@@ -54,7 +54,7 @@ describe('SortStateManager', () => {
 
     it('should set and get sort model', () => {
       const sortModel: SortModel = {
-        columns: [{ field: 'name', direction: 'asc' }]
+        columns: [{ field: 'name', direction: 'asc' }],
       };
 
       manager.setSortModel(sortModel);
@@ -65,7 +65,7 @@ describe('SortStateManager', () => {
 
     it('should return a copy of sort model (not reference)', () => {
       const sortModel: SortModel = {
-        columns: [{ field: 'name', direction: 'asc' }]
+        columns: [{ field: 'name', direction: 'asc' }],
       };
 
       manager.setSortModel(sortModel);
@@ -181,7 +181,7 @@ describe('SortStateManager', () => {
       testData = [
         { name: 'Charlie', age: 30 },
         { name: 'Alice', age: 25 },
-        { name: 'Bob', age: 30 }
+        { name: 'Bob', age: 30 },
       ];
     });
 
@@ -277,7 +277,7 @@ describe('SortStateManager', () => {
       manager = new SortStateManager();
       testData = [
         { name: 'Charlie', age: 30 },
-        { name: 'Alice', age: 25 }
+        { name: 'Alice', age: 25 },
       ];
       manager.setData(testData);
     });
@@ -296,7 +296,7 @@ describe('SortStateManager', () => {
 
       manager.on('sortChanged', listener);
       manager.setSortModel({
-        columns: [{ field: 'name', direction: 'asc' }]
+        columns: [{ field: 'name', direction: 'asc' }],
       });
     });
 
@@ -505,11 +505,7 @@ describe('SortStateManager', () => {
     });
 
     it('should support custom comparators', () => {
-      const testData = [
-        { id: '2' },
-        { id: '10' },
-        { id: '1' }
-      ];
+      const testData = [{ id: '2' }, { id: '10' }, { id: '1' }];
 
       manager.setData(testData);
 
@@ -521,7 +517,7 @@ describe('SortStateManager', () => {
       manager.addSortColumn({
         field: 'id',
         direction: 'asc',
-        comparator: numericComparator
+        comparator: numericComparator,
       });
 
       const sortedData = manager.getSortedData();
@@ -547,7 +543,7 @@ describe('SortStateManager', () => {
       const testData = [
         { name: 'Alice', age: null },
         { name: null, age: 30 },
-        { name: 'Bob', age: undefined }
+        { name: 'Bob', age: undefined },
       ];
 
       manager.setData(testData);
@@ -559,11 +555,7 @@ describe('SortStateManager', () => {
     });
 
     it('should handle missing fields in data', () => {
-      const testData = [
-        { name: 'Alice' },
-        { age: 30 },
-        { name: 'Bob', age: 25 }
-      ];
+      const testData = [{ name: 'Alice' }, { age: 30 }, { name: 'Bob', age: 25 }];
 
       manager.setData(testData);
       manager.addSortColumn({ field: 'name', direction: 'asc' });
@@ -577,7 +569,7 @@ describe('SortStateManager', () => {
       const testData = [
         { user: { name: 'Charlie' } },
         { user: { name: 'Alice' } },
-        { user: { name: 'Bob' } }
+        { user: { name: 'Bob' } },
       ];
 
       manager.setData(testData);

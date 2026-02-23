@@ -29,11 +29,7 @@ export class SingleColumnSorter implements RowSorter {
    * @param options - Sort options
    * @returns IndexMap mapping visual indices to data indices
    */
-  sort(
-    dataAccessor: DataAccessor,
-    column: number | string,
-    options: SortOptions
-  ): IndexMap {
+  sort(dataAccessor: DataAccessor, column: number | string, options: SortOptions): IndexMap {
     const { direction, nullPosition = 'last', caseSensitive = true } = options;
 
     // If no sorting, return identity map

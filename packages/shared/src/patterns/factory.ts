@@ -61,9 +61,7 @@ export class Factory<T, K = string> implements IFactory<T, K> {
    */
   register(key: K, creator: () => T): void {
     if (this.creators.has(key)) {
-      console.warn(
-        `Factory: Overwriting existing creator for key "${String(key)}"`
-      );
+      console.warn(`Factory: Overwriting existing creator for key "${String(key)}"`);
     }
     this.creators.set(key, creator);
   }
@@ -84,10 +82,7 @@ export class Factory<T, K = string> implements IFactory<T, K> {
     try {
       return creator();
     } catch (error) {
-      console.error(
-        `Factory: Error creating instance for key "${String(key)}":`,
-        error
-      );
+      console.error(`Factory: Error creating instance for key "${String(key)}":`, error);
       return undefined;
     }
   }
@@ -152,9 +147,7 @@ export class SingletonFactory<T, K = string> implements IFactory<T, K> {
 
   register(key: K, creator: () => T): void {
     if (this.creators.has(key)) {
-      console.warn(
-        `SingletonFactory: Overwriting existing creator for key "${String(key)}"`
-      );
+      console.warn(`SingletonFactory: Overwriting existing creator for key "${String(key)}"`);
       // Clear cached instance when creator changes
       this.instances.delete(key);
     }
@@ -169,9 +162,7 @@ export class SingletonFactory<T, K = string> implements IFactory<T, K> {
 
     const creator = this.creators.get(key);
     if (!creator) {
-      console.warn(
-        `SingletonFactory: No creator registered for key "${String(key)}"`
-      );
+      console.warn(`SingletonFactory: No creator registered for key "${String(key)}"`);
       return undefined;
     }
 
@@ -180,10 +171,7 @@ export class SingletonFactory<T, K = string> implements IFactory<T, K> {
       this.instances.set(key, instance);
       return instance;
     } catch (error) {
-      console.error(
-        `SingletonFactory: Error creating instance for key "${String(key)}":`,
-        error
-      );
+      console.error(`SingletonFactory: Error creating instance for key "${String(key)}":`, error);
       return undefined;
     }
   }

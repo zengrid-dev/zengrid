@@ -25,12 +25,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -72,21 +67,19 @@ function formatResults() {
   console.log('        Timsort Performance Benchmarks          ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(40),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(40), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -94,27 +87,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(40),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(40), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 
@@ -218,7 +204,10 @@ describe('Timsort Performance Benchmarks', () => {
 
     it('should benchmark strings', () => {
       const words = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
-      const arr = Array.from({ length: SIZE }, () => words[Math.floor(Math.random() * words.length)]);
+      const arr = Array.from(
+        { length: SIZE },
+        () => words[Math.floor(Math.random() * words.length)]
+      );
 
       const result = benchmark(
         'Sort 1K strings',
@@ -259,15 +248,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark random numbers', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 1000000);
 
-      const result = benchmark(
-        'Sort 100K random numbers',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K random numbers', 'Medium (100K elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // JavaScript Timsort with galloping overhead
       expect(result.time).toBeLessThan(4000); // < 2s (realistic for JS)
@@ -294,15 +279,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark reverse sorted', () => {
       const arr = Array.from({ length: SIZE }, (_, i) => SIZE - i);
 
-      const result = benchmark(
-        'Sort 100K reverse sorted',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K reverse sorted', 'Medium (100K elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(500); // < 250ms (reversal + merge)
     });
@@ -316,15 +297,11 @@ describe('Timsort Performance Benchmarks', () => {
         [arr[idx1], arr[idx2]] = [arr[idx2], arr[idx1]];
       }
 
-      const result = benchmark(
-        'Sort 100K nearly sorted (95%)',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K nearly sorted (95%)', 'Medium (100K elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // Nearly sorted - merging overhead in JS
       expect(result.time).toBeLessThan(2400); // < 1.2s (merge overhead)
@@ -366,17 +343,16 @@ describe('Timsort Performance Benchmarks', () => {
 
     it('should benchmark strings', () => {
       const names = Array.from({ length: 1000 }, (_, i) => `Name_${i}`);
-      const arr = Array.from({ length: SIZE }, () => names[Math.floor(Math.random() * names.length)]);
-
-      const result = benchmark(
-        'Sort 100K strings',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, stringComparator());
-          expect(isSorted(copy, stringComparator())).toBe(true);
-        }
+      const arr = Array.from(
+        { length: SIZE },
+        () => names[Math.floor(Math.random() * names.length)]
       );
+
+      const result = benchmark('Sort 100K strings', 'Medium (100K elements)', () => {
+        const copy = [...arr];
+        timsort(copy, stringComparator());
+        expect(isSorted(copy, stringComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(2400); // < 1.2s (string comparison overhead)
     });
@@ -385,15 +361,11 @@ describe('Timsort Performance Benchmarks', () => {
       const values = Array.from({ length: SIZE }, () => Math.random() * 1000000);
       const indices = Array.from({ length: SIZE }, (_, i) => i);
 
-      const result = benchmark(
-        'Sort 100K indices',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...indices];
-          timsortIndices(copy, (i) => values[i], numericComparator());
-          expect(copy.length).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Sort 100K indices', 'Medium (100K elements)', () => {
+        const copy = [...indices];
+        timsortIndices(copy, (i) => values[i], numericComparator());
+        expect(copy.length).toBe(SIZE);
+      });
 
       expect(result.time).toBeLessThan(4400); // < 2.2s (index indirection overhead)
     });
@@ -434,21 +406,17 @@ describe('Timsort Performance Benchmarks', () => {
         index: i,
       }));
 
-      const result = benchmark(
-        'Sort 100K (stability test)',
-        'Medium (100K elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, (a, b) => a.key - b.key);
+      const result = benchmark('Sort 100K (stability test)', 'Medium (100K elements)', () => {
+        const copy = [...arr];
+        timsort(copy, (a, b) => a.key - b.key);
 
-          // Verify stability: items with same key should maintain relative order
-          for (let i = 1; i < copy.length; i++) {
-            if (copy[i].key === copy[i - 1].key) {
-              expect(copy[i].index).toBeGreaterThan(copy[i - 1].index);
-            }
+        // Verify stability: items with same key should maintain relative order
+        for (let i = 1; i < copy.length; i++) {
+          if (copy[i].key === copy[i - 1].key) {
+            expect(copy[i].index).toBeGreaterThan(copy[i - 1].index);
           }
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(7200); // < 3.6s (object comparison + copy overhead)
     });
@@ -460,15 +428,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark random numbers', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 10000000);
 
-      const result = benchmark(
-        'Sort 1M random numbers',
-        'Large (1M elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 1M random numbers', 'Large (1M elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // JavaScript overhead: ~20x slower than native/C++ implementation
       expect(result.time).toBeLessThan(56000); // < 28s (realistic for JS Timsort)
@@ -477,15 +441,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark already sorted (best case)', () => {
       const arr = Array.from({ length: SIZE }, (_, i) => i);
 
-      const result = benchmark(
-        'Sort 1M already sorted (best case)',
-        'Large (1M elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 1M already sorted (best case)', 'Large (1M elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // Timsort O(n) for sorted data
       expect(result.time).toBeLessThan(16000); // < 8 seconds for 1M sorted
@@ -494,15 +454,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark reverse sorted', () => {
       const arr = Array.from({ length: SIZE }, (_, i) => SIZE - i);
 
-      const result = benchmark(
-        'Sort 1M reverse sorted',
-        'Large (1M elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 1M reverse sorted', 'Large (1M elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(40000); // < 20 seconds for 1M reverse sorted
     });
@@ -510,15 +466,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark many duplicates', () => {
       const arr = Array.from({ length: SIZE }, (_, i) => i % 1000);
 
-      const result = benchmark(
-        'Sort 1M with duplicates (1K unique)',
-        'Large (1M elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 1M with duplicates (1K unique)', 'Large (1M elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(40000); // < 20 seconds for 1M with duplicates
     });
@@ -527,15 +479,11 @@ describe('Timsort Performance Benchmarks', () => {
       const values = Array.from({ length: SIZE }, () => Math.random() * 10000000);
       const indices = Array.from({ length: SIZE }, (_, i) => i);
 
-      const result = benchmark(
-        'Sort 1M indices',
-        'Large (1M elements)',
-        () => {
-          const copy = [...indices];
-          timsortIndices(copy, (i) => values[i], numericComparator());
-          expect(copy.length).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Sort 1M indices', 'Large (1M elements)', () => {
+        const copy = [...indices];
+        timsortIndices(copy, (i) => values[i], numericComparator());
+        expect(copy.length).toBe(SIZE);
+      });
 
       expect(result.time).toBeLessThan(60000); // < 30 seconds for 1M indices
     });
@@ -543,15 +491,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark memory usage', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 10000000);
 
-      const result = benchmark(
-        'Sort 1M (memory check)',
-        'Large (1M elements)',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 1M (memory check)', 'Large (1M elements)', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // Timsort uses O(n) space for merge operations
       // 1M numbers × 8 bytes = 8MB for array
@@ -570,15 +514,11 @@ describe('Timsort Performance Benchmarks', () => {
       // Pattern: 0,1,2,3,4,0,1,2,3,4,0,1,2,3,4...
       const arr = Array.from({ length: SIZE }, (_, i) => i % 100);
 
-      const result = benchmark(
-        'Sort 100K sawtooth pattern',
-        'Special Patterns',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K sawtooth pattern', 'Special Patterns', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(4000); // < 2 seconds
     });
@@ -591,15 +531,11 @@ describe('Timsort Performance Benchmarks', () => {
         arr.push(SIZE - i);
       }
 
-      const result = benchmark(
-        'Sort 100K alternating pattern',
-        'Special Patterns',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K alternating pattern', 'Special Patterns', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(5000); // < 2.5 seconds
     });
@@ -611,15 +547,11 @@ describe('Timsort Performance Benchmarks', () => {
         return i < half ? i : SIZE - i;
       });
 
-      const result = benchmark(
-        'Sort 100K organ pipe pattern',
-        'Special Patterns',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K organ pipe pattern', 'Special Patterns', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(5000); // < 2.5 seconds
     });
@@ -639,15 +571,11 @@ describe('Timsort Performance Benchmarks', () => {
         }
       }
 
-      const result = benchmark(
-        'Sort 100K with random runs',
-        'Special Patterns',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator());
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K with random runs', 'Special Patterns', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator());
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       // Should be faster due to existing runs
       expect(result.time).toBeLessThan(3000); // < 1.5 seconds
@@ -705,7 +633,16 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark user names', () => {
       const SIZE = 50000;
       const firstNames = ['John', 'Jane', 'Alice', 'Bob', 'Charlie', 'Diana', 'Eve', 'Frank'];
-      const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+      const lastNames = [
+        'Smith',
+        'Johnson',
+        'Williams',
+        'Brown',
+        'Jones',
+        'Garcia',
+        'Miller',
+        'Davis',
+      ];
 
       const arr = Array.from({ length: SIZE }, () => {
         const first = firstNames[Math.floor(Math.random() * firstNames.length)];
@@ -713,15 +650,11 @@ describe('Timsort Performance Benchmarks', () => {
         return `${first} ${last}`;
       });
 
-      const result = benchmark(
-        'Sort 50K user names',
-        'Real-World Scenarios',
-        () => {
-          const copy = [...arr];
-          timsort(copy, stringComparator());
-          expect(isSorted(copy, stringComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 50K user names', 'Real-World Scenarios', () => {
+        const copy = [...arr];
+        timsort(copy, stringComparator());
+        expect(isSorted(copy, stringComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(1600); // < 800ms for 50K strings
     });
@@ -760,15 +693,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark with default minRun (32)', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 1000000);
 
-      const result = benchmark(
-        'Sort 100K (minRun=32, default)',
-        'MinRun Comparison',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator(), { minRun: 32 });
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K (minRun=32, default)', 'MinRun Comparison', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator(), { minRun: 32 });
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(6000); // < 3 seconds
     });
@@ -776,15 +705,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark with minRun=16', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 1000000);
 
-      const result = benchmark(
-        'Sort 100K (minRun=16)',
-        'MinRun Comparison',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator(), { minRun: 16 });
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K (minRun=16)', 'MinRun Comparison', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator(), { minRun: 16 });
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(5000); // < 2.5 seconds
     });
@@ -792,15 +717,11 @@ describe('Timsort Performance Benchmarks', () => {
     it('should benchmark with minRun=64', () => {
       const arr = Array.from({ length: SIZE }, () => Math.random() * 1000000);
 
-      const result = benchmark(
-        'Sort 100K (minRun=64)',
-        'MinRun Comparison',
-        () => {
-          const copy = [...arr];
-          timsort(copy, numericComparator(), { minRun: 64 });
-          expect(isSorted(copy, numericComparator())).toBe(true);
-        }
-      );
+      const result = benchmark('Sort 100K (minRun=64)', 'MinRun Comparison', () => {
+        const copy = [...arr];
+        timsort(copy, numericComparator(), { minRun: 64 });
+        expect(isSorted(copy, numericComparator())).toBe(true);
+      });
 
       expect(result.time).toBeLessThan(7000); // < 3.5 seconds
     });

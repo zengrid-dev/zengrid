@@ -24,10 +24,7 @@
  * ```
  */
 
-import {
-  EventHandlerRegistry,
-  type ElementEventHandlers,
-} from './core/event-handler-registry';
+import { EventHandlerRegistry, type ElementEventHandlers } from './core/event-handler-registry';
 import { EventMapper } from './core/event-mapper';
 
 export interface EventDelegatorOptions {
@@ -63,11 +60,7 @@ export class EventDelegator {
   /**
    * Update element handlers
    */
-  updateElement(
-    elementId: string,
-    handlers: ElementEventHandlers,
-    merge = true
-  ): void {
+  updateElement(elementId: string, handlers: ElementEventHandlers, merge = true): void {
     this.registry.update(elementId, handlers, merge);
   }
 
@@ -79,16 +72,12 @@ export class EventDelegator {
   private attachDelegatedListeners(): void {
     const handlerNames = EventMapper.getHandlerNames();
 
-    handlerNames.forEach(handlerName => {
+    handlerNames.forEach((handlerName) => {
       const config = EventMapper.getEventConfig(handlerName);
       const listener = (e: Event) => this.handleEvent(e, handlerName);
 
       this.boundListeners.set(handlerName, listener);
-      this.container.addEventListener(
-        config.domEvent,
-        listener,
-        config.useCapture
-      );
+      this.container.addEventListener(config.domEvent, listener, config.useCapture);
     });
   }
 
@@ -97,10 +86,7 @@ export class EventDelegator {
    *
    * @private
    */
-  private handleEvent(
-    event: Event,
-    handlerName: keyof ElementEventHandlers
-  ): void {
+  private handleEvent(event: Event, handlerName: keyof ElementEventHandlers): void {
     const elementId = this.findElementId(event.target as HTMLElement);
     if (!elementId) return;
 
@@ -161,14 +147,8 @@ export class EventDelegator {
   destroy(): void {
     // Remove DOM listeners
     this.boundListeners.forEach((listener, handlerName) => {
-      const config = EventMapper.getEventConfig(
-        handlerName as keyof ElementEventHandlers
-      );
-      this.container.removeEventListener(
-        config.domEvent,
-        listener,
-        config.useCapture
-      );
+      const config = EventMapper.getEventConfig(handlerName as keyof ElementEventHandlers);
+      this.container.removeEventListener(config.domEvent, listener, config.useCapture);
     });
 
     this.registry.clear();

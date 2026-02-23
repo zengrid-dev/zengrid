@@ -24,24 +24,29 @@ The demo showcases real-world grid use cases with live performance metrics!
 ### 1. **Search Algorithms** (`search/`)
 
 #### Binary Search
+
 Fast searching in sorted data with O(log n) complexity.
 
 **Grid Use Cases:**
+
 - **Virtual scrolling**: Find row/column index at scroll position
 - **Sorted column search**: Locate values in sorted columns
 - **Range finding**: Find cells within a value range
 - **Index mapping**: Convert logical to visual indices
 
 **Variants:**
+
 - `binarySearch()` - Find exact match or insertion point
 - `binarySearchLeft()` - Leftmost occurrence (for duplicates)
 - `binarySearchRight()` - Rightmost occurrence (for duplicates)
 
 **Performance:**
+
 - Time: O(log n)
 - Space: O(1)
 
 **Example:**
+
 ```typescript
 import { binarySearch } from '@zengrid/shared';
 
@@ -58,21 +63,25 @@ const rowIndex = binarySearch(cumulativeHeights, 5000);
 ### 2. **Sorting Algorithms** (`sorting/`)
 
 #### TimSort
+
 Hybrid merge-insertion sort optimized for real-world data.
 
 **Grid Use Cases:**
+
 - **Column sorting**: Sort by single or multiple columns
 - **Custom comparators**: Sort by type (numbers, strings, dates)
 - **Stable sorting**: Maintain relative order for tied values
 - **Large datasets**: Efficiently sort 100K+ rows
 
 **Features:**
+
 - Adaptive algorithm (faster on partially sorted data)
 - Stable sort (preserves order of equal elements)
 - O(n log n) worst case, O(n) best case
 - Galloping mode for merging runs
 
 **Comparators:**
+
 - `naturalComparator()` - Numbers and strings
 - `numericComparator()` - Numbers only
 - `stringComparator()` - Case-sensitive strings
@@ -80,10 +89,12 @@ Hybrid merge-insertion sort optimized for real-world data.
 - Custom comparators supported
 
 **Performance:**
+
 - Time: O(n log n) average, O(n) best case
 - Space: O(n)
 
 **Example:**
+
 ```typescript
 import { timsort, numericComparator } from '@zengrid/shared';
 
@@ -111,10 +122,12 @@ timsort(rows, (a, b) => {
 **Critical Use Case: Formula Dependencies**
 
 Spreadsheet formulas create a **dependency graph** where:
+
 - **Nodes** = Cells (e.g., A1, B2, C3)
 - **Edges** = Dependencies (e.g., C1 depends on A1, B1)
 
 **Example:**
+
 ```
 A1: 10
 B1: 20
@@ -124,6 +137,7 @@ E1: =A1+D1    // E1 depends on A1, D1
 ```
 
 **Dependency Graph:**
+
 ```
      A1 ─────┐
      │       │
@@ -140,13 +154,16 @@ E1: =A1+D1    // E1 depends on A1, D1
 Explores as far as possible along each branch before backtracking.
 
 **Grid Use Cases:**
+
 1. **Cycle Detection**: Detect circular formula references
+
    ```typescript
    // =A1 in cell A1 is invalid
    // A1 → B1 → C1 → A1 creates a cycle
    ```
 
 2. **Path Finding**: Trace dependency chains
+
    ```typescript
    // Find all cells that affect E1
    // Path: A1 → C1 → D1 → E1
@@ -159,23 +176,26 @@ Explores as far as possible along each branch before backtracking.
    ```
 
 **Implementations:**
+
 - `dfs()` - Basic DFS traversal with callbacks
 - `dfsPath()` - Find path between two nodes
 - `hasCycle()` - Detect cycles in directed graph
 - `stronglyConnectedComponents()` - Tarjan's algorithm
 
 **Performance:**
+
 - Time: O(V + E) where V = vertices, E = edges
 - Space: O(V) for recursion stack
 
 **Example:**
+
 ```typescript
 import { hasCycle } from '@zengrid/shared/algorithms/graph';
 
 // Build dependency graph
 const graph: AdjacencyList<string> = new Map([
   ['C1', new Set(['A1', 'B1'])], // C1 = A1 + B1
-  ['D1', new Set(['C1'])],       // D1 = C1 * 2
+  ['D1', new Set(['C1'])], // D1 = C1 * 2
   ['E1', new Set(['A1', 'D1'])], // E1 = A1 + D1
 ]);
 
@@ -196,7 +216,9 @@ const nowHasCycle = hasCycle(graph); // true! (A1 → C1 → D1 → E1 → A1)
 Explores nodes level by level, visiting all neighbors before going deeper.
 
 **Grid Use Cases:**
+
 1. **Dirty Cell Propagation**: Mark all cells affected by a change
+
    ```typescript
    // User changes A1
    // Level 0: A1
@@ -206,6 +228,7 @@ Explores nodes level by level, visiting all neighbors before going deeper.
    ```
 
 2. **Incremental Recalculation**: Calculate formulas in dependency order
+
    ```typescript
    // BFS from changed cell finds all affected cells
    // Ensures A1 is calculated before C1, C1 before D1, etc.
@@ -218,6 +241,7 @@ Explores nodes level by level, visiting all neighbors before going deeper.
    ```
 
 **Implementations:**
+
 - `bfs()` - Basic BFS traversal
 - `bfsShortestPath()` - Find shortest path (unweighted)
 - `nodesAtDistance()` - Find all nodes at specific distance
@@ -225,10 +249,12 @@ Explores nodes level by level, visiting all neighbors before going deeper.
 - `allConnectedComponents()` - Find all separate groups
 
 **Performance:**
+
 - Time: O(V + E)
 - Space: O(V) for queue
 
 **Example:**
+
 ```typescript
 import { bfs, bfsShortestPath } from '@zengrid/shared/algorithms/graph';
 
@@ -253,13 +279,16 @@ const path = bfsShortestPath(dependencyGraph, 'A1', 'E1');
 Produces a linear ordering of nodes where dependencies come before dependents.
 
 **Grid Use Cases:**
+
 1. **Formula Calculation Order**: Calculate cells in correct order
+
    ```typescript
    // Topological sort: ['A1', 'B1', 'C1', 'D1', 'E1']
    // Ensures A1 and B1 are calculated before C1
    ```
 
 2. **Incremental Recalculation**: Recalculate only dirty cells
+
    ```typescript
    // Only cells [A1, C1, D1, E1] are dirty
    // Topological sort ensures correct order
@@ -272,6 +301,7 @@ Produces a linear ordering of nodes where dependencies come before dependents.
    ```
 
 **Implementation in DependencyGraph:**
+
 ```typescript
 const graph = new DependencyGraph();
 graph.addDependency('C1', 'A1');
@@ -286,6 +316,7 @@ const { order, hasCycle } = graph.topologicalSort();
 ```
 
 **Performance:**
+
 - Time: O(V + E)
 - Space: O(V)
 
@@ -296,37 +327,42 @@ const { order, hasCycle } = graph.topologicalSort();
 ### 4. **Filter Algorithms** (`filter/`)
 
 #### Bloom Filter
+
 Probabilistic data structure for fast membership testing.
 
 **Grid Use Cases:**
+
 - **Fast column filtering**: Check if value might exist before expensive scan
 - **Autocomplete optimization**: Quick check before full search
 - **Duplicate detection**: Approximate check for unique values
 - **Memory-efficient indexing**: Compact representation of large value sets
 
 **Characteristics:**
+
 - **False positives possible**: May say "yes" when answer is "no"
 - **No false negatives**: Never says "no" when answer is "yes"
 - **Space efficient**: Uses bit array, much smaller than hash set
 - **Configurable accuracy**: Trade space for accuracy
 
 **Operations:**
+
 - `add(value)` - O(k) where k = number of hash functions
 - `mightContain(value)` - O(k)
 - False positive rate: ~1% (configurable)
 
 **Example:**
+
 ```typescript
 import { BloomFilter } from '@zengrid/shared/algorithms/filter';
 
 // Index 10,000 product names with 1% false positive rate
 const bloom = new BloomFilter(10000, 0.01);
-products.forEach(p => bloom.add(p.name));
+products.forEach((p) => bloom.add(p.name));
 
 // Fast membership check
-if (bloom.mightContain("iPhone 14")) {
+if (bloom.mightContain('iPhone 14')) {
   // Might exist - do expensive exact search
-  const exact = products.find(p => p.name === "iPhone 14");
+  const exact = products.find((p) => p.name === 'iPhone 14');
 } else {
   // Definitely doesn't exist - skip expensive search
   return null;
@@ -340,9 +376,11 @@ if (bloom.mightContain("iPhone 14")) {
 ### 5. **Pattern Detection** (`pattern/`)
 
 #### Sequence Detector
+
 Detects patterns in sequences for smart autofill.
 
 **Grid Use Cases:**
+
 - **Smart autofill**: Excel-like drag-to-fill behavior
   ```
   Input: [1, 2, 3]      → Pattern: Arithmetic (+1)    → Fill: [4, 5, 6, 7, ...]
@@ -352,6 +390,7 @@ Detects patterns in sequences for smart autofill.
   ```
 
 **Supported Patterns:**
+
 1. **Constant**: [5, 5, 5] → continues 5, 5, 5...
 2. **Arithmetic**: [1, 3, 5] → +2 each → 7, 9, 11...
 3. **Geometric**: [3, 9, 27] → ×3 each → 81, 243, 729...
@@ -359,16 +398,19 @@ Detects patterns in sequences for smart autofill.
 5. **Custom patterns**: Months, days, quarters, etc.
 
 **Features:**
+
 - Confidence scoring (0-1)
 - Minimum pattern length configurable
 - Handles mixed numeric/text patterns
 - Extensible for custom patterns
 
 **Performance:**
+
 - Detection: O(n) where n = sample size
 - Generation: O(k) where k = number to generate
 
 **Example:**
+
 ```typescript
 import { SequenceDetector } from '@zengrid/shared/algorithms/pattern';
 
@@ -400,7 +442,7 @@ const textPattern = detector.detect(['Q1 2024', 'Q2 2024', 'Q3 2024']);
 grid.setValue('A1', 100);
 
 // 2. Mark dirty cells using BFS
-const dirtySet = markDirtyCells('A1');  // BFS traversal
+const dirtySet = markDirtyCells('A1'); // BFS traversal
 // Result: ['A1', 'C1', 'D1', 'E1']
 
 // 3. Topological sort for calculation order
@@ -413,7 +455,7 @@ if (dependencyGraph.wouldCreateCycle('A1', 'E1')) {
 }
 
 // 5. Calculate formulas in sorted order
-order.forEach(cellId => {
+order.forEach((cellId) => {
   const formula = grid.getFormula(cellId);
   const value = formulaEngine.evaluate(formula);
   grid.setValue(cellId, value);
@@ -424,14 +466,14 @@ order.forEach(cellId => {
 
 ## 🎯 Algorithm Selection Guide
 
-| Need | Algorithm | Time Complexity | Use Case |
-|------|-----------|----------------|----------|
-| Find in sorted data | Binary Search | O(log n) | Virtual scrolling, value lookup |
-| Sort column | TimSort | O(n log n) | Column sorting, multi-column sort |
-| Detect circular formulas | DFS (cycle detection) | O(V + E) | Formula validation |
-| Calculate formulas | BFS + Topological Sort | O(V + E) | Incremental recalculation |
-| Fast membership test | Bloom Filter | O(k) | Filter optimization |
-| Autofill pattern | Sequence Detector | O(n) | Smart drag-to-fill |
+| Need                     | Algorithm              | Time Complexity | Use Case                          |
+| ------------------------ | ---------------------- | --------------- | --------------------------------- |
+| Find in sorted data      | Binary Search          | O(log n)        | Virtual scrolling, value lookup   |
+| Sort column              | TimSort                | O(n log n)      | Column sorting, multi-column sort |
+| Detect circular formulas | DFS (cycle detection)  | O(V + E)        | Formula validation                |
+| Calculate formulas       | BFS + Topological Sort | O(V + E)        | Incremental recalculation         |
+| Fast membership test     | Bloom Filter           | O(k)            | Filter optimization               |
+| Autofill pattern         | Sequence Detector      | O(n)            | Smart drag-to-fill                |
 
 ---
 
@@ -453,14 +495,14 @@ class CalculationEngine {
       this.dirtySet.add(current);
 
       for (const dependent of this.graph.getDependents(current)) {
-        queue.push(dependent);  // ← BFS traversal
+        queue.push(dependent); // ← BFS traversal
       }
     }
   }
 
   recalculate(): void {
     // Topological sort for calculation order
-    const sorted = this.topologicalSort(this.dirtySet);  // ← Kahn's algorithm
+    const sorted = this.topologicalSort(this.dirtySet); // ← Kahn's algorithm
 
     for (const cell of sorted) {
       this.evaluateCell(cell);
@@ -470,6 +512,7 @@ class CalculationEngine {
 ```
 
 **Key Points:**
+
 - **BFS**: Propagates changes through dependency graph
 - **DFS**: Detects circular references
 - **Topological Sort**: Determines calculation order
@@ -480,6 +523,7 @@ class CalculationEngine {
 ## 📖 Documentation
 
 Each algorithm folder contains:
+
 - `{name}.ts` - Implementation with JSDoc
 - `{name}.spec.ts` - Comprehensive tests
 - `{name}.perf.spec.ts` - Performance benchmarks (where applicable)
@@ -491,6 +535,7 @@ Each algorithm folder contains:
 ## 🔧 Usage Examples
 
 ### Binary Search for Virtual Scrolling
+
 ```typescript
 import { binarySearch } from '@zengrid/shared';
 
@@ -504,14 +549,16 @@ const rowIndex = binarySearch(cumulative, scrollTop);
 ```
 
 ### TimSort for Column Sorting
+
 ```typescript
 import { timsort, numericComparator } from '@zengrid/shared';
 
-const columnData = rows.map(r => r.price);
+const columnData = rows.map((r) => r.price);
 timsort(columnData, numericComparator);
 ```
 
 ### Graph Algorithms for Formulas
+
 ```typescript
 import { DependencyGraph } from '@zengrid/shared';
 import { dfs, bfs } from '@zengrid/shared/algorithms/graph';
@@ -519,7 +566,7 @@ import { dfs, bfs } from '@zengrid/shared/algorithms/graph';
 const graph = new DependencyGraph();
 
 // Add formula dependencies
-graph.addDependency('C1', 'A1');  // C1 = A1 + B1
+graph.addDependency('C1', 'A1'); // C1 = A1 + B1
 graph.addDependency('C1', 'B1');
 
 // Check for cycles
@@ -533,11 +580,12 @@ console.log(order); // ['A1', 'B1', 'C1']
 ```
 
 ### Bloom Filter for Fast Filtering
+
 ```typescript
 import { BloomFilter } from '@zengrid/shared';
 
 const filter = new BloomFilter(10000, 0.01);
-columnValues.forEach(v => filter.add(v));
+columnValues.forEach((v) => filter.add(v));
 
 if (filter.mightContain(searchValue)) {
   // Do expensive exact search
@@ -545,6 +593,7 @@ if (filter.mightContain(searchValue)) {
 ```
 
 ### Pattern Detection for Autofill
+
 ```typescript
 import { SequenceDetector } from '@zengrid/shared';
 
@@ -558,17 +607,18 @@ const next = detector.continue([1, 2, 3], 10);
 
 ## 🚀 Performance Characteristics
 
-| Algorithm | Time | Space | Best For |
-|-----------|------|-------|----------|
-| Binary Search | O(log n) | O(1) | Sorted data lookup |
-| TimSort | O(n log n) | O(n) | General purpose sorting |
-| DFS | O(V + E) | O(V) | Cycle detection, path finding |
-| BFS | O(V + E) | O(V) | Shortest path, level traversal |
-| Topological Sort | O(V + E) | O(V) | Dependency ordering |
-| Bloom Filter | O(k) | O(m) bits | Membership testing |
-| Sequence Detector | O(n) | O(1) | Pattern recognition |
+| Algorithm         | Time       | Space     | Best For                       |
+| ----------------- | ---------- | --------- | ------------------------------ |
+| Binary Search     | O(log n)   | O(1)      | Sorted data lookup             |
+| TimSort           | O(n log n) | O(n)      | General purpose sorting        |
+| DFS               | O(V + E)   | O(V)      | Cycle detection, path finding  |
+| BFS               | O(V + E)   | O(V)      | Shortest path, level traversal |
+| Topological Sort  | O(V + E)   | O(V)      | Dependency ordering            |
+| Bloom Filter      | O(k)       | O(m) bits | Membership testing             |
+| Sequence Detector | O(n)       | O(1)      | Pattern recognition            |
 
 Where:
+
 - n = number of elements
 - V = vertices, E = edges (graphs)
 - k = hash functions (Bloom)
@@ -595,13 +645,16 @@ When adding new algorithms:
 ## 📚 Further Reading
 
 **Graph Algorithms:**
+
 - `architectural/grid-library-architecture.md` - Formula engine architecture
 - `packages/shared/src/data-structures/dependency-graph/` - Full DependencyGraph implementation
 
 **Data Structures:**
+
 - `packages/shared/src/data-structures/README.md` - Related data structures
 
 **Demo App:**
+
 - `apps/demo-ds-algorithms/` - Interactive demonstrations
 
 ---

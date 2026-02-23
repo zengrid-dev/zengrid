@@ -1,7 +1,4 @@
-import type {
-  SparseMatrix as ISparseMatrix,
-  SparseMatrixOptions,
-} from './sparse-matrix.interface';
+import type { SparseMatrix as ISparseMatrix, SparseMatrixOptions } from './sparse-matrix.interface';
 
 /**
  * SparseMatrix implementation using Map of Maps

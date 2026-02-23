@@ -28,7 +28,12 @@
  * @template E - Event type
  */
 
-import type { IReactiveState, ISubscriber, ISubscriptionManager, IBatchManager } from './interfaces';
+import type {
+  IReactiveState,
+  ISubscriber,
+  ISubscriptionManager,
+  IBatchManager,
+} from './interfaces';
 import { SubscriptionManager } from './core/subscription-manager';
 import { BatchManager } from './core/batch-manager';
 import { RingBuffer } from '../data-structures/ring-buffer';

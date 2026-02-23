@@ -692,7 +692,9 @@ describe('ColumnGroupManager', () => {
       };
       manager.addGroup(group);
 
-      const customToggle = () => { /* no-op */ };
+      const customToggle = () => {
+        /* no-op */
+      };
 
       const element = document.createElement('div');
       manager.renderGroup(element, 'g1', customToggle);

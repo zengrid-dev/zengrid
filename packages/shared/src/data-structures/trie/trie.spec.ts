@@ -169,7 +169,7 @@ describe('Trie', () => {
     it('should preserve case in suggestions', () => {
       const results = trie.autocomplete('APP');
       // Should restore case from prefix
-      results.forEach(word => {
+      results.forEach((word) => {
         expect(word.substring(0, 3)).toBe('APP');
       });
     });
@@ -430,7 +430,7 @@ describe('Trie', () => {
         'Band of Brothers',
       ];
 
-      columnValues.forEach(value => trie.insert(value));
+      columnValues.forEach((value) => trie.insert(value));
 
       // User types "app"
       const suggestions = trie.autocomplete('app', 5);

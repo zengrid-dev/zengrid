@@ -52,13 +52,17 @@ export class ColumnReorderPlugin {
     this.columnModel.batchUpdate(() => {
       allColumns.forEach((col, index) => {
         if (col.order !== index) {
-          this.columnModel.updateState(col.id, { order: index }, {
-            type: 'reorder',
-            columnId: col.id,
-            oldValue: col.order,
-            newValue: index,
-            state: { ...col, order: index },
-          });
+          this.columnModel.updateState(
+            col.id,
+            { order: index },
+            {
+              type: 'reorder',
+              columnId: col.id,
+              oldValue: col.order,
+              newValue: index,
+              state: { ...col, order: index },
+            }
+          );
         }
       });
     });
@@ -76,21 +80,29 @@ export class ColumnReorderPlugin {
     if (!col1 || !col2) return;
 
     this.columnModel.batchUpdate(() => {
-      this.columnModel.updateState(col1.id, { order: col2.order }, {
-        type: 'reorder',
-        columnId: col1.id,
-        oldValue: col1.order,
-        newValue: col2.order,
-        state: { ...col1, order: col2.order },
-      });
+      this.columnModel.updateState(
+        col1.id,
+        { order: col2.order },
+        {
+          type: 'reorder',
+          columnId: col1.id,
+          oldValue: col1.order,
+          newValue: col2.order,
+          state: { ...col1, order: col2.order },
+        }
+      );
 
-      this.columnModel.updateState(col2.id, { order: col1.order }, {
-        type: 'reorder',
-        columnId: col2.id,
-        oldValue: col2.order,
-        newValue: col1.order,
-        state: { ...col2, order: col1.order },
-      });
+      this.columnModel.updateState(
+        col2.id,
+        { order: col1.order },
+        {
+          type: 'reorder',
+          columnId: col2.id,
+          oldValue: col2.order,
+          newValue: col1.order,
+          state: { ...col2, order: col1.order },
+        }
+      );
     });
   }
 }

@@ -2,7 +2,7 @@ import { RingBuffer } from '@zengrid/shared';
 import type { DebugEvent } from './types';
 import { signalRegistry, computedRegistry } from './tracking';
 
-const IS_DEV = process.env['NODE_ENV'] !== 'production';
+const IS_DEV = typeof process !== 'undefined' && process.env?.['NODE_ENV'] !== 'production';
 
 const EVENT_LOG_CAPACITY = 1000;
 const eventLog = new RingBuffer<DebugEvent>(EVENT_LOG_CAPACITY);
@@ -101,8 +101,19 @@ export function debugGraph(): Record<string, string[]> {
   return graph;
 }
 
+const pluginTimings = new Map<string, number>();
+
+export function recordPluginTiming(name: string, duration: number): void {
+  pluginTimings.set(name, duration);
+}
+
+export function getPluginTimings(): Map<string, number> {
+  return new Map(pluginTimings);
+}
+
 export function resetDebug(): void {
   eventLog.clear();
   traceCounter = 0;
   currentTraceId = 0;
+  pluginTimings.clear();
 }

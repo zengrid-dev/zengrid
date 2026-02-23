@@ -3,11 +3,7 @@
  * @packageDocumentation
  */
 
-export type {
-  NullPosition,
-  TimsortOptions,
-  SortMetadata,
-} from './sorting.interface';
+export type { NullPosition, TimsortOptions, SortMetadata } from './sorting.interface';
 
 export {
   numericComparator,

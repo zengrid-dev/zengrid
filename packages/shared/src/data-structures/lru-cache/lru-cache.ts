@@ -1,9 +1,4 @@
-import type {
-  ILRUCache,
-  LRUCacheOptions,
-  CacheEntry,
-  CacheStats,
-} from './lru-cache.interface';
+import type { ILRUCache, LRUCacheOptions, CacheEntry, CacheStats } from './lru-cache.interface';
 
 /**
  * Doubly-linked list node for LRU tracking

@@ -5,10 +5,7 @@
  * instead of O(n) linear scans.
  */
 
-import {
-  SegmentTree,
-  AggregationType,
-} from '@zengrid/shared';
+import { SegmentTree, AggregationType } from '@zengrid/shared';
 
 /**
  * Column range index entry
@@ -79,7 +76,7 @@ export class RangeFilterOptimizer {
    */
   indexColumn(col: number, values: number[]): void {
     // Filter out null/undefined values and convert to numbers
-    const numericValues = values.map(v => {
+    const numericValues = values.map((v) => {
       if (v == null) return 0;
       const num = Number(v);
       return isNaN(num) ? 0 : num;
@@ -105,7 +102,7 @@ export class RangeFilterOptimizer {
     const sortedIndices = numericValues
       .map((value, index) => ({ value, index }))
       .sort((a, b) => a.value - b.value)
-      .map(item => item.index);
+      .map((item) => item.index);
 
     // Store index
     this.columnIndexes.set(col, {
@@ -242,7 +239,7 @@ export class RangeFilterOptimizer {
     entry.sortedIndices = entry.values
       .map((value, index) => ({ value, index }))
       .sort((a, b) => a.value - b.value)
-      .map(item => item.index);
+      .map((item) => item.index);
   }
 
   /**
@@ -301,11 +298,7 @@ export class RangeFilterOptimizer {
   /**
    * Binary search for leftmost position where value >= target
    */
-  private binarySearchLeft(
-    values: number[],
-    sortedIndices: number[],
-    target: number
-  ): number {
+  private binarySearchLeft(values: number[], sortedIndices: number[], target: number): number {
     let left = 0;
     let right = sortedIndices.length - 1;
     let result = sortedIndices.length;
@@ -328,11 +321,7 @@ export class RangeFilterOptimizer {
   /**
    * Binary search for rightmost position where value <= target
    */
-  private binarySearchRight(
-    values: number[],
-    sortedIndices: number[],
-    target: number
-  ): number {
+  private binarySearchRight(values: number[], sortedIndices: number[], target: number): number {
     let left = 0;
     let right = sortedIndices.length - 1;
     let result = -1;
@@ -355,10 +344,7 @@ export class RangeFilterOptimizer {
   /**
    * Calculate statistics for matching rows
    */
-  private calculateRangeStats(
-    entry: RangeIndexEntry,
-    rows: number[]
-  ): RangeQueryResult['stats'] {
+  private calculateRangeStats(entry: RangeIndexEntry, rows: number[]): RangeQueryResult['stats'] {
     if (rows.length === 0) {
       return { min: 0, max: 0, sum: 0, avg: 0, count: 0 };
     }

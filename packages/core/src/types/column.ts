@@ -74,6 +74,6 @@ export interface ColumnDef {
  * Sort icons configuration
  */
 export interface SortIcons {
-  asc?: string;  // Icon for ascending sort (default: '▲')
+  asc?: string; // Icon for ascending sort (default: '▲')
   desc?: string; // Icon for descending sort (default: '▼')
 }

@@ -1,7 +1,7 @@
 // Types
 export type {
   StoreKeys,
-  GridStore,
+  GridStore as IGridStore,
   WrappedSignal,
   WrappedComputed,
   DebugEvent,
@@ -9,18 +9,30 @@ export type {
   SignalMetadata,
   EffectDispose,
   ActionHandler,
+  GridPlugin,
+  PluginDisposable,
+  GridApi,
+  AsyncState,
+  AsyncComputedOptions,
 } from './types';
 
 // Classes
 export { GridStoreImpl as GridStoreClass } from './store';
-export { PipelineRegistry } from './pipeline';
-
-// Re-export the class under the interface name for convenience
 export { GridStoreImpl as GridStore } from './store';
+export { PipelineRegistry } from './pipeline';
 
 // Functions
 export { createSignal, createComputed, gridBatch, untracked } from './signal';
 export { createEffect, flushEffects } from './effect-scheduler';
 
+// Async
+export { yieldToMain, processInChunks } from './yield';
+
 // Debug
-export { getEventLog, getEventsByTrace, debugGraph } from './debug';
+export {
+  getEventLog,
+  getEventsByTrace,
+  debugGraph,
+  recordPluginTiming,
+  getPluginTimings,
+} from './debug';

@@ -261,9 +261,9 @@ describe('SegmentTree', () => {
 
       // findIndexAtSum finds first index where cumulative >= target
       // For target just above previous cumulative, it should return that index
-      expect(tree.findIndexAtSum(1)).toBe(0);   // 25 >= 1
-      expect(tree.findIndexAtSum(26)).toBe(1);  // 60 >= 26
-      expect(tree.findIndexAtSum(61)).toBe(2);  // 105 >= 61
+      expect(tree.findIndexAtSum(1)).toBe(0); // 25 >= 1
+      expect(tree.findIndexAtSum(26)).toBe(1); // 60 >= 26
+      expect(tree.findIndexAtSum(61)).toBe(2); // 105 >= 61
       expect(tree.findIndexAtSum(106)).toBe(3); // 160 >= 106
       expect(tree.findIndexAtSum(161)).toBe(4); // 225 >= 161
     });
@@ -288,10 +288,10 @@ describe('SegmentTree', () => {
       expect(tree.findIndexAtSum(31)).toBe(1);
 
       // But findIndexAtSum(61) now returns 1 instead of 2
-      expect(tree.findIndexAtSum(61)).toBe(1);  // 90 >= 61
+      expect(tree.findIndexAtSum(61)).toBe(1); // 90 >= 61
 
       // And findIndexAtSum(91) returns 2
-      expect(tree.findIndexAtSum(91)).toBe(2);  // 120 >= 91
+      expect(tree.findIndexAtSum(91)).toBe(2); // 120 >= 91
     });
   });
 });

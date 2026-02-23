@@ -24,12 +24,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -71,21 +66,19 @@ function formatResults() {
   console.log('       SegmentTree Performance Benchmarks       ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(40),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(40), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -93,27 +86,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(40),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(40), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 
@@ -466,16 +452,12 @@ describe('SegmentTree Performance Benchmarks', () => {
         type: AggregationType.SUM,
       });
 
-      const result = benchmark(
-        '1000 small range queries',
-        'Query Patterns',
-        () => {
-          for (let i = 0; i < 1000; i++) {
-            const start = i % (SIZE - 10);
-            tree.query(start, start + 10);
-          }
+      const result = benchmark('1000 small range queries', 'Query Patterns', () => {
+        for (let i = 0; i < 1000; i++) {
+          const start = i % (SIZE - 10);
+          tree.query(start, start + 10);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(40); // < 20ms for 1000 queries
     });
@@ -486,16 +468,12 @@ describe('SegmentTree Performance Benchmarks', () => {
         type: AggregationType.SUM,
       });
 
-      const result = benchmark(
-        '500 alternating query/update',
-        'Query Patterns',
-        () => {
-          for (let i = 0; i < 500; i++) {
-            tree.query(i % SIZE, (i + 100) % SIZE);
-            tree.update(i % SIZE, i);
-          }
+      const result = benchmark('500 alternating query/update', 'Query Patterns', () => {
+        for (let i = 0; i < 500; i++) {
+          tree.query(i % SIZE, (i + 100) % SIZE);
+          tree.update(i % SIZE, i);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(100); // < 50ms
     });
@@ -506,15 +484,11 @@ describe('SegmentTree Performance Benchmarks', () => {
         type: AggregationType.SUM,
       });
 
-      const result = benchmark(
-        '100 nested range queries',
-        'Query Patterns',
-        () => {
-          for (let size = 10; size < 1000; size += 10) {
-            tree.query(0, size);
-          }
+      const result = benchmark('100 nested range queries', 'Query Patterns', () => {
+        for (let size = 10; size < 1000; size += 10) {
+          tree.query(0, size);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(20);
     });
@@ -523,35 +497,27 @@ describe('SegmentTree Performance Benchmarks', () => {
   describe('Status Bar Use Cases', () => {
     it('should benchmark selection aggregations', () => {
       const SIZE = 100000;
-      const cellValues = Array.from({ length: SIZE }, () =>
-        Math.floor(Math.random() * 1000)
-      );
+      const cellValues = Array.from({ length: SIZE }, () => Math.floor(Math.random() * 1000));
       const tree = new SegmentTree({
         values: cellValues,
         type: AggregationType.SUM,
       });
 
-      const result = benchmark(
-        'Status bar sum (1000 selections)',
-        'Status Bar Use Cases',
-        () => {
-          // Simulate 1000 different selection changes
-          for (let i = 0; i < 1000; i++) {
-            const start = Math.floor(Math.random() * (SIZE - 100));
-            const end = start + Math.floor(Math.random() * 100);
-            tree.query(start, end);
-          }
+      const result = benchmark('Status bar sum (1000 selections)', 'Status Bar Use Cases', () => {
+        // Simulate 1000 different selection changes
+        for (let i = 0; i < 1000; i++) {
+          const start = Math.floor(Math.random() * (SIZE - 100));
+          const end = start + Math.floor(Math.random() * 100);
+          tree.query(start, end);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(100); // < 50ms for 1000 queries
     });
 
     it('should benchmark min/max for selected range', () => {
       const SIZE = 50000;
-      const values = Array.from({ length: SIZE }, () =>
-        Math.floor(Math.random() * 10000)
-      );
+      const values = Array.from({ length: SIZE }, () => Math.floor(Math.random() * 10000));
       const minTree = new SegmentTree({
         values,
         type: AggregationType.MIN,
@@ -561,18 +527,14 @@ describe('SegmentTree Performance Benchmarks', () => {
         type: AggregationType.MAX,
       });
 
-      const result = benchmark(
-        'Min/Max queries (500 each)',
-        'Status Bar Use Cases',
-        () => {
-          for (let i = 0; i < 500; i++) {
-            const start = Math.floor(Math.random() * (SIZE - 1000));
-            const end = start + 1000;
-            minTree.query(start, end);
-            maxTree.query(start, end);
-          }
+      const result = benchmark('Min/Max queries (500 each)', 'Status Bar Use Cases', () => {
+        for (let i = 0; i < 500; i++) {
+          const start = Math.floor(Math.random() * (SIZE - 1000));
+          const end = start + 1000;
+          minTree.query(start, end);
+          maxTree.query(start, end);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(100); // < 50ms for 1000 queries
     });
@@ -584,16 +546,12 @@ describe('SegmentTree Performance Benchmarks', () => {
         type: AggregationType.SUM,
       });
 
-      const result = benchmark(
-        'Cell edit + query (100 edits)',
-        'Status Bar Use Cases',
-        () => {
-          for (let i = 0; i < 100; i++) {
-            tree.update(i, 200);
-            tree.query(0, SIZE - 1); // Get new total
-          }
+      const result = benchmark('Cell edit + query (100 edits)', 'Status Bar Use Cases', () => {
+        for (let i = 0; i < 100; i++) {
+          tree.update(i, 200);
+          tree.query(0, SIZE - 1); // Get new total
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(20); // < 20ms
     });
@@ -646,17 +604,13 @@ describe('SegmentTree Performance Benchmarks', () => {
         lazy: true,
       });
 
-      const result = benchmark(
-        'Multiple range updates (50)',
-        'Lazy Propagation',
-        () => {
-          for (let i = 0; i < 50; i++) {
-            const start = i * 1000;
-            const end = start + 500;
-            tree.rangeUpdate(start, Math.min(end, SIZE - 1), 10);
-          }
+      const result = benchmark('Multiple range updates (50)', 'Lazy Propagation', () => {
+        for (let i = 0; i < 50; i++) {
+          const start = i * 1000;
+          const end = start + 500;
+          tree.rangeUpdate(start, Math.min(end, SIZE - 1), 10);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(100); // < 50ms
     });
@@ -688,17 +642,13 @@ describe('SegmentTree Performance Benchmarks', () => {
   describe('Memory Efficiency', () => {
     it('should measure memory for small tree', () => {
       const SIZE = 1000;
-      const result = benchmark(
-        'Memory: 1K elements',
-        'Memory Efficiency',
-        () => {
-          const tree = new SegmentTree({
-            values: Array(SIZE).fill(1),
-            type: AggregationType.SUM,
-          });
-          expect(tree.size).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Memory: 1K elements', 'Memory Efficiency', () => {
+        const tree = new SegmentTree({
+          values: Array(SIZE).fill(1),
+          type: AggregationType.SUM,
+        });
+        expect(tree.size).toBe(SIZE);
+      });
 
       // Tree should use O(4n) space
       // For 1K numbers: ~4K numbers × 8 bytes = ~32KB
@@ -707,17 +657,13 @@ describe('SegmentTree Performance Benchmarks', () => {
 
     it('should measure memory for large tree', () => {
       const SIZE = 100000;
-      const result = benchmark(
-        'Memory: 100K elements',
-        'Memory Efficiency',
-        () => {
-          const tree = new SegmentTree({
-            values: Array(SIZE).fill(1),
-            type: AggregationType.SUM,
-          });
-          expect(tree.size).toBe(SIZE);
-        }
-      );
+      const result = benchmark('Memory: 100K elements', 'Memory Efficiency', () => {
+        const tree = new SegmentTree({
+          values: Array(SIZE).fill(1),
+          type: AggregationType.SUM,
+        });
+        expect(tree.size).toBe(SIZE);
+      });
 
       // Tree should use O(4n) space
       // For 100K numbers: ~400K numbers × 8 bytes = ~3.2MB

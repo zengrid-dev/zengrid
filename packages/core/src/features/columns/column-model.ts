@@ -127,14 +127,18 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
 
     const actualWidth = this.applyConstraints(width, constraints);
 
-    this.setState(columnId, { ...state, width, actualWidth }, {
-      type: 'width',
+    this.setState(
       columnId,
-      oldValue: state.width,
-      newValue: width,
-      actualValue: actualWidth,
-      state: { ...state, width, actualWidth },
-    });
+      { ...state, width, actualWidth },
+      {
+        type: 'width',
+        columnId,
+        oldValue: state.width,
+        newValue: width,
+        actualValue: actualWidth,
+        state: { ...state, width, actualWidth },
+      }
+    );
   }
 
   getWidth(columnId: string): number | undefined {
@@ -144,7 +148,7 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
   getWidths(): Array<{ id: string; width: number }> {
     return this.getColumns()
       .sort((a, b) => a.order - b.order)
-      .map(col => ({ id: col.id, width: col.actualWidth }));
+      .map((col) => ({ id: col.id, width: col.actualWidth }));
   }
 
   // ============================================
@@ -181,14 +185,18 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
     if (state) {
       const actualWidth = this.applyConstraints(state.width, merged);
       if (actualWidth !== state.actualWidth) {
-        this.setState(columnId, { ...state, actualWidth }, {
-          type: 'width',
+        this.setState(
           columnId,
-          oldValue: state.actualWidth,
-          newValue: state.width,
-          actualValue: actualWidth,
-          state: { ...state, actualWidth },
-        });
+          { ...state, actualWidth },
+          {
+            type: 'width',
+            columnId,
+            oldValue: state.actualWidth,
+            newValue: state.width,
+            actualValue: actualWidth,
+            state: { ...state, actualWidth },
+          }
+        );
       }
     }
   }
@@ -242,7 +250,7 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
 
   getColumns(): ColumnState[] {
     const columns: ColumnState[] = [];
-    this.fieldToId.forEach(id => {
+    this.fieldToId.forEach((id) => {
       const state = this.getState(id);
       if (state) columns.push(state);
     });
@@ -253,7 +261,7 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
    * Get all visible columns (unordered)
    */
   getVisibleColumns(): ColumnState[] {
-    return this.getColumns().filter(col => col.visible);
+    return this.getColumns().filter((col) => col.visible);
   }
 
   /**
@@ -267,7 +275,7 @@ export class ColumnModel extends ReactiveState<ColumnState, ColumnEvent> {
    * Get count of visible columns
    */
   getVisibleCount(): number {
-    return this.getColumns().filter(col => col.visible).length;
+    return this.getColumns().filter((col) => col.visible).length;
   }
 
   getCount(): number {

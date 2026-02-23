@@ -61,7 +61,7 @@ export class ColumnModelWidthProvider implements WidthProvider {
     if (!this.dirty && this.cache) return;
 
     const columns = this.getOrderedColumns();
-    const widths = columns.map(col => col.actualWidth);
+    const widths = columns.map((col) => col.actualWidth);
 
     if (widths.length === 0) {
       this.cache = new PrefixSumArray({ values: [] });

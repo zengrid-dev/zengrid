@@ -45,14 +45,10 @@ export function removeEventListeners(
  * Handle sort state change
  */
 export function handleSortChange(
-  payload: any,
-  getSortState: (() => SortState[]) | undefined,
+  _payload: any,
+  _getSortState: (() => SortState[]) | undefined,
   updateAllHeaders: () => void
 ): void {
-  console.log('🔄 HeaderManager.handleSortChange() - updating all headers');
-  // Use sortState from event payload (more reliable than getSortState)
-  const sortState = payload?.sortState ?? getSortState?.() ?? [];
-  console.log('   → Current sortState from payload:', sortState);
   updateAllHeaders();
 }
 

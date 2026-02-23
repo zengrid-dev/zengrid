@@ -76,7 +76,7 @@ export class EventEmitter<EventMap extends Record<string, any> = Record<string, 
     if (eventListeners) {
       // Create a copy to avoid issues if listeners modify the set
       const listenersCopy = Array.from(eventListeners);
-      listenersCopy.forEach(listener => {
+      listenersCopy.forEach((listener) => {
         try {
           listener(data);
         } catch (error) {

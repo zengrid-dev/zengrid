@@ -175,11 +175,7 @@ export class SelectionManager {
   /**
    * Select a column range
    */
-  selectColumns(
-    startCol: number,
-    endCol: number,
-    additive: boolean = false
-  ): void {
+  selectColumns(startCol: number, endCol: number, additive: boolean = false): void {
     if (!this.enableColumnSelection) return;
 
     if (this.mode === 'single' || !additive) {
@@ -371,16 +367,10 @@ export class SelectionManager {
     this.selections.set(selection.id, selection);
 
     // Add to row interval tree
-    this.rowIntervals.insert(
-      { start: selection.startRow, end: selection.endRow },
-      selection
-    );
+    this.rowIntervals.insert({ start: selection.startRow, end: selection.endRow }, selection);
 
     // Add to column interval tree
-    this.colIntervals.insert(
-      { start: selection.startCol, end: selection.endCol },
-      selection
-    );
+    this.colIntervals.insert({ start: selection.startCol, end: selection.endCol }, selection);
   }
 
   /**

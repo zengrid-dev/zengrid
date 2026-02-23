@@ -35,11 +35,7 @@ import type { AdjacencyList, BFSOptions, PathResult } from './graph.interface';
  * @param options - Traversal options
  * @returns Array of visited nodes in BFS order
  */
-export function bfs<T>(
-  graph: AdjacencyList<T>,
-  start: T,
-  options: BFSOptions<T> = {}
-): T[] {
+export function bfs<T>(graph: AdjacencyList<T>, start: T, options: BFSOptions<T> = {}): T[] {
   const visited = new Set<T>();
   const queue: Array<{ node: T; level: number }> = [];
   const result: T[] = [];
@@ -191,7 +187,7 @@ export function allConnectedComponents<T>(graph: AdjacencyList<T>): T[][] {
   for (const node of graph.keys()) {
     if (!visited.has(node)) {
       const component = bfs(graph, node);
-      component.forEach(n => visited.add(n));
+      component.forEach((n) => visited.add(n));
       components.push(component);
     }
   }

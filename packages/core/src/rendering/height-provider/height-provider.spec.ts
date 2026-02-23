@@ -9,21 +9,15 @@ describe('UniformHeightProvider', () => {
     });
 
     it('should throw on negative height', () => {
-      expect(() => new UniformHeightProvider(-1, 100)).toThrow(
-        'Height must be positive'
-      );
+      expect(() => new UniformHeightProvider(-1, 100)).toThrow('Height must be positive');
     });
 
     it('should throw on zero height', () => {
-      expect(() => new UniformHeightProvider(0, 100)).toThrow(
-        'Height must be positive'
-      );
+      expect(() => new UniformHeightProvider(0, 100)).toThrow('Height must be positive');
     });
 
     it('should throw on negative row count', () => {
-      expect(() => new UniformHeightProvider(30, -1)).toThrow(
-        'Row count must be non-negative'
-      );
+      expect(() => new UniformHeightProvider(30, -1)).toThrow('Row count must be non-negative');
     });
 
     it('should allow zero rows', () => {

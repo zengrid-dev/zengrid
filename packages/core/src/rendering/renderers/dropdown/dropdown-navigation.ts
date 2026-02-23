@@ -68,7 +68,7 @@ export class DropdownNavigation {
     const options = this.getVisibleOptions(menu);
     if (options.length === 0) return;
 
-    const focusedIndex = options.findIndex(opt => opt === document.activeElement);
+    const focusedIndex = options.findIndex((opt) => opt === document.activeElement);
 
     let newIndex: number;
     if (focusedIndex === -1) {
@@ -109,9 +109,9 @@ export class DropdownNavigation {
     const optionsList = menu.querySelector('.zg-dropdown-options');
     if (!optionsList) return [];
 
-    return Array.from(
-      optionsList.querySelectorAll('.zg-dropdown-option:not(.disabled)')
-    ).filter(opt => (opt as HTMLElement).style.display !== 'none') as HTMLElement[];
+    return Array.from(optionsList.querySelectorAll('.zg-dropdown-option:not(.disabled)')).filter(
+      (opt) => (opt as HTMLElement).style.display !== 'none'
+    ) as HTMLElement[];
   }
 
   /**

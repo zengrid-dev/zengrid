@@ -46,10 +46,7 @@ export function formatDateForDisplay(date: Date, format: string): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
 
-  return format
-    .replace('DD', day)
-    .replace('MM', month)
-    .replace('YYYY', String(year));
+  return format.replace('DD', day).replace('MM', month).replace('YYYY', String(year));
 }
 
 /**

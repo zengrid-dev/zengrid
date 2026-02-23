@@ -86,11 +86,7 @@ export class FilterCache {
    * @param dataVersion - Data version/timestamp
    * @returns Cached entry or null
    */
-  get(
-    filterHash: string,
-    rowCount: number,
-    dataVersion: number
-  ): FilterCacheEntry | null {
+  get(filterHash: string, rowCount: number, dataVersion: number): FilterCacheEntry | null {
     if (!this.enabled) return null;
 
     const key = this.getCacheKey({ filterHash, rowCount, dataVersion });
@@ -114,12 +110,7 @@ export class FilterCache {
    * @param dataVersion - Data version/timestamp
    * @param visibleRows - Filtered row indices
    */
-  set(
-    filterHash: string,
-    rowCount: number,
-    dataVersion: number,
-    visibleRows: number[]
-  ): void {
+  set(filterHash: string, rowCount: number, dataVersion: number, visibleRows: number[]): void {
     if (!this.enabled) return;
 
     const key = this.getCacheKey({ filterHash, rowCount, dataVersion });

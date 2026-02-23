@@ -29,12 +29,8 @@ describe('CommandStack', () => {
     });
 
     it('should throw error if maxSize is less than 1', () => {
-      expect(() => new CommandStack({ maxSize: 0 })).toThrow(
-        'maxSize must be at least 1'
-      );
-      expect(() => new CommandStack({ maxSize: -1 })).toThrow(
-        'maxSize must be at least 1'
-      );
+      expect(() => new CommandStack({ maxSize: 0 })).toThrow('maxSize must be at least 1');
+      expect(() => new CommandStack({ maxSize: -1 })).toThrow('maxSize must be at least 1');
     });
 
     it('should accept maxSize of 1', () => {
@@ -89,12 +85,8 @@ describe('CommandStack', () => {
     it('should throw error when command is null or undefined', () => {
       const stack = new CommandStack();
 
-      expect(() => stack.execute(null as any)).toThrow(
-        'Command cannot be null or undefined'
-      );
-      expect(() => stack.execute(undefined as any)).toThrow(
-        'Command cannot be null or undefined'
-      );
+      expect(() => stack.execute(null as any)).toThrow('Command cannot be null or undefined');
+      expect(() => stack.execute(undefined as any)).toThrow('Command cannot be null or undefined');
     });
 
     it('should handle executing many commands', () => {
@@ -441,13 +433,9 @@ describe('CommandStack', () => {
 
     it('should handle commands with errors in undo', () => {
       const stack = new CommandStack();
-      const errorCommand = createCommand(
-        'Error',
-        jest.fn(),
-        () => {
-          throw new Error('Undo failed');
-        }
-      );
+      const errorCommand = createCommand('Error', jest.fn(), () => {
+        throw new Error('Undo failed');
+      });
 
       stack.execute(errorCommand);
 

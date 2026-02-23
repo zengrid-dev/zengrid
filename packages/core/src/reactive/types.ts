@@ -22,6 +22,18 @@ export interface WrappedComputed<T = unknown> {
 
 export type EffectDispose = () => void;
 
+export interface AsyncState {
+  pending: boolean;
+  stale: boolean;
+  error: Error | null;
+  version: number;
+}
+
+export interface AsyncComputedOptions {
+  debounceMs?: number;
+  onError?: (error: Error) => void;
+}
+
 export type ActionHandler = (...args: any[]) => void | { undo: () => void };
 
 export interface ActionRegistration {
@@ -52,6 +64,31 @@ export interface StoreKeys {
   'rows.indices': number[];
   'rows.viewIndices': number[];
   'rows.viewCount': number;
+
+  // Phase 5: Scroll
+  'scroll.top': number;
+  'scroll.left': number;
+
+  // Phase 5: Viewport
+  'viewport.width': number;
+  'viewport.height': number;
+  'viewport.visibleRows': { start: number; end: number };
+  'viewport.visibleCols': { start: number; end: number };
+
+  // Phase 6: Selection
+  'selection.ranges': import('../types').CellRange[];
+  'selection.active': import('../types').CellRef | null;
+
+  // Phase 6: Editing
+  'editing.active': import('../types').CellRef | null;
+
+  // Phase 6: Undo/Redo
+  'undoRedo.canUndo': boolean;
+  'undoRedo.canRedo': boolean;
+
+  // Phase 8: Async pipeline metadata
+  'pipeline.sort.__async': AsyncState;
+  'pipeline.filter.__async': AsyncState;
 }
 
 export interface GridStore {
@@ -59,12 +96,40 @@ export interface GridStore {
   computed(key: string, fn: () => unknown, owner: string, phase?: number): void;
   effect(name: string, fn: () => void | (() => void), owner: string, phase?: number): void;
   get(key: string): unknown;
+  set(key: string, value: unknown): void;
   getUnphased(key: string): unknown;
   getRow(dataIndex: number): unknown;
   action(name: string, handler: ActionHandler, owner: string): void;
   exec(name: string, ...args: unknown[]): void | { undo: () => void };
+  asyncComputed(
+    key: string,
+    fn: () => () => Promise<unknown>,
+    owner: string,
+    phase?: number,
+    options?: AsyncComputedOptions
+  ): void;
   addDisposable(owner: string, dispose: () => void): void;
   disposePlugin(owner: string): void;
   disposeAll(): void;
   debugGraph(): Record<string, string[]>;
+}
+
+export interface PluginDisposable {
+  teardown: Array<() => void>;
+}
+
+export interface GridPlugin {
+  name: string;
+  phase: number;
+  dependencies?: string[];
+  setup(store: GridStore, api: GridApi): PluginDisposable | void;
+  dispose?(): void;
+}
+
+export interface GridApi {
+  register(namespace: string, methods: Record<string, Function>): void;
+  exec(action: string, ...args: unknown[]): void | { undo: () => void };
+  fireEvent(name: string, data: unknown): void;
+  onLegacy(method: string, handler: (...args: unknown[]) => unknown): void;
+  getMethod(namespace: string, method: string): Function | undefined;
 }

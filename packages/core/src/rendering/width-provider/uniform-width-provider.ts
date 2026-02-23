@@ -37,18 +37,14 @@ export class UniformWidthProvider implements WidthProvider {
 
   getWidth(index: number): number {
     if (index < 0 || index >= this.colCount) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.colCount - 1}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.colCount - 1}]`);
     }
     return this.colWidth;
   }
 
   getOffset(index: number): number {
     if (index < 0 || index > this.colCount) {
-      throw new RangeError(
-        `Index ${index} out of bounds [0, ${this.colCount}]`
-      );
+      throw new RangeError(`Index ${index} out of bounds [0, ${this.colCount}]`);
     }
     return index * this.colWidth;
   }

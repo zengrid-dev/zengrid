@@ -41,7 +41,7 @@ export class FilterOptimizer {
    */
   indexColumn(col: number, values: any[], falsePositiveRate: number = 0.01): void {
     // Calculate unique values
-    const uniqueValues = new Set(values.map(v => String(v ?? '')));
+    const uniqueValues = new Set(values.map((v) => String(v ?? '')));
 
     // Calculate optimal bloom filter parameters
     const size = BloomFilter.optimalSize(uniqueValues.size, falsePositiveRate);
@@ -50,7 +50,7 @@ export class FilterOptimizer {
     const filter = new BloomFilter(size, hashCount);
 
     // Add all unique values
-    uniqueValues.forEach(value => {
+    uniqueValues.forEach((value) => {
       if (value) filter.add(value);
     });
 

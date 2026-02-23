@@ -121,10 +121,7 @@ export interface ColumnStore {
    * @returns Aggregation result
    * @complexity O(n)
    */
-  aggregate(
-    columnName: string,
-    operation: AggregateOperation
-  ): AggregationResult;
+  aggregate(columnName: string, operation: AggregateOperation): AggregationResult;
 
   /**
    * Add new rows (expand capacity)

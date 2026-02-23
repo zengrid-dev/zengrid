@@ -67,7 +67,7 @@ export class NumberEditor implements CellEditor<number> {
   }
 
   init(container: HTMLElement, value: number, params: EditorParams): void {
-    this.options = params.options as NumberEditorOptions || {};
+    this.options = (params.options as NumberEditorOptions) || {};
 
     // Create input element
     this.input = document.createElement('input');
@@ -200,5 +200,5 @@ export class NumberEditor implements CellEditor<number> {
       event.stopPropagation();
       // Let default behavior handle increment/decrement
     }
-  };
+  }
 }

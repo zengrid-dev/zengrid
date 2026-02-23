@@ -101,11 +101,7 @@ export function updateTriggerDisplay(
 /**
  * Get display text for a date value
  */
-export function getDisplayText(
-  value: Date | null,
-  format: string,
-  placeholder: string
-): string {
+export function getDisplayText(value: Date | null, format: string, placeholder: string): string {
   return value ? formatDateForDisplay(value, format) : placeholder;
 }
 
@@ -147,10 +143,7 @@ export function setAriaExpanded(trigger: HTMLElement, expanded: boolean): void {
 /**
  * Set data attributes on container
  */
-export function setDataAttributes(
-  container: HTMLElement,
-  params: RenderParams
-): void {
+export function setDataAttributes(container: HTMLElement, params: RenderParams): void {
   container.dataset.row = String(params.cell.row);
   container.dataset.col = String(params.cell.col);
   if (params.column?.field) {

@@ -47,7 +47,12 @@ export class CheckboxEditor implements CellEditor<boolean | null> {
 
     // Create checkbox container (label element)
     this.state.containerElement = createContainer(params, this.options);
-    this.state.checkboxElement = createCheckboxElement(value, params, this.options, this.checkboxState);
+    this.state.checkboxElement = createCheckboxElement(
+      value,
+      params,
+      this.options,
+      this.checkboxState
+    );
 
     // Append checkbox to container
     this.state.containerElement.appendChild(this.state.checkboxElement);
@@ -123,8 +128,6 @@ export class CheckboxEditor implements CellEditor<boolean | null> {
   }
 }
 
-export function createCheckboxEditor(
-  options: CheckboxEditorOptions = {}
-): CheckboxEditor {
+export function createCheckboxEditor(options: CheckboxEditorOptions = {}): CheckboxEditor {
   return new CheckboxEditor(options);
 }

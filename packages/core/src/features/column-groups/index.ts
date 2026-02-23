@@ -4,20 +4,10 @@
  */
 
 export { ColumnGroupModel } from './column-group-model';
-export {
-  ColumnGroupRenderer,
-  createColumnGroupRenderer,
-} from './column-group-renderer';
-export type {
-  ColumnGroupRenderParams,
-  ColumnGroupRendererOptions,
-} from './column-group-renderer';
-export {
-  ColumnGroupManager,
-} from './column-group-manager';
-export type {
-  ColumnGroupManagerOptions,
-} from './manager-options';
+export { ColumnGroupRenderer, createColumnGroupRenderer } from './column-group-renderer';
+export type { ColumnGroupRenderParams, ColumnGroupRendererOptions } from './column-group-renderer';
+export { ColumnGroupManager } from './column-group-manager';
+export type { ColumnGroupManagerOptions } from './manager-options';
 export type {
   ColumnGroupManagerEvents,
   GroupAddedEvent,
@@ -26,12 +16,7 @@ export type {
   GroupToggledEvent,
   HierarchyChangedEvent,
 } from './types';
-export type {
-  ColumnGroup,
-  ColumnGroupModelConfig,
-  ValidationResult,
-  GroupNode,
-} from './types';
+export type { ColumnGroup, ColumnGroupModelConfig, ValidationResult, GroupNode } from './types';
 export {
   RendererRegistry,
   globalRendererRegistry,
@@ -40,7 +25,4 @@ export {
   hasRenderer,
   createRendererRegistry,
 } from './renderer-registry';
-export type {
-  IRendererRegistry,
-  RendererFactory,
-} from './renderer-registry';
+export type { IRendererRegistry, RendererFactory } from './renderer-registry';

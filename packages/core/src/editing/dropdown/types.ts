@@ -79,8 +79,6 @@ export interface DropdownEditorOptions {
 /**
  * Normalized options with defaults applied
  */
-export type DropdownEditorNormalizedOptions = Required<
-  Omit<DropdownEditorOptions, 'validator'>
-> & {
+export type DropdownEditorNormalizedOptions = Required<Omit<DropdownEditorOptions, 'validator'>> & {
   validator?: (value: any) => boolean | string;
 };

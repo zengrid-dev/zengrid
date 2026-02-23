@@ -12,10 +12,7 @@ import { IntervalNode } from '../node';
  * @param node - Root of the subtree
  * @param result - Array to collect results
  */
-export function inorder<T>(
-  node: IntervalNode<T> | null,
-  result: IntervalData<T>[]
-): void {
+export function inorder<T>(node: IntervalNode<T> | null, result: IntervalData<T>[]): void {
   if (node === null) return;
   inorder(node.left, result);
   result.push(node.interval);

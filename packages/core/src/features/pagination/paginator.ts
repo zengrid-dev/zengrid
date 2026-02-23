@@ -1,8 +1,4 @@
-import type {
-  PaginationState,
-  PaginationConfig,
-  PaginationHandlers,
-} from '../../types';
+import type { PaginationState, PaginationConfig, PaginationHandlers } from '../../types';
 
 /**
  * Paginator - Renders pagination controls with multiple template styles
@@ -27,7 +23,8 @@ import type {
  * ```
  */
 export class Paginator {
-  private config: Required<Omit<PaginationConfig, 'customTemplate'>> & Pick<PaginationConfig, 'customTemplate'>;
+  private config: Required<Omit<PaginationConfig, 'customTemplate'>> &
+    Pick<PaginationConfig, 'customTemplate'>;
 
   constructor(config: PaginationConfig = {}) {
     this.config = {
@@ -79,12 +76,16 @@ export class Paginator {
     container.className = 'zg-pagination zg-pagination-simple';
 
     // Previous button
-    const prevBtn = this.createButton('‹', () => handlers.onPreviousPage(), state.currentPage === 0);
+    const prevBtn = this.createButton(
+      '‹',
+      () => handlers.onPreviousPage(),
+      state.currentPage === 0
+    );
     container.appendChild(prevBtn);
 
     // Page numbers
     const pages = this.getPageNumbers(state);
-    pages.forEach(pageNum => {
+    pages.forEach((pageNum) => {
       if (pageNum === -1) {
         const ellipsis = document.createElement('span');
         ellipsis.className = 'zg-pagination-ellipsis';
@@ -102,7 +103,11 @@ export class Paginator {
     });
 
     // Next button
-    const nextBtn = this.createButton('›', () => handlers.onNextPage(), state.currentPage >= state.totalPages - 1);
+    const nextBtn = this.createButton(
+      '›',
+      () => handlers.onNextPage(),
+      state.currentPage >= state.totalPages - 1
+    );
     container.appendChild(nextBtn);
 
     return container;
@@ -112,7 +117,10 @@ export class Paginator {
    * Template 2: Material - Material Design style
    * Layout: Rows per page: [100] | 1-100 of 1000 | < >
    */
-  private renderMaterialTemplate(state: PaginationState, handlers: PaginationHandlers): HTMLElement {
+  private renderMaterialTemplate(
+    state: PaginationState,
+    handlers: PaginationHandlers
+  ): HTMLElement {
     const container = document.createElement('div');
     container.className = 'zg-pagination zg-pagination-material';
 
@@ -142,8 +150,16 @@ export class Paginator {
     const navControls = document.createElement('div');
     navControls.className = 'zg-pagination-nav';
 
-    const prevBtn = this.createIconButton('‹', () => handlers.onPreviousPage(), state.currentPage === 0);
-    const nextBtn = this.createIconButton('›', () => handlers.onNextPage(), state.currentPage >= state.totalPages - 1);
+    const prevBtn = this.createIconButton(
+      '‹',
+      () => handlers.onPreviousPage(),
+      state.currentPage === 0
+    );
+    const nextBtn = this.createIconButton(
+      '›',
+      () => handlers.onNextPage(),
+      state.currentPage >= state.totalPages - 1
+    );
 
     navControls.appendChild(prevBtn);
     navControls.appendChild(nextBtn);
@@ -156,7 +172,10 @@ export class Paginator {
    * Template 3: Bootstrap - Bootstrap style with ellipsis
    * Layout: First | Previous | 1 2 ... 5 6 7 ... 10 | Next | Last
    */
-  private renderBootstrapTemplate(state: PaginationState, handlers: PaginationHandlers): HTMLElement {
+  private renderBootstrapTemplate(
+    state: PaginationState,
+    handlers: PaginationHandlers
+  ): HTMLElement {
     const container = document.createElement('div');
     container.className = 'zg-pagination zg-pagination-bootstrap';
 
@@ -165,11 +184,7 @@ export class Paginator {
     ul.className = 'zg-pagination-list';
 
     // First button
-    const firstLi = this.createListItem(
-      '«',
-      () => handlers.onFirstPage(),
-      state.currentPage === 0
-    );
+    const firstLi = this.createListItem('«', () => handlers.onFirstPage(), state.currentPage === 0);
     ul.appendChild(firstLi);
 
     // Previous button
@@ -182,7 +197,7 @@ export class Paginator {
 
     // Page numbers with ellipsis
     const pages = this.getPageNumbers(state);
-    pages.forEach(pageNum => {
+    pages.forEach((pageNum) => {
       if (pageNum === -1) {
         const ellipsisLi = document.createElement('li');
         ellipsisLi.className = 'zg-pagination-item';
@@ -280,8 +295,16 @@ export class Paginator {
     container.appendChild(pageInputContainer);
 
     // Navigation
-    const prevBtn = this.createIconButton('‹', () => handlers.onPreviousPage(), state.currentPage === 0);
-    const nextBtn = this.createIconButton('›', () => handlers.onNextPage(), state.currentPage >= state.totalPages - 1);
+    const prevBtn = this.createIconButton(
+      '‹',
+      () => handlers.onPreviousPage(),
+      state.currentPage === 0
+    );
+    const nextBtn = this.createIconButton(
+      '›',
+      () => handlers.onNextPage(),
+      state.currentPage >= state.totalPages - 1
+    );
 
     container.appendChild(prevBtn);
     container.appendChild(nextBtn);
@@ -327,15 +350,23 @@ export class Paginator {
     const centerSection = document.createElement('div');
     centerSection.className = 'zg-pagination-section-center';
 
-    const firstBtn = this.createButton('First', () => handlers.onFirstPage(), state.currentPage === 0);
-    const prevBtn = this.createIconButton('‹', () => handlers.onPreviousPage(), state.currentPage === 0);
+    const firstBtn = this.createButton(
+      'First',
+      () => handlers.onFirstPage(),
+      state.currentPage === 0
+    );
+    const prevBtn = this.createIconButton(
+      '‹',
+      () => handlers.onPreviousPage(),
+      state.currentPage === 0
+    );
 
     centerSection.appendChild(firstBtn);
     centerSection.appendChild(prevBtn);
 
     // Page numbers
     const pages = this.getPageNumbers(state);
-    pages.forEach(pageNum => {
+    pages.forEach((pageNum) => {
       if (pageNum === -1) {
         const ellipsis = document.createElement('span');
         ellipsis.className = 'zg-pagination-ellipsis';
@@ -352,8 +383,16 @@ export class Paginator {
       }
     });
 
-    const nextBtn = this.createIconButton('›', () => handlers.onNextPage(), state.currentPage >= state.totalPages - 1);
-    const lastBtn = this.createButton('Last', () => handlers.onLastPage(), state.currentPage >= state.totalPages - 1);
+    const nextBtn = this.createIconButton(
+      '›',
+      () => handlers.onNextPage(),
+      state.currentPage >= state.totalPages - 1
+    );
+    const lastBtn = this.createButton(
+      'Last',
+      () => handlers.onLastPage(),
+      state.currentPage >= state.totalPages - 1
+    );
 
     centerSection.appendChild(nextBtn);
     centerSection.appendChild(lastBtn);
@@ -432,11 +471,14 @@ export class Paginator {
   /**
    * Helper: Create page size selector
    */
-  private createPageSizeSelector(state: PaginationState, handlers: PaginationHandlers): HTMLSelectElement {
+  private createPageSizeSelector(
+    state: PaginationState,
+    handlers: PaginationHandlers
+  ): HTMLSelectElement {
     const select = document.createElement('select');
     select.className = 'zg-pagination-select';
 
-    state.pageSizeOptions.forEach(size => {
+    state.pageSizeOptions.forEach((size) => {
       const option = document.createElement('option');
       option.value = String(size);
       option.textContent = String(size);

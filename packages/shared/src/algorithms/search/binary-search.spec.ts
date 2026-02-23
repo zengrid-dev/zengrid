@@ -98,9 +98,13 @@ describe('binarySearch', () => {
       ];
 
       const ageComparator = (a: Person, b: Person) => a.age - b.age;
-      const result = binarySearch(people, { name: 'Unknown', age: 25 }, {
-        comparator: ageComparator,
-      });
+      const result = binarySearch(
+        people,
+        { name: 'Unknown', age: 25 },
+        {
+          comparator: ageComparator,
+        }
+      );
 
       expect(result.found).toBe(true);
       expect(result.index).toBe(1);

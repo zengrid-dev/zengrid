@@ -33,10 +33,7 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
    */
   private static readonly DEFAULT_FILTER_ICON = '▼';
 
-  private static setFilterMeta(
-    filterBtn: HTMLElement,
-    params: HeaderRenderParams
-  ): void {
+  private static setFilterMeta(filterBtn: HTMLElement, params: HeaderRenderParams): void {
     const filterIndicator = params.config.filterIndicator;
     (filterBtn as any)._zgFilterMeta = {
       columnIndex: params.columnIndex,

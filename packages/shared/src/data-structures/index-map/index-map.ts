@@ -361,10 +361,7 @@ export class IndexMap<K, V> implements IIndexMap<K, V> {
   /**
    * Create IndexMap from an array of entries
    */
-  static from<K, V>(
-    entries: Iterable<[K, V]>,
-    options?: IndexMapOptions
-  ): IndexMap<K, V> {
+  static from<K, V>(entries: Iterable<[K, V]>, options?: IndexMapOptions): IndexMap<K, V> {
     const map = new IndexMap<K, V>(options);
     for (const [key, value] of entries) {
       map.set(key, value);
@@ -375,20 +372,14 @@ export class IndexMap<K, V> implements IIndexMap<K, V> {
   /**
    * Create IndexMap from a regular Map
    */
-  static fromMap<K, V>(
-    source: Map<K, V>,
-    options?: IndexMapOptions
-  ): IndexMap<K, V> {
+  static fromMap<K, V>(source: Map<K, V>, options?: IndexMapOptions): IndexMap<K, V> {
     return IndexMap.from(source.entries(), options);
   }
 
   /**
    * Create IndexMap from an object
    */
-  static fromObject<V>(
-    obj: Record<string, V>,
-    options?: IndexMapOptions
-  ): IndexMap<string, V> {
+  static fromObject<V>(obj: Record<string, V>, options?: IndexMapOptions): IndexMap<string, V> {
     const map = new IndexMap<string, V>(options);
     for (const [key, value] of Object.entries(obj)) {
       map.set(key, value);

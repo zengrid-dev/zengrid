@@ -229,9 +229,7 @@ export class ClipboardManager {
    * Convert data to TSV format
    */
   private toTSV(data: any[][]): string {
-    return data
-      .map(row => row.map(cell => this.formatCellForTSV(cell)).join('\t'))
-      .join('\n');
+    return data.map((row) => row.map((cell) => this.formatCellForTSV(cell)).join('\t')).join('\n');
   }
 
   /**
@@ -284,7 +282,7 @@ export class ClipboardManager {
    */
   private parseTSV(text: string): any[][] {
     const lines = text.split(/\r?\n/);
-    return lines.map(line => line.split('\t'));
+    return lines.map((line) => line.split('\t'));
   }
 
   /**

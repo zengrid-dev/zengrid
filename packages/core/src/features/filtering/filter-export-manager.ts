@@ -6,7 +6,12 @@
  */
 
 import type { ColumnDef, FilterModel, FilterOperator } from '../../types';
-import type { FieldFilterState, FieldFilterCondition, StandardFilterOperator, CustomOperator } from './types';
+import type {
+  FieldFilterState,
+  FieldFilterCondition,
+  StandardFilterOperator,
+  CustomOperator,
+} from './types';
 import type { FilterExportResult } from './adapters/types';
 import type { FilterAdapter } from './adapters/adapter.interface';
 import { RESTFilterAdapter, type RESTAdapterOptions } from './adapters/rest-adapter';
@@ -214,22 +219,28 @@ export class FilterExportManager {
     const sqlAdapter = this.adapters.get('sql');
 
     return {
-      rest: restAdapter ? restAdapter.transform(state) : {
-        queryString: '',
-        params: {},
-        body: { logic: 'AND', conditions: [] },
-      },
-      graphql: graphqlAdapter ? graphqlAdapter.transform(state) : {
-        where: {},
-        variables: {},
-        variablesTypeDef: '',
-      },
-      sql: sqlAdapter ? sqlAdapter.transform(state) : {
-        whereClause: '',
-        positionalParams: [],
-        namedParams: {},
-        namedSql: '',
-      },
+      rest: restAdapter
+        ? restAdapter.transform(state)
+        : {
+            queryString: '',
+            params: {},
+            body: { logic: 'AND', conditions: [] },
+          },
+      graphql: graphqlAdapter
+        ? graphqlAdapter.transform(state)
+        : {
+            where: {},
+            variables: {},
+            variablesTypeDef: '',
+          },
+      sql: sqlAdapter
+        ? sqlAdapter.transform(state)
+        : {
+            whereClause: '',
+            positionalParams: [],
+            namedParams: {},
+            namedSql: '',
+          },
       state,
     };
   }
@@ -272,22 +283,22 @@ export class FilterExportManager {
    */
   private mapOperatorToStandard(internal: FilterOperator): StandardFilterOperator {
     const mapping: Record<FilterOperator, StandardFilterOperator> = {
-      'equals': 'eq',
-      'notEquals': 'neq',
-      'contains': 'contains',
-      'notContains': 'notContains',
-      'startsWith': 'startsWith',
-      'endsWith': 'endsWith',
-      'greaterThan': 'gt',
-      'lessThan': 'lt',
-      'greaterThanOrEqual': 'gte',
-      'lessThanOrEqual': 'lte',
-      'blank': 'isNull',
-      'notBlank': 'isNotNull',
-      'in': 'in',
-      'notIn': 'notIn',
-      'between': 'between',
-      'regex': 'regex',
+      equals: 'eq',
+      notEquals: 'neq',
+      contains: 'contains',
+      notContains: 'notContains',
+      startsWith: 'startsWith',
+      endsWith: 'endsWith',
+      greaterThan: 'gt',
+      lessThan: 'lt',
+      greaterThanOrEqual: 'gte',
+      lessThanOrEqual: 'lte',
+      blank: 'isNull',
+      notBlank: 'isNotNull',
+      in: 'in',
+      notIn: 'notIn',
+      between: 'between',
+      regex: 'regex',
     };
 
     return mapping[internal] || 'eq';
@@ -298,22 +309,22 @@ export class FilterExportManager {
    */
   private mapOperatorToInternal(standard: string): FilterOperator {
     const mapping: Record<string, FilterOperator> = {
-      'eq': 'equals',
-      'neq': 'notEquals',
-      'contains': 'contains',
-      'notContains': 'notContains',
-      'startsWith': 'startsWith',
-      'endsWith': 'endsWith',
-      'gt': 'greaterThan',
-      'lt': 'lessThan',
-      'gte': 'greaterThanOrEqual',
-      'lte': 'lessThanOrEqual',
-      'isNull': 'blank',
-      'isNotNull': 'notBlank',
-      'in': 'equals', // No direct mapping, default to equals
-      'notIn': 'notEquals',
-      'between': 'greaterThanOrEqual', // No direct mapping
-      'regex': 'contains', // Approximate mapping
+      eq: 'equals',
+      neq: 'notEquals',
+      contains: 'contains',
+      notContains: 'notContains',
+      startsWith: 'startsWith',
+      endsWith: 'endsWith',
+      gt: 'greaterThan',
+      lt: 'lessThan',
+      gte: 'greaterThanOrEqual',
+      lte: 'lessThanOrEqual',
+      isNull: 'blank',
+      isNotNull: 'notBlank',
+      in: 'equals', // No direct mapping, default to equals
+      notIn: 'notEquals',
+      between: 'greaterThanOrEqual', // No direct mapping
+      regex: 'contains', // Approximate mapping
     };
 
     return mapping[standard] || 'equals';

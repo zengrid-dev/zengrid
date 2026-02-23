@@ -16,9 +16,7 @@ export class ArrayAccessor<T = any> implements DataAccessor<T> {
 
   getValue(row: number, col: number | string): T | undefined {
     if (typeof col === 'string') {
-      throw new TypeError(
-        'ArrayAccessor requires numeric column indices, got string'
-      );
+      throw new TypeError('ArrayAccessor requires numeric column indices, got string');
     }
 
     if (row < 0 || row >= this.data.length) {
@@ -49,9 +47,7 @@ export class ArrayAccessor<T = any> implements DataAccessor<T> {
 
   getColumn(col: number | string): Iterable<[number, T]> {
     if (typeof col === 'string') {
-      throw new TypeError(
-        'ArrayAccessor requires numeric column indices, got string'
-      );
+      throw new TypeError('ArrayAccessor requires numeric column indices, got string');
     }
 
     if (col < 0 || col >= this._colCount) {

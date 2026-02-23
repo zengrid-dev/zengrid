@@ -10,12 +10,14 @@ import { ColumnModel } from '../../../src/features/columns/column-model';
 import { ResizeConstraintManager } from '../../../src/features/column-resize/resize-constraint-manager';
 import type { ColumnDef } from '../../../src/types/column';
 
-function createColumns(configs: Array<{
-  width?: number;
-  minWidth?: number;
-  maxWidth?: number;
-  resizable?: boolean;
-}>): ColumnDef[] {
+function createColumns(
+  configs: Array<{
+    width?: number;
+    minWidth?: number;
+    maxWidth?: number;
+    resizable?: boolean;
+  }>
+): ColumnDef[] {
   return configs.map((cfg, i) => ({
     field: `field${i}`,
     header: `Field ${i}`,
@@ -29,9 +31,7 @@ function createColumns(configs: Array<{
 describe('ColumnModel Constraint Methods', () => {
   describe('getConstraints', () => {
     it('should return constraints for existing column', () => {
-      const columns = createColumns([
-        { width: 100, minWidth: 50, maxWidth: 300 },
-      ]);
+      const columns = createColumns([{ width: 100, minWidth: 50, maxWidth: 300 }]);
       const model = new ColumnModel(columns);
 
       const constraints = model.getConstraints('col-0');
@@ -97,7 +97,7 @@ describe('ColumnModel Constraint Methods', () => {
             eventReceived = true;
             expect(event.actualValue).toBe(150);
           }
-        }
+        },
       });
 
       model.setConstraints('col-0', { maxWidth: 150 });
@@ -112,7 +112,7 @@ describe('ColumnModel Constraint Methods', () => {
       model.subscribe('col-0', {
         onChange() {
           eventCount++;
-        }
+        },
       });
 
       // Constraint change doesn't affect current width (100 is within [80, 600])
@@ -217,7 +217,7 @@ describe('ResizeConstraintManager with constraintProvider', () => {
       const manager = new ResizeConstraintManager({});
 
       const constraints = manager.getConstraints(0);
-      expect(constraints.minWidth).toBe(30);  // ResizeConstraintManager default
+      expect(constraints.minWidth).toBe(30); // ResizeConstraintManager default
       expect(constraints.maxWidth).toBe(Infinity);
     });
   });
@@ -275,7 +275,7 @@ describe('ResizeConstraintManager with constraintProvider', () => {
         },
       });
 
-      expect(manager.applyConstraints(0, 20)).toBe(50);   // Clamped to min
+      expect(manager.applyConstraints(0, 20)).toBe(50); // Clamped to min
       expect(manager.applyConstraints(0, 500)).toBe(300); // Clamped to max
       expect(manager.applyConstraints(0, 150)).toBe(150); // Within range
     });

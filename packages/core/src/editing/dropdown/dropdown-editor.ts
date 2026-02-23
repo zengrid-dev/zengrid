@@ -1,5 +1,9 @@
 import type { CellEditor, EditorParams, ValidationResult } from '../cell-editor.interface';
-import type { DropdownOption, DropdownEditorOptions, DropdownEditorNormalizedOptions } from './types';
+import type {
+  DropdownOption,
+  DropdownEditorOptions,
+  DropdownEditorNormalizedOptions,
+} from './types';
 import { SimpleLRUCache } from './types';
 import {
   getFilteredOptions,
@@ -88,7 +92,12 @@ export class DropdownEditor implements CellEditor<any> {
     this.container = createContainer(this.options, params);
 
     const displayText = getDisplayText(this.selectedValues, this.options, this.options.options);
-    const placeholder = getPlaceholderText(this.selectedValues, this.options.placeholder, this.options, this.options.options);
+    const placeholder = getPlaceholderText(
+      this.selectedValues,
+      this.options.placeholder,
+      this.options,
+      this.options.options
+    );
 
     if (this.options.searchable) {
       this.searchInput = createSearchInput(this.options, placeholder);
@@ -115,7 +124,12 @@ export class DropdownEditor implements CellEditor<any> {
       (searchTerm) => this.handleRenderFiltered(searchTerm)
     );
 
-    setupEventListeners(this.searchInput, this.container, this.options.className, this.eventHandlers);
+    setupEventListeners(
+      this.searchInput,
+      this.container,
+      this.options.className,
+      this.eventHandlers
+    );
 
     if (this.options.autoFocus) {
       requestAnimationFrame(() => {

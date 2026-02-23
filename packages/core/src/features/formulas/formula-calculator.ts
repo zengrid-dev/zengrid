@@ -144,7 +144,7 @@ export class FormulaCalculator {
     }
 
     // Filter to only cells with formulas (NodeId[] -> string[])
-    return order.filter(cell => this.formulas.has(cell as string)) as string[];
+    return order.filter((cell) => this.formulas.has(cell as string)) as string[];
   }
 
   /**
@@ -160,7 +160,7 @@ export class FormulaCalculator {
     const affectedCells = this.graph.getCalculationOrder(changedCells);
 
     // Return only formula cells that need recalculation (NodeId[] -> string[])
-    return affectedCells.filter(cell => this.formulas.has(cell as string)) as string[];
+    return affectedCells.filter((cell) => this.formulas.has(cell as string)) as string[];
   }
 
   /**

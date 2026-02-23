@@ -53,10 +53,7 @@ export class AutoFitCalculator {
    * @param col Column index
    * @param options Override options for this calculation
    */
-  calculateOptimalWidth(
-    col: number,
-    options?: { skipHeader?: boolean }
-  ): number {
+  calculateOptimalWidth(col: number, options?: { skipHeader?: boolean }): number {
     const element = this.getMeasureElement();
     let maxWidth = 0;
 

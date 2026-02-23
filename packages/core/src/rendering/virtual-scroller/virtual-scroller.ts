@@ -63,10 +63,7 @@ export class VirtualScroller implements IVirtualScroller {
     } else if (Array.isArray(options.rowHeight)) {
       this.heightProvider = new VariableHeightProvider(options.rowHeight);
     } else {
-      this.heightProvider = new UniformHeightProvider(
-        options.rowHeight ?? 30,
-        options.rowCount
-      );
+      this.heightProvider = new UniformHeightProvider(options.rowHeight ?? 30, options.rowCount);
     }
 
     // Auto-select width provider
@@ -75,10 +72,7 @@ export class VirtualScroller implements IVirtualScroller {
     } else if (Array.isArray(options.colWidth)) {
       this.widthProvider = new VariableWidthProvider(options.colWidth);
     } else {
-      this.widthProvider = new UniformWidthProvider(
-        options.colWidth ?? 100,
-        options.colCount
-      );
+      this.widthProvider = new UniformWidthProvider(options.colWidth ?? 100, options.colCount);
     }
   }
 
@@ -107,10 +101,7 @@ export class VirtualScroller implements IVirtualScroller {
     // Find last visible row (with overscan)
     const endOffset = scrollTop + this.vpHeight;
     const lastVisibleRow = this.heightProvider.findIndexAtOffset(endOffset);
-    const endRow = Math.min(
-      this.rows,
-      lastVisibleRow + this.overscanRows + 1
-    );
+    const endRow = Math.min(this.rows, lastVisibleRow + this.overscanRows + 1);
 
     // Find first visible column (with overscan)
     const firstVisibleCol = this.widthProvider.findIndexAtOffset(scrollLeft);
@@ -179,18 +170,14 @@ export class VirtualScroller implements IVirtualScroller {
 
   updateRowHeight(row: number, height: number): void {
     if (!this.heightProvider.setHeight) {
-      throw new Error(
-        'Height provider does not support setHeight (use VariableHeightProvider)'
-      );
+      throw new Error('Height provider does not support setHeight (use VariableHeightProvider)');
     }
     this.heightProvider.setHeight(row, height);
   }
 
   updateColWidth(col: number, width: number): void {
     if (!this.widthProvider.setWidth) {
-      throw new Error(
-        'Width provider does not support setWidth (use VariableWidthProvider)'
-      );
+      throw new Error('Width provider does not support setWidth (use VariableWidthProvider)');
     }
     this.widthProvider.setWidth(col, width);
   }

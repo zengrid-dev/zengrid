@@ -3,8 +3,4 @@
  */
 
 export { IndexMap } from './index-map';
-export type {
-  IIndexMap,
-  IndexMapEntry,
-  IndexMapOptions,
-} from './index-map.interface';
+export type { IIndexMap, IndexMapEntry, IndexMapOptions } from './index-map.interface';

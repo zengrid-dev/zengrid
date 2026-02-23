@@ -19,7 +19,6 @@ import { ChipRenderer } from '../rendering/renderers/chip';
 import { DropdownRenderer } from '../rendering/renderers/dropdown';
 import { LoadingIndicator } from '../features/loading';
 import type { DataAccessor } from '../data/data-accessor/data-accessor.interface';
-import type { IndexMap } from '../data/index-map';
 import { RowHeightManager } from '../features/row-height';
 import { SegmentTreeHeightProvider } from '../rendering/height-provider/segment-tree-height-provider';
 import { ColumnModelWidthProvider } from '../rendering/width-provider/column-model-width-provider';
@@ -44,8 +43,7 @@ export class GridInit {
   public positioner: CellPositioner | null = null;
 
   // Callbacks
-  private getSortManager: () => any;
-  private getCachedVisibleRows: () => number[] | null;
+  private getViewIndices: () => number[] | undefined;
   private getDataAccessor: () => DataAccessor | null;
   private getColumnModel: () => any;
   private mapRowToDataIndex: (row: number) => number | undefined;
@@ -58,8 +56,7 @@ export class GridInit {
     scrollContainer: HTMLElement | null,
     canvas: HTMLElement | null,
     callbacks: {
-      getSortManager: () => any;
-      getCachedVisibleRows: () => number[] | null;
+      getViewIndices: () => number[] | undefined;
       getDataAccessor: () => DataAccessor | null;
       getColumnModel: () => any;
     }
@@ -70,8 +67,7 @@ export class GridInit {
     this.events = events;
     this.scrollContainer = scrollContainer;
     this.canvas = canvas;
-    this.getSortManager = callbacks.getSortManager;
-    this.getCachedVisibleRows = callbacks.getCachedVisibleRows;
+    this.getViewIndices = callbacks.getViewIndices;
     this.getDataAccessor = callbacks.getDataAccessor;
     this.getColumnModel = callbacks.getColumnModel;
     this.mapRowToDataIndex = this.createRowMapper();
@@ -92,7 +88,10 @@ export class GridInit {
     this.registry.register('date', new DateRenderer());
     this.registry.register('select', new SelectRenderer({ options: [{ value: '', label: '' }] }));
     this.registry.register('chip', new ChipRenderer());
-    this.registry.register('dropdown', new DropdownRenderer({ options: [{ value: '', label: '' }] }));
+    this.registry.register(
+      'dropdown',
+      new DropdownRenderer({ options: [{ value: '', label: '' }] })
+    );
 
     // Initialize renderer cache
     if (this.options.rendererCache?.enabled !== false) {
@@ -154,10 +153,7 @@ export class GridInit {
         ? this.options.rowHeight[0]
         : this.options.rowHeight;
 
-      heightProvider = new SegmentTreeHeightProvider(
-        this.options.rowCount,
-        defaultHeight
-      );
+      heightProvider = new SegmentTreeHeightProvider(this.options.rowCount, defaultHeight);
 
       // Initialize RowHeightManager
       this.rowHeightManager = new RowHeightManager({
@@ -190,13 +186,9 @@ export class GridInit {
     // Use ColumnModelWidthProvider adapter when ColumnModel exists (single source of truth).
     // Otherwise fall back to options.colWidth for legacy mode.
     const columnModel = this.getColumnModel();
-    const widthProvider = columnModel
-      ? new ColumnModelWidthProvider(columnModel)
-      : undefined;
+    const widthProvider = columnModel ? new ColumnModelWidthProvider(columnModel) : undefined;
 
-    const visibleColCount = columnModel
-      ? columnModel.getVisibleCount()
-      : this.options.colCount;
+    const visibleColCount = columnModel ? columnModel.getVisibleCount() : this.options.colCount;
 
     // Initialize VirtualScroller
     this.scroller = new VirtualScroller({
@@ -264,9 +256,12 @@ export class GridInit {
         return this.options.columns?.[col];
       },
       isSelected: (row: number, col: number) => {
-        return this.state.selection.some(range =>
-          row >= range.startRow && row <= range.endRow &&
-          col >= range.startCol && col <= range.endCol
+        return this.state.selection.some(
+          (range) =>
+            row >= range.startRow &&
+            row <= range.endRow &&
+            col >= range.startCol &&
+            col <= range.endCol
         );
       },
       isActive: (row: number, col: number) => {
@@ -279,43 +274,11 @@ export class GridInit {
   }
 
   private createRowMapper(): (row: number) => number | undefined {
-    let cachedIndexMap: IndexMap | null = null;
-    let cachedVisibleRows: number[] | null = null;
-    let cachedCombined: number[] | null = null;
-
-    const getCombinedRows = (indexMap: IndexMap, visibleRows: number[]): number[] => {
-      if (indexMap === cachedIndexMap && visibleRows === cachedVisibleRows && cachedCombined) {
-        return cachedCombined;
-      }
-
-      const visibleSet = new Set<number>(visibleRows);
-      const combined = indexMap.indices.filter(index => visibleSet.has(index));
-
-      cachedIndexMap = indexMap;
-      cachedVisibleRows = visibleRows;
-      cachedCombined = combined;
-
-      return combined;
-    };
-
     return (row: number) => {
-      const indexMap = this.getSortManager()?.getIndexMap() ?? null;
-      const visibleRows = this.getCachedVisibleRows();
-
-      if (indexMap && visibleRows) {
-        const combined = getCombinedRows(indexMap, visibleRows);
-        return combined[row];
+      const viewIndices = this.getViewIndices();
+      if (viewIndices) {
+        return viewIndices[row];
       }
-
-      if (visibleRows) {
-        return visibleRows[row];
-      }
-
-      if (indexMap) {
-        const mapped = indexMap.toDataIndex(row);
-        return mapped >= 0 ? mapped : undefined;
-      }
-
       return row;
     };
   }

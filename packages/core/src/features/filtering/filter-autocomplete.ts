@@ -43,8 +43,8 @@ export class FilterAutocomplete {
     });
 
     // Add unique values to trie
-    const uniqueValues = new Set(values.map(v => String(v ?? '')));
-    uniqueValues.forEach(value => {
+    const uniqueValues = new Set(values.map((v) => String(v ?? '')));
+    uniqueValues.forEach((value) => {
       if (value) trie.insert(value);
     });
 

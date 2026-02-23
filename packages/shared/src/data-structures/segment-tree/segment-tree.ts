@@ -1,8 +1,4 @@
-import type {
-  ISegmentTree,
-  SegmentTreeOptions,
-  AggregateFunction,
-} from './segment-tree.interface';
+import type { ISegmentTree, SegmentTreeOptions, AggregateFunction } from './segment-tree.interface';
 import { SegmentTreeUtils, AggregationType } from './segment-tree.interface';
 import { getAggregationConfig } from './aggregation-config';
 import { buildTree } from './tree-builder';
@@ -67,9 +63,7 @@ export class SegmentTree<T> implements ISegmentTree<T> {
 
   query(left: number, right: number): T {
     if (!SegmentTreeUtils.isValidRange(left, right, this.n)) {
-      throw new RangeError(
-        `Invalid range [${left}, ${right}] for array of size ${this.n}`
-      );
+      throw new RangeError(`Invalid range [${left}, ${right}] for array of size ${this.n}`);
     }
 
     if (this.n === 0) {
@@ -113,9 +107,7 @@ export class SegmentTree<T> implements ISegmentTree<T> {
 
   rangeUpdate(left: number, right: number, value: T): void {
     if (!SegmentTreeUtils.isValidRange(left, right, this.n)) {
-      throw new RangeError(
-        `Invalid range [${left}, ${right}] for array of size ${this.n}`
-      );
+      throw new RangeError(`Invalid range [${left}, ${right}] for array of size ${this.n}`);
     }
 
     if (this.useLazy) {
@@ -197,11 +189,7 @@ export class SegmentTree<T> implements ISegmentTree<T> {
     return new SegmentTree<T>({ values, type });
   }
 
-  static custom<T>(
-    values: T[],
-    aggregate: AggregateFunction<T>,
-    identity: T
-  ): SegmentTree<T> {
+  static custom<T>(values: T[], aggregate: AggregateFunction<T>, identity: T): SegmentTree<T> {
     return new SegmentTree<T>({
       values,
       type: AggregationType.CUSTOM,

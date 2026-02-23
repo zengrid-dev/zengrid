@@ -63,9 +63,5 @@ export interface RowSorter {
    * const dataRow = indexMap.toDataIndex(0);
    * ```
    */
-  sort(
-    dataAccessor: DataAccessor,
-    column: number | string,
-    options: SortOptions
-  ): IndexMap;
+  sort(dataAccessor: DataAccessor, column: number | string, options: SortOptions): IndexMap;
 }

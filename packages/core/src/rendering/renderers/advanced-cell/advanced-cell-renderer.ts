@@ -118,8 +118,7 @@ export class AdvancedCellRenderer implements CellRenderer {
   render(element: HTMLElement, params: RenderParams): void {
     element.classList.add('zg-cell-advanced');
     element.style.display = 'flex';
-    element.style.flexDirection =
-      this.options.layout === 'vertical' ? 'column' : 'row';
+    element.style.flexDirection = this.options.layout === 'vertical' ? 'column' : 'row';
     element.style.gap = `${this.options.gap}px`;
     element.style.alignItems = 'center';
 
@@ -154,10 +153,7 @@ export class AdvancedCellRenderer implements CellRenderer {
     element.style.cssText = 'position: absolute;';
   }
 
-  private createCompositeElement(
-    config: CompositeElement,
-    params: RenderParams
-  ): HTMLElement {
+  private createCompositeElement(config: CompositeElement, params: RenderParams): HTMLElement {
     const el = document.createElement('span');
     el.className = `zg-cell-advanced__${config.type}`;
     if (config.className) {

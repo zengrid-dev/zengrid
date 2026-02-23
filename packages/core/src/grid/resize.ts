@@ -119,10 +119,12 @@ export class GridResize {
       constraintProvider: this.columnModel
         ? (col: number) => {
             const columnId = `col-${col}`;
-            return this.columnModel!.getConstraints(columnId) ?? {
-              minWidth: 50,
-              maxWidth: 1000,
-            };
+            return (
+              this.columnModel!.getConstraints(columnId) ?? {
+                minWidth: 50,
+                maxWidth: 1000,
+              }
+            );
           }
         : undefined,
       // Check if column is resizable via ColumnModel

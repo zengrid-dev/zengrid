@@ -21,13 +21,8 @@ export class DragEventHandlers {
   /**
    * Handle state machine transitions
    */
-  handleStateTransition(from: DragState, event: DragEvent, to: DragState): void {
+  handleStateTransition(_from: DragState, _event: DragEvent, to: DragState): void {
     this.stateManager.updateState(to);
-
-    // Log transitions in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[ColumnDrag] ${from} --[${event}]--> ${to}`);
-    }
   }
 
   /**

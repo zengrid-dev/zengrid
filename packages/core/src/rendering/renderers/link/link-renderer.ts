@@ -118,7 +118,11 @@ export class LinkRenderer implements CellRenderer {
         // If onClick returns false, don't navigate
         if (result !== false) {
           if (this.options.target === '_blank') {
-            window.open(url, '_blank', this.options.noOpener !== false ? 'noopener,noreferrer' : undefined);
+            window.open(
+              url,
+              '_blank',
+              this.options.noOpener !== false ? 'noopener,noreferrer' : undefined
+            );
           } else {
             window.location.href = url;
           }

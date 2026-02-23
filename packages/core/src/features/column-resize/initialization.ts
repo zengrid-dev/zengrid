@@ -19,9 +19,7 @@ export interface InitializedComponents {
 /**
  * Initialize all components for column resize manager
  */
-export function initializeComponents(
-  options: ColumnResizeOptions
-): InitializedComponents {
+export function initializeComponents(options: ColumnResizeOptions): InitializedComponents {
   // Create data source adapter
   const dataSource = new DataSourceAdapter(
     options.colCount,

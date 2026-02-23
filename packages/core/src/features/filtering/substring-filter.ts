@@ -173,7 +173,7 @@ export class SubstringFilter {
    * Clear all indexes
    */
   clearAll(): void {
-    this.columnIndexes.forEach(sa => sa.clear());
+    this.columnIndexes.forEach((sa) => sa.clear());
     this.columnIndexes.clear();
     this.columnMaps.clear();
   }

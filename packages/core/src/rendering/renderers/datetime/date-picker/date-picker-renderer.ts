@@ -299,12 +299,7 @@ export class DatePickerRenderer implements CellRenderer {
     instance.currentValue = date;
 
     // Update trigger display
-    updateTriggerDisplay(
-      instance.trigger,
-      date,
-      this.options.format,
-      this.options.placeholder
-    );
+    updateTriggerDisplay(instance.trigger, date, this.options.format, this.options.placeholder);
 
     // Close popup
     this.closePopup(instance);

@@ -42,9 +42,9 @@ export interface ViewportState {
  * Scroll event types
  */
 export type ScrollEventType =
-  | 'scroll'       // Scroll position changed
-  | 'scrollX'      // Horizontal scroll only
-  | 'scrollY';     // Vertical scroll only
+  | 'scroll' // Scroll position changed
+  | 'scrollX' // Horizontal scroll only
+  | 'scrollY'; // Vertical scroll only
 
 /**
  * Scroll change event
@@ -60,9 +60,9 @@ export interface ScrollEvent {
  * Viewport event types
  */
 export type ViewportEventType =
-  | 'range'        // Visible range changed
-  | 'rows'         // Visible rows changed
-  | 'cols';        // Visible columns changed
+  | 'range' // Visible range changed
+  | 'rows' // Visible rows changed
+  | 'cols'; // Visible columns changed
 
 /**
  * Viewport change event

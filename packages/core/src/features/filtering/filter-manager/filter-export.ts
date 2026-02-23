@@ -40,7 +40,9 @@ export class FilterExporter {
    */
   getFieldFilterState(): FieldFilterState | null {
     if (!this.exportManager) {
-      console.warn('FilterManager: Export manager not initialized. Provide columns in constructor.');
+      console.warn(
+        'FilterManager: Export manager not initialized. Provide columns in constructor.'
+      );
       return null;
     }
 
@@ -70,7 +72,9 @@ export class FilterExporter {
    */
   getFilterExport(): FilterExportResult | null {
     if (!this.exportManager) {
-      console.warn('FilterManager: Export manager not initialized. Provide columns in constructor.');
+      console.warn(
+        'FilterManager: Export manager not initialized. Provide columns in constructor.'
+      );
       return null;
     }
 
@@ -94,7 +98,9 @@ export class FilterExporter {
    */
   getFilterExportAs<T>(format: string): T | null {
     if (!this.exportManager) {
-      console.warn('FilterManager: Export manager not initialized. Provide columns in constructor.');
+      console.warn(
+        'FilterManager: Export manager not initialized. Provide columns in constructor.'
+      );
       return null;
     }
 
@@ -127,7 +133,9 @@ export class FilterExporter {
    */
   setFieldFilter(state: FieldFilterState): void {
     if (!this.exportManager) {
-      console.warn('FilterManager: Export manager not initialized. Provide columns in constructor.');
+      console.warn(
+        'FilterManager: Export manager not initialized. Provide columns in constructor.'
+      );
       return;
     }
 

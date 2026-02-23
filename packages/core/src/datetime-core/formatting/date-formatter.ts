@@ -137,7 +137,9 @@ export function getRelativeTime(date: Date, now: Date = new Date()): string {
 
   if (abs(diffMins) < 60) {
     const n = abs(diffMins);
-    return isFuture ? `in ${n} minute${n === 1 ? '' : 's'}` : `${n} minute${n === 1 ? '' : 's'} ago`;
+    return isFuture
+      ? `in ${n} minute${n === 1 ? '' : 's'}`
+      : `${n} minute${n === 1 ? '' : 's'} ago`;
   }
 
   if (abs(diffHours) < 24) {

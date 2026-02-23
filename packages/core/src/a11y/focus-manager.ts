@@ -85,12 +85,7 @@ export class FocusManager {
     const previousCell = this.activeCell;
 
     // No change
-    if (
-      previousCell &&
-      cell &&
-      previousCell.row === cell.row &&
-      previousCell.col === cell.col
-    ) {
+    if (previousCell && cell && previousCell.row === cell.row && previousCell.col === cell.col) {
       return;
     }
 
@@ -185,11 +180,7 @@ export class FocusManager {
    * @param pageSize - Number of rows per page
    * @param rowCount - Total row count
    */
-  movePageFocus(
-    direction: 'up' | 'down',
-    pageSize: number,
-    rowCount: number
-  ): boolean {
+  movePageFocus(direction: 'up' | 'down', pageSize: number, rowCount: number): boolean {
     if (!this.activeCell) return false;
 
     const { row, col } = this.activeCell;

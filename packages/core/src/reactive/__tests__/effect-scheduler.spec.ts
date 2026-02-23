@@ -76,7 +76,7 @@ describe('createEffect', () => {
         order.push('late');
       },
       'core',
-      20,
+      20
     );
 
     createEffect(
@@ -86,7 +86,7 @@ describe('createEffect', () => {
         order.push('early');
       },
       'core',
-      10,
+      10
     );
 
     // Initial runs happen in registration order
@@ -110,7 +110,7 @@ describe('createEffect', () => {
         log.push('ok-first');
       },
       'core',
-      5,
+      5
     );
 
     createEffect(
@@ -121,7 +121,7 @@ describe('createEffect', () => {
         log.push('broken');
       },
       'core',
-      10,
+      10
     );
 
     createEffect(
@@ -131,7 +131,7 @@ describe('createEffect', () => {
         log.push('ok-last');
       },
       'core',
-      15,
+      15
     );
 
     log.length = 0;

@@ -22,12 +22,7 @@ interface BenchmarkResult {
 
 const results: BenchmarkResult[] = [];
 
-function benchmark(
-  name: string,
-  dataset: string,
-  fn: () => void,
-  iterations = 1
-): BenchmarkResult {
+function benchmark(name: string, dataset: string, fn: () => void, iterations = 1): BenchmarkResult {
   // Warm up
   fn();
 
@@ -69,21 +64,19 @@ function formatResults() {
   console.log('        ColumnStore Performance Benchmarks       ');
   console.log('=================================================\n');
 
-  const grouped = results.reduce((acc, r) => {
-    if (!acc[r.dataset]) acc[r.dataset] = [];
-    acc[r.dataset].push(r);
-    return acc;
-  }, {} as Record<string, BenchmarkResult[]>);
+  const grouped = results.reduce(
+    (acc, r) => {
+      if (!acc[r.dataset]) acc[r.dataset] = [];
+      acc[r.dataset].push(r);
+      return acc;
+    },
+    {} as Record<string, BenchmarkResult[]>
+  );
 
   for (const [dataset, benchmarks] of Object.entries(grouped)) {
     console.log(`\n${dataset}:`);
     console.log('-'.repeat(80));
-    console.log(
-      'Operation'.padEnd(40),
-      'Time'.padEnd(15),
-      'Ops/sec'.padEnd(15),
-      'Memory'
-    );
+    console.log('Operation'.padEnd(40), 'Time'.padEnd(15), 'Ops/sec'.padEnd(15), 'Memory');
     console.log('-'.repeat(80));
 
     for (const bench of benchmarks) {
@@ -91,27 +84,20 @@ function formatResults() {
         bench.time < 1
           ? `${(bench.time * 1000).toFixed(2)}μs`
           : bench.time < 1000
-          ? `${bench.time.toFixed(2)}ms`
-          : `${(bench.time / 1000).toFixed(2)}s`;
+            ? `${bench.time.toFixed(2)}ms`
+            : `${(bench.time / 1000).toFixed(2)}s`;
 
-      const opsStr = bench.opsPerSec
-        ? bench.opsPerSec.toLocaleString()
-        : '-';
+      const opsStr = bench.opsPerSec ? bench.opsPerSec.toLocaleString() : '-';
 
       const memStr = bench.memory
         ? bench.memory > 1024 * 1024
           ? `${(bench.memory / 1024 / 1024).toFixed(2)} MB`
           : bench.memory > 1024
-          ? `${(bench.memory / 1024).toFixed(2)} KB`
-          : `${bench.memory} B`
+            ? `${(bench.memory / 1024).toFixed(2)} KB`
+            : `${bench.memory} B`
         : '-';
 
-      console.log(
-        bench.operation.padEnd(40),
-        timeStr.padEnd(15),
-        opsStr.padEnd(15),
-        memStr
-      );
+      console.log(bench.operation.padEnd(40), timeStr.padEnd(15), opsStr.padEnd(15), memStr);
     }
   }
 
@@ -150,15 +136,11 @@ describe('ColumnStore Performance Benchmarks', () => {
         columns: [{ name: 'value', type: 'float64' }],
       });
 
-      const result = benchmark(
-        'Set 1K values',
-        'Small (1K rows)',
-        () => {
-          for (let i = 0; i < ROWS; i++) {
-            store.setValue(i, 'value', i * 1.5);
-          }
+      const result = benchmark('Set 1K values', 'Small (1K rows)', () => {
+        for (let i = 0; i < ROWS; i++) {
+          store.setValue(i, 'value', i * 1.5);
         }
-      );
+      });
 
       expect(result.time).toBeLessThan(40); // < 20ms is still very fast
     });
@@ -464,14 +446,10 @@ describe('ColumnStore Performance Benchmarks', () => {
         store.setValue(i, 'values', i);
       }
 
-      const result = benchmark(
-        'Aggregate sum (1M rows)',
-        'Large (1M rows)',
-        () => {
-          const sum = store.aggregate('values', 'sum');
-          expect(sum).toBeDefined();
-        }
-      );
+      const result = benchmark('Aggregate sum (1M rows)', 'Large (1M rows)', () => {
+        const sum = store.aggregate('values', 'sum');
+        expect(sum).toBeDefined();
+      });
 
       expect(result.time).toBeLessThan(400); // < 200ms for 1M rows is excellent
     });
@@ -642,19 +620,15 @@ describe('ColumnStore Performance Benchmarks', () => {
         store.setValue(i, 'balance', Math.random() * 10000);
       }
 
-      const result = benchmark(
-        'Calculate total transactions',
-        'Real-World Scenarios',
-        () => {
-          const totalAmount = store.aggregate('amount', 'sum');
-          const totalFees = store.aggregate('fee', 'sum');
-          const avgBalance = store.aggregate('balance', 'avg');
+      const result = benchmark('Calculate total transactions', 'Real-World Scenarios', () => {
+        const totalAmount = store.aggregate('amount', 'sum');
+        const totalFees = store.aggregate('fee', 'sum');
+        const avgBalance = store.aggregate('balance', 'avg');
 
-          expect(totalAmount.count).toBe(ROWS);
-          expect(totalFees.count).toBe(ROWS);
-          expect(avgBalance.count).toBe(ROWS);
-        }
-      );
+        expect(totalAmount.count).toBe(ROWS);
+        expect(totalFees.count).toBe(ROWS);
+        expect(avgBalance.count).toBe(ROWS);
+      });
 
       expect(result.time).toBeLessThan(60);
     });
@@ -679,19 +653,15 @@ describe('ColumnStore Performance Benchmarks', () => {
         store.setValue(i, 'purchases', i % 5 === 0 ? null : Math.floor(Math.random() * 10));
       }
 
-      const result = benchmark(
-        'Calculate user metrics',
-        'Real-World Scenarios',
-        () => {
-          const totalViews = store.aggregate('page_views', 'sum');
-          const avgSessionTime = store.aggregate('session_time', 'avg');
-          const totalPurchases = store.aggregate('purchases', 'count');
+      const result = benchmark('Calculate user metrics', 'Real-World Scenarios', () => {
+        const totalViews = store.aggregate('page_views', 'sum');
+        const avgSessionTime = store.aggregate('session_time', 'avg');
+        const totalPurchases = store.aggregate('purchases', 'count');
 
-          expect(totalViews).toBeDefined();
-          expect(avgSessionTime).toBeDefined();
-          expect(totalPurchases).toBeDefined();
-        }
-      );
+        expect(totalViews).toBeDefined();
+        expect(avgSessionTime).toBeDefined();
+        expect(totalPurchases).toBeDefined();
+      });
 
       expect(result.time).toBeLessThan(120); // < 60ms for 100K rows × 3 aggregations (allow variance)
     });
@@ -716,19 +686,15 @@ describe('ColumnStore Performance Benchmarks', () => {
         store.setValue(i, 'pressure', i % 25 === 0 ? null : 1000 + Math.random() * 50);
       }
 
-      const result = benchmark(
-        'Calculate sensor statistics',
-        'Real-World Scenarios',
-        () => {
-          const avgTemp = store.aggregate('temperature', 'avg');
-          const minHumidity = store.aggregate('humidity', 'min');
-          const maxPressure = store.aggregate('pressure', 'max');
+      const result = benchmark('Calculate sensor statistics', 'Real-World Scenarios', () => {
+        const avgTemp = store.aggregate('temperature', 'avg');
+        const minHumidity = store.aggregate('humidity', 'min');
+        const maxPressure = store.aggregate('pressure', 'max');
 
-          expect(avgTemp.count).toBeLessThan(ROWS);
-          expect(minHumidity.count).toBeLessThan(ROWS);
-          expect(maxPressure.count).toBeLessThan(ROWS);
-        }
-      );
+        expect(avgTemp.count).toBeLessThan(ROWS);
+        expect(minHumidity.count).toBeLessThan(ROWS);
+        expect(maxPressure.count).toBeLessThan(ROWS);
+      });
 
       expect(result.time).toBeLessThan(220); // < 110ms for 200K rows × 3 aggregations (allow variance)
     });
