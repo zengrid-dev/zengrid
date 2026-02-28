@@ -90,23 +90,6 @@ describe('ScrollPlugin', () => {
     expect(store.get('scroll.left')).toBe(50);
   });
 
-  it('fires scroll:updated event', () => {
-    host.use(createScrollPlugin());
-
-    const fired: any[] = [];
-    emitter.on('scroll:updated' as any, (payload: any) => fired.push(payload));
-
-    const container = createScrollableContainer();
-    store.exec('scroll:attach', container);
-
-    (container as any).scrollTop = 42;
-    (container as any).scrollLeft = 17;
-    container.dispatchEvent(new Event('scroll'));
-
-    expect(fired).toHaveLength(1);
-    expect(fired[0]).toEqual({ top: 42, left: 17 });
-  });
-
   it('teardown calls scroll:detach', () => {
     host.use(createScrollPlugin());
 

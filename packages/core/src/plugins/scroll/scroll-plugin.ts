@@ -14,14 +14,16 @@ export function createScrollPlugin(_options?: ScrollPluginOptions): GridPlugin {
 
       let container: HTMLElement | null = null;
 
+      let hasRendering = false;
+
       const onScroll = (e: Event) => {
         const target = e.target as HTMLElement;
         store.set('scroll.top', target.scrollTop);
         store.set('scroll.left', target.scrollLeft);
-        api.fireEvent('scroll:updated', {
-          top: target.scrollTop,
-          left: target.scrollLeft,
-        });
+        // Bridge to rendering plugin for virtual scroll updates
+        if (hasRendering) {
+          store.exec('rendering:handleScroll', target.scrollTop, target.scrollLeft);
+        }
       };
 
       store.action(
@@ -32,6 +34,8 @@ export function createScrollPlugin(_options?: ScrollPluginOptions): GridPlugin {
           }
           container = el;
           container.addEventListener('scroll', onScroll, { passive: true });
+          // Check once at attach time — rendering plugin is always installed before scroll:attach
+          hasRendering = !!api.getMethod('rendering', 'handleScroll');
         },
         'scroll'
       );

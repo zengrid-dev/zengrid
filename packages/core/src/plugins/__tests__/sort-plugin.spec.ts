@@ -82,16 +82,17 @@ describe('SortPlugin', () => {
     expect(api.getMethod('sort', 'getState')).toBeDefined();
   });
 
-  it('fires sort:changed event', () => {
+  it('fires sort:change event with correct payload', () => {
     const events: unknown[] = [];
-    emitter.on('sort:changed', (d: unknown) => events.push(d));
+    emitter.on('sort:change', (d: unknown) => events.push(d));
 
     host.use(createCorePlugin({ initialData: [[30], [10], [20]] }));
     host.use(createSortPlugin());
 
     store.exec('sort:toggle', 0);
     expect(events.length).toBe(1);
-    expect((events[0] as any).state.length).toBe(1);
+    expect((events[0] as any).sortState.length).toBe(1);
+    expect((events[0] as any).previousSortState).toEqual([]);
   });
 
   it('destroy calls SortManager.destroy()', () => {

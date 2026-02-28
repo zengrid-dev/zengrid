@@ -39,6 +39,7 @@ export type ActionHandler = (...args: any[]) => void | { undo: () => void };
 export interface ActionRegistration {
   handler: ActionHandler;
   owner: string;
+  invalidates?: string[];
 }
 
 export interface PipelinePhase {
@@ -55,6 +56,7 @@ export interface DebugEvent {
   oldValue?: unknown;
   newValue?: unknown;
   trigger?: string;
+  parentAction?: string;
 }
 
 // Declaration-merged interface for store keys
@@ -99,7 +101,7 @@ export interface GridStore {
   set(key: string, value: unknown): void;
   getUnphased(key: string): unknown;
   getRow(dataIndex: number): unknown;
-  action(name: string, handler: ActionHandler, owner: string): void;
+  action(name: string, handler: ActionHandler, owner: string, meta?: { invalidates?: string[] }): void;
   exec(name: string, ...args: unknown[]): void | { undo: () => void };
   asyncComputed(
     key: string,

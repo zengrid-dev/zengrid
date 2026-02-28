@@ -50,11 +50,12 @@ export function createAsyncSortPlugin(options?: AsyncSortPluginOptions): GridPlu
       store.action(
         'sort:toggle',
         (column: number, additive = false) => {
+          const prev = mgr.getSortState();
           const rowCount = store.get('rows.count') as number;
           mgr.updateRowCount(rowCount);
           mgr.toggleSort(column, additive);
           store.set('sort.state', mgr.getSortState());
-          api.fireEvent('sort:changed', { state: mgr.getSortState() });
+          api.fireEvent('sort:change', { sortState: mgr.getSortState(), previousSortState: prev });
         },
         'sort'
       );
@@ -62,11 +63,12 @@ export function createAsyncSortPlugin(options?: AsyncSortPluginOptions): GridPlu
       store.action(
         'sort:apply',
         (sortState: SortState[]) => {
+          const prev = mgr.getSortState();
           const rowCount = store.get('rows.count') as number;
           mgr.updateRowCount(rowCount);
           mgr.setSortState(sortState);
           store.set('sort.state', mgr.getSortState());
-          api.fireEvent('sort:changed', { state: mgr.getSortState() });
+          api.fireEvent('sort:change', { sortState: mgr.getSortState(), previousSortState: prev });
         },
         'sort'
       );
@@ -74,9 +76,10 @@ export function createAsyncSortPlugin(options?: AsyncSortPluginOptions): GridPlu
       store.action(
         'sort:clear',
         () => {
+          const prev = mgr.getSortState();
           mgr.clearSort();
           store.set('sort.state', []);
-          api.fireEvent('sort:changed', { state: [] });
+          api.fireEvent('sort:change', { sortState: [], previousSortState: prev });
         },
         'sort'
       );

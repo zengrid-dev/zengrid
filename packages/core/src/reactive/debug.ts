@@ -2,7 +2,9 @@ import { RingBuffer } from '@zengrid/shared';
 import type { DebugEvent } from './types';
 import { signalRegistry, computedRegistry } from './tracking';
 
-const IS_DEV = typeof process !== 'undefined' && process.env?.['NODE_ENV'] !== 'production';
+export const IS_DEV = typeof globalThis !== 'undefined' &&
+  typeof (globalThis as any).process !== 'undefined' &&
+  (globalThis as any).process.env?.['NODE_ENV'] !== 'production';
 
 const EVENT_LOG_CAPACITY = 1000;
 const eventLog = new RingBuffer<DebugEvent>(EVENT_LOG_CAPACITY);
@@ -60,6 +62,16 @@ export function recordEffectRun(name: string): void {
   });
 }
 
+let currentParentAction: string | undefined;
+
+export function setCurrentParentAction(name: string | undefined): void {
+  currentParentAction = name;
+}
+
+export function getCurrentParentAction(): string | undefined {
+  return currentParentAction;
+}
+
 export function recordActionExec(name: string, args: unknown[]): void {
   if (!IS_DEV) return;
   eventLog.push({
@@ -68,6 +80,7 @@ export function recordActionExec(name: string, args: unknown[]): void {
     type: 'action-exec',
     name,
     newValue: args,
+    parentAction: currentParentAction,
   });
 }
 

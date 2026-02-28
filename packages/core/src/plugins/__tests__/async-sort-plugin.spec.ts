@@ -139,16 +139,17 @@ describe('AsyncSortPlugin', () => {
     expect(api.getMethod('sort', 'isPending')).toBeDefined();
   });
 
-  it('fires sort:changed event', async () => {
+  it('fires sort:change event with correct payload', async () => {
     const events: unknown[] = [];
-    emitter.on('sort:changed', (d: unknown) => events.push(d));
+    emitter.on('sort:change', (d: unknown) => events.push(d));
 
     host.use(createCorePlugin({ initialData: [[30], [10], [20]] }));
     host.use(createAsyncSortPlugin());
 
     store.exec('sort:toggle', 0);
     expect(events.length).toBe(1);
-    expect((events[0] as any).state.length).toBe(1);
+    expect((events[0] as any).sortState.length).toBe(1);
+    expect((events[0] as any).previousSortState).toEqual([]);
   });
 
   it('destroy calls cleanup without error', () => {

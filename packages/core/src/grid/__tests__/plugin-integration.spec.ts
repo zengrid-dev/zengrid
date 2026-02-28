@@ -133,17 +133,17 @@ describe('Plugin Integration', () => {
 
   it('fireEvent delivers events to listeners', () => {
     const events: unknown[] = [];
-    emitter.on('sort:changed', (data: unknown) => events.push(data));
+    emitter.on('sort:change', (data: unknown) => events.push(data));
 
     const plugin: GridPlugin = {
       name: 'sort',
       phase: 10,
       setup(_s, a) {
-        a.fireEvent('sort:changed', { column: 'name', direction: 'asc' });
+        a.fireEvent('sort:change', { sortState: [{ column: 0, direction: 'asc' }], previousSortState: [] });
       },
     };
 
     host.use(plugin);
-    expect(events).toEqual([{ column: 'name', direction: 'asc' }]);
+    expect(events).toEqual([{ sortState: [{ column: 0, direction: 'asc' }], previousSortState: [] }]);
   });
 });

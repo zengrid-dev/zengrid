@@ -58,16 +58,22 @@ describe('DevToolsConnector', () => {
       (window as any).__REDUX_DEVTOOLS_EXTENSION__ = { connect: mockConnect };
     });
 
-    it('connects with default name', () => {
+    it('connects with default name and disabled time-travel', () => {
       host.use(createCorePlugin());
       host.use(createDevToolsConnector());
-      expect(mockConnect).toHaveBeenCalledWith({ name: 'ZenGrid Store' });
+      expect(mockConnect).toHaveBeenCalledWith({
+        name: 'ZenGrid Store',
+        features: { jump: false, skip: false },
+      });
     });
 
     it('connects with custom name', () => {
       host.use(createCorePlugin());
       host.use(createDevToolsConnector({ name: 'My Grid' }));
-      expect(mockConnect).toHaveBeenCalledWith({ name: 'My Grid' });
+      expect(mockConnect).toHaveBeenCalledWith({
+        name: 'My Grid',
+        features: { jump: false, skip: false },
+      });
     });
 
     it('calls init with initial state', () => {
@@ -84,27 +90,36 @@ describe('DevToolsConnector', () => {
 
       store.exec('core:setData', [[2], [3]]);
       expect(mockDevtools.send).toHaveBeenCalled();
-      const [action, state] = mockDevtools.send.mock.calls[0];
-      expect(action.type).toBe('core:setData');
-      expect(state['rows.raw']).toEqual([[2], [3]]);
+      const execCall = mockDevtools.send.mock.calls.find(
+        ([action]: [{ type: string }]) => action.type === 'core:setData'
+      );
+      expect(execCall).toBeDefined();
+      expect(execCall![0].type).toBe('core:setData');
+      expect(execCall![1]['rows.raw']).toEqual([[2], [3]]);
     });
 
-    it('subscribes to devtools messages', () => {
-      host.use(createCorePlugin());
+    it('sends [set] events on store.set', () => {
+      host.use(createCorePlugin({ initialData: [[1]] }));
       host.use(createDevToolsConnector());
-      expect(mockDevtools.subscribe).toHaveBeenCalledTimes(1);
+
+      store.set('rows.raw', [[9]]);
+      const setCall = mockDevtools.send.mock.calls.find(
+        ([action]: [{ type: string }]) => action.type === '[set] rows.raw'
+      );
+      expect(setCall).toBeDefined();
+      expect(setCall![1]['rows.raw']).toEqual([[9]]);
     });
 
-    it('restores original exec on teardown', () => {
+    it('restores original exec and set on teardown', () => {
       host.use(createCorePlugin({ initialData: [[1]] }));
       host.use(createDevToolsConnector());
 
       const wrappedExec = store.exec;
+      const wrappedSet = store.set;
       host.destroy();
 
-      // After destroy, exec should no longer send to devtools
-      // The store is disposed so we can't call exec, but the reference should differ
       expect(wrappedExec).not.toBe(store.exec);
+      expect(wrappedSet).not.toBe(store.set);
     });
   });
 });

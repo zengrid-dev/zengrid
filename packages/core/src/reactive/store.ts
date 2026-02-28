@@ -21,7 +21,13 @@ import {
   removeOwnership,
   resetTracking,
 } from './tracking';
-import { recordActionExec, debugGraph as debugGraphFn } from './debug';
+import {
+  recordActionExec,
+  debugGraph as debugGraphFn,
+  setCurrentParentAction,
+  getCurrentParentAction,
+  IS_DEV,
+} from './debug';
 
 export class GridStoreImpl implements IGridStore {
   private signals = new Map<string, WrappedSignal>();
@@ -134,11 +140,11 @@ export class GridStoreImpl implements IGridStore {
     return rows?.[dataIndex];
   }
 
-  action(name: string, handler: ActionHandler, owner: string): void {
+  action(name: string, handler: ActionHandler, owner: string, meta?: { invalidates?: string[] }): void {
     if (this.actions.has(name)) {
       throw new Error(`Action "${name}" already registered`);
     }
-    this.actions.set(name, { handler, owner });
+    this.actions.set(name, { handler, owner, invalidates: meta?.invalidates });
     registerOwnership(owner, name);
   }
 
@@ -152,12 +158,32 @@ export class GridStoreImpl implements IGridStore {
       throw new Error(`Re-entrant action "${name}" — already executing`);
     }
 
+    // Track parent-child action chain for dev-mode tracing
+    const previousParent = getCurrentParentAction();
+    // The parent is whichever action is currently executing (if any)
+    const executing = Array.from(this.executingActions);
+    const parentAction = executing.length > 0
+      ? executing[executing.length - 1]
+      : undefined;
+    setCurrentParentAction(parentAction);
+
     this.executingActions.add(name);
     try {
       recordActionExec(name, args);
+
+      // Dev-mode: warn if this action was invalidated by a parent
+      if (IS_DEV && reg.invalidates) {
+        for (const invalidated of reg.invalidates) {
+          if (IS_DEV) {
+            console.debug(`[store] Action "${name}" invalidates "${invalidated}"`);
+          }
+        }
+      }
+
       return reg.handler(...args);
     } finally {
       this.executingActions.delete(name);
+      setCurrentParentAction(previousParent);
     }
   }
 

@@ -48,6 +48,7 @@ export interface GridEvents {
   'selection:change': {
     ranges: CellRange[];
     previousRanges: CellRange[];
+    isSelected?: (row: number, col: number) => boolean;
   };
 
   'selection:start': {

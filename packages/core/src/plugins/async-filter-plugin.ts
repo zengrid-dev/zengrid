@@ -63,9 +63,10 @@ export function createAsyncFilterPlugin(options?: AsyncFilterPluginOptions): Gri
       store.action(
         'filter:setColumn',
         (col: number, conditions: FilterCondition[], logic: 'AND' | 'OR' = 'AND') => {
+          const prev = mgr.getFilterState();
           mgr.setColumnFilter(col, conditions, logic);
           store.set('filter.state', mgr.getFilterState());
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );
@@ -73,9 +74,10 @@ export function createAsyncFilterPlugin(options?: AsyncFilterPluginOptions): Gri
       store.action(
         'filter:clear',
         () => {
+          const prev = mgr.getFilterState();
           mgr.clearAll();
           store.set('filter.state', []);
-          api.fireEvent('filter:changed', { state: [] });
+          api.fireEvent('filter:change', { filterState: [], previousFilterState: prev });
         },
         'filter'
       );
@@ -83,9 +85,10 @@ export function createAsyncFilterPlugin(options?: AsyncFilterPluginOptions): Gri
       store.action(
         'filter:clearColumn',
         (col: number) => {
+          const prev = mgr.getFilterState();
           mgr.clearColumnFilter(col);
           store.set('filter.state', mgr.getFilterState());
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );

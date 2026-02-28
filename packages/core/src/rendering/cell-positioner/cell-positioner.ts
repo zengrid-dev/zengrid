@@ -9,6 +9,7 @@ import type { ViewportModel } from '../../features/viewport/viewport-model';
 import type { ViewportEvent } from '../../features/viewport/types';
 import type { StateSubscriber } from '@zengrid/shared';
 import type { ColumnDef } from '../../types/column';
+import { IS_DEV } from '../../reactive/debug';
 
 /**
  * CSS classes for cell overflow modes
@@ -159,12 +160,36 @@ export class CellPositioner implements ICellPositioner {
   }
 
   refresh(): void {
-    if (!this.lastRange) return;
+    if (!this.lastRange) {
+      if (IS_DEV) {
+        console.warn('[CellPositioner] refresh() no-op: lastRange is null. Was the positioner recreated without rendering?');
+      }
+      return;
+    }
 
     for (let row = this.lastRange.startRow; row < this.lastRange.endRow; row++) {
       for (let col = this.lastRange.startCol; col < this.lastRange.endCol; col++) {
         const key = this.getCellKey(row, col);
         this.renderCell(row, col, key);
+      }
+    }
+  }
+
+  refreshSelectionClasses(): void {
+    if (!this.lastRange) {
+      if (IS_DEV) {
+        console.warn('[CellPositioner] refreshSelectionClasses() no-op: lastRange is null. Was the positioner recreated without rendering?');
+      }
+      return;
+    }
+
+    for (let row = this.lastRange.startRow; row < this.lastRange.endRow; row++) {
+      for (let col = this.lastRange.startCol; col < this.lastRange.endCol; col++) {
+        const key = this.getCellKey(row, col);
+        if (!this.renderedCells.has(key)) continue;
+        const element = this.pool.acquire(key);
+        element.classList.toggle('zg-cell-selected', this.isSelected(row, col));
+        element.classList.toggle('zg-cell-active', this.isActive(row, col));
       }
     }
   }

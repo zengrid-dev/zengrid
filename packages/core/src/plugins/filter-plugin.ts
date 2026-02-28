@@ -140,9 +140,10 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:setColumn',
         (col: number, conditions: FilterCondition[], logic: 'AND' | 'OR' = 'AND') => {
+          const prev = mgr.getFilterState();
           mgr.setColumnFilter(col, conditions, logic);
           applyFilter();
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );
@@ -150,6 +151,7 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:clear',
         () => {
+          const prev = mgr.getFilterState();
           mgr.clearAll();
           quickFilterQuery = '';
           quickFilterColumns = null;
@@ -157,7 +159,7 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
           store.set('pipeline.filter', undefined);
           store.set('filter.state', []);
           store.set('filter.quickFilter', { query: '', columns: null });
-          api.fireEvent('filter:changed', { state: [] });
+          api.fireEvent('filter:change', { filterState: [], previousFilterState: prev });
         },
         'filter'
       );
@@ -165,9 +167,10 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:clearColumn',
         (col: number) => {
+          const prev = mgr.getFilterState();
           mgr.clearColumnFilter(col);
           applyFilter();
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );
@@ -207,11 +210,12 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:setQuickFilter',
         (query: string, columns?: number[]) => {
+          const prev = mgr.getFilterState();
           quickFilterQuery = query ?? '';
           quickFilterColumns = columns ?? null;
           store.set('filter.quickFilter', { query: quickFilterQuery, columns: quickFilterColumns });
           applyFilter();
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );
@@ -219,12 +223,13 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:clearQuickFilter',
         () => {
+          const prev = mgr.getFilterState();
           quickFilterQuery = '';
           quickFilterColumns = null;
           clearQuickFilterCache();
           store.set('filter.quickFilter', { query: '', columns: null });
           applyFilter();
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );
@@ -232,6 +237,7 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
       store.action(
         'filter:setState',
         (models: FilterModel[]) => {
+          const prev = mgr.getFilterState();
           mgr.clearAll();
           for (const model of models) {
             mgr.setColumnFilter(
@@ -241,7 +247,7 @@ export function createFilterPlugin(options?: FilterPluginOptions): GridPlugin {
             );
           }
           applyFilter();
-          api.fireEvent('filter:changed', { state: mgr.getFilterState() });
+          api.fireEvent('filter:change', { filterState: mgr.getFilterState(), previousFilterState: prev });
         },
         'filter'
       );

@@ -247,6 +247,13 @@ export class VirtualScroller implements IVirtualScroller {
     return this.widthProvider;
   }
 
+  /**
+   * Replace the width provider (for in-place updates when columns change)
+   */
+  setWidthProvider(wp: WidthProvider): void {
+    this.widthProvider = wp;
+  }
+
   get viewportWidth(): number {
     return this.vpWidth;
   }

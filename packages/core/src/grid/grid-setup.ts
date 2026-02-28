@@ -1,15 +1,6 @@
 import type { GridOptions, GridState } from '../types';
 import { EventEmitter } from '../events/event-emitter';
 import type { GridEvents } from '../events/grid-events';
-import { GridDOM } from './dom';
-import { GridPagination } from './pagination';
-import { GridData } from './data';
-import { GridScroll } from './scroll';
-import { GridResize } from './resize';
-import { GridDrag } from './drag';
-import { GridInit } from './init';
-import { ScrollModel } from '../features/viewport/scroll-model';
-import { ViewportModel } from '../features/viewport/viewport-model';
 import { GridStoreImpl } from '../reactive/store';
 import { PipelineRegistry } from '../reactive/pipeline';
 import { GridApiImpl } from './grid-api';
@@ -24,9 +15,17 @@ import { createSelectionPlugin } from '../plugins/selection';
 import { createEditingPlugin } from '../plugins/editing';
 import { createUndoRedoPlugin } from '../plugins/undo-redo';
 import { createLegacyApiPlugin } from '../plugins/legacy-bridge';
-import type { GridContext } from './grid-context';
+import { createDomPlugin } from '../plugins/dom';
+import { createRenderingPlugin } from '../plugins/rendering';
+import { createHeaderPlugin } from '../plugins/header';
+import { createPaginationPlugin } from '../plugins/pagination';
+import { createColumnPlugin } from '../plugins/column';
+import { createFilterUIPlugin } from '../plugins/filter-ui';
+import { createInfiniteScrollPlugin } from '../plugins/infinite-scroll';
+import { ViewportModel } from '../features/viewport/viewport-model';
+import type { SlimGridContext } from './grid-context';
 
-export function createGridContext(container: HTMLElement, options: GridOptions): GridContext {
+export function createSlimContext(container: HTMLElement, options: GridOptions): SlimGridContext {
   if (!container) throw new Error('Container element is required');
   container.classList.add('zg-grid');
 
@@ -51,10 +50,7 @@ export function createGridContext(container: HTMLElement, options: GridOptions):
   pipelineRegistry.registerPhase('sort', 10, 'pipeline.sort');
   pipelineRegistry.registerPhase('filter', 20, 'pipeline.filter');
 
-  const dom = new GridDOM(container, options);
-  dom.setupDOM();
-
-  const ctx = {
+  return {
     container,
     options,
     state,
@@ -63,108 +59,159 @@ export function createGridContext(container: HTMLElement, options: GridOptions):
     gridApi,
     pluginHost,
     pipelineRegistry,
-    dom,
-    scrollModel: new ScrollModel(),
-    viewportModel: new ViewportModel(),
-    canvas: dom.canvas,
-    scrollContainer: dom.scrollContainer,
-    columnModel: null,
-    headerManager: null,
-    editingOps: null,
     isDestroyed: false,
-  } as GridContext;
-
-  ctx.init = new GridInit(container, options, state, events, dom.scrollContainer, dom.canvas, {
-    getViewIndices: () => ctx.store.get('rows.viewIndices') as number[] | undefined,
-    getDataAccessor: () => ctx.dataOps.dataAccessor,
-    getColumnModel: () => ctx.columnModel,
-  });
-  ctx.init.setupLoadingListeners();
-
-  ctx.dataOps = new GridData(
-    options,
-    state,
-    events,
-    ctx.init.scroller,
-    ctx.init.pool,
-    ctx.init.cache
-  );
-
-  ctx.scrollOps = new GridScroll(
-    options,
-    state,
-    dom.scrollContainer,
-    dom.canvas,
-    ctx.init.scroller,
-    ctx.init.positioner,
-    ctx.init.pool,
-    ctx.init.registry,
-    ctx.init.cache,
-    ctx.dataOps.dataAccessor,
-    {
-      getViewIndices: () => ctx.store.get('rows.viewIndices') as number[] | undefined,
-      getColumnModel: () => ctx.columnModel,
-      emitEvent: (event: string, payload: any) => ctx.events.emit(event as any, payload),
-    }
-  );
-  if (dom.scrollContainer)
-    dom.scrollContainer.addEventListener('scroll', ctx.scrollOps.handleScroll);
-
-  ctx.resizeOps = new GridResize(
-    options,
-    events,
-    ctx.init.scroller,
-    ctx.dataOps.dataAccessor,
-    dom.scrollContainer,
-    {
-      updateCanvasSize: () =>
-        ctx.dom.updateCanvasSize(
-          ctx.scrollOps.getScroller()?.getTotalWidth() ?? 0,
-          ctx.scrollOps.getScroller()?.getTotalHeight() ?? 0
-        ),
-      onRefresh: () => ctx.refresh(),
-    }
-  );
-
-  ctx.dragOps = new GridDrag(options, events, dom.scrollContainer);
-  ctx.pagination = new GridPagination(options, events);
-
-  ctx.clearCache = () => {
-    if (ctx.init.cache) ctx.init.cache.clear();
   };
-  ctx.refresh = () => {
-    if (ctx.init.positioner) ctx.init.positioner.refresh();
-  };
-
-  return ctx;
 }
 
-export function installPlugins(ctx: GridContext): void {
-  ctx.pluginHost.use(createCorePlugin());
+export function installAllPlugins(ctx: SlimGridContext): void {
+  const { options, events, pluginHost, store } = ctx;
 
-  if (ctx.options.sortMode !== 'backend') {
-    ctx.pluginHost.use(createSortPlugin({ enableMultiSort: true }));
+  // Phase 0: Core
+  pluginHost.use(createCorePlugin());
+
+  // Phase 5: DOM
+  pluginHost.use(createDomPlugin({ container: ctx.container, options }));
+
+  // Phase 10: Sort
+  if (options.sortMode !== 'backend') {
+    pluginHost.use(createSortPlugin({ enableMultiSort: true }));
   }
-  if (ctx.options.filterMode !== 'backend') {
-    ctx.pluginHost.use(createFilterPlugin({ colCount: ctx.options.colCount }));
+
+  // Phase 20: Filter
+  if (options.filterMode !== 'backend') {
+    pluginHost.use(createFilterPlugin({ colCount: options.colCount }));
   }
 
-  ctx.pluginHost.use(createScrollPlugin());
-  ctx.pluginHost.use(createViewportPlugin());
-  ctx.pluginHost.use(createResizePlugin({ debounceMs: 150 }));
+  // Phase 30: Rendering
+  let columnModel: any = null;
+  let selectionChecker: ((row: number, col: number) => boolean) | null = null;
+  let dataAccessor: any = null;
 
-  if (ctx.options.enableSelection !== false) {
-    ctx.pluginHost.use(
+  pluginHost.use(
+    createRenderingPlugin({
+      options,
+      state: ctx.state,
+      events,
+      getDataAccessor: () => dataAccessor,
+      getColumnModel: () => columnModel,
+      getSelectionChecker: () => selectionChecker,
+    })
+  );
+
+  // Phase 40: Selection
+  if (options.enableSelection !== false) {
+    pluginHost.use(
       createSelectionPlugin({
-        enableMultiSelection: ctx.options.enableMultiSelection,
-        selectionType: ctx.options.selectionType,
+        enableMultiSelection: options.enableMultiSelection,
+        selectionType: options.selectionType,
       })
     );
   }
 
-  ctx.pluginHost.use(createEditingPlugin());
-  ctx.pluginHost.use(createUndoRedoPlugin());
-  ctx.pluginHost.use(createLegacyApiPlugin());
+  // Phase 45: Editing
+  pluginHost.use(createEditingPlugin());
 
-  ctx.pipelineRegistry.setupCoreComputeds(ctx.store);
+  // Phase 50: Scroll, Viewport
+  pluginHost.use(createScrollPlugin());
+  pluginHost.use(createViewportPlugin());
+
+  // Phase 60: Column
+  pluginHost.use(
+    createColumnPlugin({
+      options,
+      events,
+      getDataAccessor: () => dataAccessor,
+    })
+  );
+
+  // Phase 70: Header
+  pluginHost.use(
+    createHeaderPlugin({
+      options,
+      events,
+      getColumnModel: () => columnModel,
+    })
+  );
+
+  // Phase 80: Pagination
+  if (options.pagination?.enabled) {
+    pluginHost.use(createPaginationPlugin({ options }));
+  }
+
+  // Phase 100: Resize (window)
+  pluginHost.use(createResizePlugin({ debounceMs: 150 }));
+
+  // Phase 170: Undo/Redo
+  pluginHost.use(createUndoRedoPlugin());
+
+  // Phase 200: Legacy bridge
+  pluginHost.use(createLegacyApiPlugin());
+
+  // Setup pipeline computeds
+  ctx.pipelineRegistry.setupCoreComputeds(store);
+
+  // Expose closures for late-binding references
+  (ctx as any)._setColumnModel = (cm: any) => { columnModel = cm; };
+  (ctx as any)._setDataAccessor = (da: any) => { dataAccessor = da; };
+  (ctx as any)._setSelectionChecker = (sc: any) => { selectionChecker = sc; };
+  (ctx as any)._getColumnModel = () => columnModel;
+  (ctx as any)._getDataAccessor = () => dataAccessor;
+
+  // Install filter UI if columns + filter are present
+  if (options.columns && options.columns.length > 0 && pluginHost.has('filter') && !pluginHost.has('filter-ui')) {
+    pluginHost.use(
+      createFilterUIPlugin({
+        getColumnDef: (dataCol: number) => options.columns?.[dataCol],
+        getColumnModel: () => columnModel,
+        getContainer: () => ctx.container,
+      })
+    );
+  }
+
+  // Install infinite scroll if configured
+  if (options.infiniteScrolling?.enabled && options.onLoadMoreRows) {
+    const cfg = options.infiniteScrolling;
+    const infiniteScrollViewport = new ViewportModel();
+
+    // Wire scroll events to the ViewportModel so infinite scroll can subscribe
+    ctx.events.on('scroll', (payload: any) => {
+      if (payload.visibleRange) {
+        infiniteScrollViewport.setRange(payload.visibleRange, {
+          top: payload.scrollTop,
+          left: payload.scrollLeft,
+        });
+      }
+    });
+
+    pluginHost.use(
+      createInfiniteScrollPlugin({
+        enabled: true,
+        threshold: cfg.threshold,
+        enableSlidingWindow: cfg.enableSlidingWindow,
+        windowSize: cfg.windowSize,
+        pruneThreshold: cfg.pruneThreshold,
+        onLoadMoreRows: options.onLoadMoreRows,
+        onDataPruned: cfg.onDataPruned,
+        getViewportModel: () => infiniteScrollViewport,
+        getScroller: () => {
+          const renderingApi = ctx.gridApi.getMethod('rendering', 'getScroller');
+          return renderingApi ? renderingApi() : null;
+        },
+        getDOM: () => {
+          const domApi = ctx.gridApi.getMethod('dom', 'getCanvas');
+          return domApi ? { canvas: domApi(), updateCanvasSize: (w: number, h: number) => store.exec('dom:updateCanvasSize', w, h) } : null;
+        },
+        setData: (data: any[][]) => {
+          store.exec('core:setData', data);
+        },
+        refresh: () => {
+          store.exec('rendering:refresh');
+        },
+        getState: () => ({ data: ctx.state.data, rowCount: options.rowCount }),
+        setRowCount: (count: number) => {
+          options.rowCount = count;
+        },
+      })
+    );
+  }
 }

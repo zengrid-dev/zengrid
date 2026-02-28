@@ -53,6 +53,8 @@ export function createSelectionPlugin(options?: SelectionPluginOptions): GridPlu
       let attachedContainer: HTMLElement | null = null;
       let anchorCell: { row: number; col: number } | null = null;
 
+      const boundIsSelected = mgr.isSelected.bind(mgr);
+
       function syncToStore(): void {
         const ranges = mgr.getSelectedRanges().map((r) => ({
           startRow: r.startRow,
@@ -62,7 +64,7 @@ export function createSelectionPlugin(options?: SelectionPluginOptions): GridPlu
         }));
         const prev = store.get('selection.ranges') as CellRange[];
         store.set('selection.ranges', ranges);
-        api.fireEvent('selection:change', { ranges, previousRanges: prev });
+        api.fireEvent('selection:change', { ranges, previousRanges: prev, isSelected: boundIsSelected });
       }
 
       function parseCellFromEvent(event: MouseEvent): { row: number; col: number } | null {
@@ -70,8 +72,8 @@ export function createSelectionPlugin(options?: SelectionPluginOptions): GridPlu
         const cell = target.closest('.zg-cell[data-row][data-col]') as HTMLElement;
         if (!cell) return null;
         return {
-          row: parseInt(cell.dataset.row || '0', 10),
-          col: parseInt(cell.dataset.col || '0', 10),
+          row: parseInt(cell.dataset['row'] || '0', 10),
+          col: parseInt(cell.dataset['col'] || '0', 10),
         };
       }
 
@@ -199,7 +201,12 @@ export function createSelectionPlugin(options?: SelectionPluginOptions): GridPlu
             } else {
               switch (selType) {
                 case 'row':
-                  store.exec('selection:selectRows', row, row, additive);
+                  // Toggle: if this row is already selected (non-additive), deselect it
+                  if (!additive && mgr.isRowSelected(row)) {
+                    store.exec('selection:clear');
+                  } else {
+                    store.exec('selection:selectRows', row, row, additive);
+                  }
                   break;
                 case 'column':
                   store.exec('selection:selectColumns', col, col, additive);

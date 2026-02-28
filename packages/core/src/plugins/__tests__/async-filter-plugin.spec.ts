@@ -158,15 +158,17 @@ describe('AsyncFilterPlugin', () => {
     expect(api.getMethod('filter', 'isPending')).toBeDefined();
   });
 
-  it('fires filter:changed event', async () => {
+  it('fires filter:change event with correct payload', async () => {
     const events: unknown[] = [];
-    emitter.on('filter:changed', (d: unknown) => events.push(d));
+    emitter.on('filter:change', (d: unknown) => events.push(d));
 
     host.use(createCorePlugin({ initialData: [[10], [20], [30]] }));
     host.use(createAsyncFilterPlugin({ colCount: 1 }));
 
     store.exec('filter:setColumn', 0, [{ operator: 'greaterThan', value: 15 }]);
     expect(events.length).toBe(1);
+    expect((events[0] as any).filterState).toBeDefined();
+    expect((events[0] as any).previousFilterState).toEqual([]);
   });
 
   it('destroy cleans up without error', () => {
