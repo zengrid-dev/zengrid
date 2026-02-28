@@ -16,6 +16,9 @@ build
 .nx/cache
 .nx/workspace-data
 
+# angular
+.angular/cache
+
 # misc
 .DS_Store
 *.pem
