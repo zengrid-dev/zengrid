@@ -10,12 +10,20 @@ test.describe('Column Drag & Reorder', () => {
     await gridPage.goto('/');
   });
 
-  test.skip('should drag column header to reorder', async ({ page }) => {
+  test('should drag column header to reorder', async ({ page }) => {
     await gridPage.setData(generateNumericData({ rows: 10, cols: 5 }));
+
+    // Before drag: row 0 col 0 should have value 0 (if data is row*cols+col)
+    // Actually generateNumericData gives `Row ${r} Col ${c}` or similar, let's just read it.
+    const beforeCell00 = await gridPage.getCellValue(0, 0);
+    const beforeCell02 = await gridPage.getCellValue(0, 2);
 
     await gridPage.dragColumn(0, 2);
 
-    test.skip();
+    // After drag, the old col 0 is now at col 2? Wait, if we move 0 to 2, 1 becomes 0, 2 becomes 1, 0 becomes 2.
+    // Let's just read row 0 col 2 and check if it equals beforeCell00
+    const afterCell02 = await gridPage.getCellValue(0, 2);
+    expect(afterCell02).toBe(beforeCell00);
   });
 
   test.skip('should show visual feedback during drag', async ({ page }) => {

@@ -1,24 +1,16 @@
 import type { GridOptions, GridState } from '../types';
 import type { EventEmitter } from '../events/event-emitter';
 import type { GridEvents } from '../events/grid-events';
-import type { GridDOM } from './dom';
-import type { GridInit } from './init';
-import type { GridData } from './data';
-import type { GridScroll } from './scroll';
-import type { GridResize } from './resize';
-import type { GridDrag } from './drag';
-import type { GridPagination } from './pagination';
-import type { HeaderManager } from './header-manager';
-import type { GridEditing } from './grid-editing';
 import type { GridStoreImpl } from '../reactive/store';
 import type { GridApiImpl } from './grid-api';
 import type { PluginHost } from './plugin-host';
 import type { PipelineRegistry } from '../reactive/pipeline';
-import type { ColumnModel } from '../features/columns/column-model';
-import type { ScrollModel } from '../features/viewport/scroll-model';
-import type { ViewportModel } from '../features/viewport/viewport-model';
 
-export interface GridContext {
+/**
+ * GridContext used by the plugin-based Grid class.
+ * Only contains plugin infrastructure and essential state.
+ */
+export interface SlimGridContext {
   container: HTMLElement;
   options: GridOptions;
   state: GridState;
@@ -27,21 +19,5 @@ export interface GridContext {
   gridApi: GridApiImpl;
   pluginHost: PluginHost;
   pipelineRegistry: PipelineRegistry;
-  dom: GridDOM;
-  init: GridInit;
-  dataOps: GridData;
-  scrollOps: GridScroll;
-  resizeOps: GridResize;
-  dragOps: GridDrag;
-  pagination: GridPagination;
-  columnModel: ColumnModel | null;
-  headerManager: HeaderManager | null;
-  editingOps: GridEditing | null;
-  scrollModel: ScrollModel;
-  viewportModel: ViewportModel;
-  canvas: HTMLElement | null;
-  scrollContainer: HTMLElement | null;
   isDestroyed: boolean;
-  clearCache(): void;
-  refresh(): void;
 }

@@ -73,7 +73,7 @@ export class PaginationDemo {
 
     this.pageSizeSelect.addEventListener('change', () => {
       this.state.pageSize = parseInt(this.pageSizeSelect.value);
-      this.goToPage(1); // Reset to first page when page size changes
+      this.goToPage(1);
     });
 
     this.gotoPageInput.addEventListener('keypress', (e) => {
@@ -86,18 +86,12 @@ export class PaginationDemo {
   async enable() {
     this.enabled = true;
     this.paginationControls.style.display = 'block';
-
-    console.log('📄 Pagination Mode: ENABLED');
-    console.log('   Loading data from server...');
-
     await this.loadPage(1);
   }
 
   disable() {
     this.enabled = false;
     this.paginationControls.style.display = 'none';
-
-    console.log('📄 Pagination Mode: DISABLED');
   }
 
   isEnabled(): boolean {
@@ -106,24 +100,17 @@ export class PaginationDemo {
 
   async goToPage(page: number) {
     if (page < 1 || page > this.state.totalPages || this.loading) return;
-
     await this.loadPage(page);
   }
 
   private async loadPage(page: number) {
-    if (this.loading) {
-      console.warn('⏳ Already loading, please wait...');
-      return;
-    }
+    if (this.loading) return;
 
     this.loading = true;
     this.updateButtonStates(true);
 
     try {
       const url = `${API_BASE_URL}/employees?page=${page}&pageSize=${this.state.pageSize}`;
-
-      console.log(`\n📊 Loading Page ${page}:`);
-      console.log(`   URL: ${url}`);
 
       // Show loading indicator
       (this.grid as any).events.emit('loading:start', {
@@ -138,10 +125,6 @@ export class PaginationDemo {
       }
 
       const result = await response.json();
-
-      console.log(`   ✅ Received ${result.data.length} records`);
-      console.log(`   Total: ${result.pagination.totalRecords.toLocaleString()}`);
-      console.log(`   Pages: ${result.pagination.totalPages}`);
 
       // Update state
       this.state = {
@@ -167,12 +150,8 @@ export class PaginationDemo {
         row.notes,
       ]);
 
-      // Update grid with page data
-      // The library now handles scroller/positioner recreation automatically
       this.grid.setData(gridData);
       this.grid.refresh();
-
-      console.log(`✅ Page ${result.pagination.page} loaded: ${gridData.length} rows`);
 
       // Update UI
       this.updatePaginationUI();
@@ -183,7 +162,7 @@ export class PaginationDemo {
         duration: 300,
       });
     } catch (error) {
-      console.error('❌ Failed to load page:', error);
+      console.error('Failed to load page:', error);
 
       (this.grid as any).events.emit('loading:end', {
         timestamp: Date.now(),

@@ -11,6 +11,7 @@ import type { FilterModel, FilterExpression } from './filter';
 import type { DataLoadRequest, DataLoadResponse } from './data';
 import type { PaginationConfig } from './pagination';
 import type { LoadingConfig } from './loading';
+import type { ZenGridTheme } from '../theming/theme.interface';
 
 /**
  * Grid options
@@ -21,6 +22,18 @@ export interface GridOptions {
   rowHeight: number | number[]; // Uniform or variable row heights
   colWidth: number | number[]; // Uniform or variable column widths
   columns?: ColumnDef[];
+
+  /**
+   * Theme to apply - a theme ID string (e.g. 'dark', 'material') or a full ZenGridTheme object
+   */
+  theme?: string | ZenGridTheme;
+
+  /**
+   * Automatically switch between light/dark themes based on prefers-color-scheme
+   * When enabled, uses 'light' theme for light mode and 'dark' theme for dark mode
+   */
+  autoTheme?: boolean;
+
   enableSelection?: boolean;
   enableMultiSelection?: boolean;
   /**

@@ -39,7 +39,7 @@ export class DragEventHandlers {
     // Find the currently focused column ID from the active element
     const activeElement = document.activeElement as HTMLElement;
     const focusedHeader = activeElement?.closest('[data-column-id]') as HTMLElement;
-    const focusedColumnId = focusedHeader?.dataset.columnId || null;
+    const focusedColumnId = focusedHeader?.dataset['columnId'] || null;
 
     // Let keyboard handler handle the event
     if (focusedColumnId) {

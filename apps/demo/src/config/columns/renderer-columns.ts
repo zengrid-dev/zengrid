@@ -28,7 +28,6 @@ export function createRendererColumns(data: any[][]) {
       width: 100,
       renderer: new CheckboxRenderer({
         onChange: (value, params) => {
-          console.log(`Checkbox changed: Row ${params.cell.row}, New value: ${value}`);
         }
       }),
       sortable: true,
@@ -88,7 +87,6 @@ export function createRendererColumns(data: any[][]) {
         variant: 'danger',
         size: 'small',
         onClick: (params) => {
-          console.log(`Delete button clicked for row ${params.cell.row}`);
           alert(`Delete action for:\nID: ${data[params.cell.row][0]}\nName: ${data[params.cell.row][1]}`);
         }
       }),
@@ -110,7 +108,6 @@ export function createRendererColumns(data: any[][]) {
         format: 'MM/DD/YYYY',
         locale: 'en-US',
         onClick: (date, params) => {
-          console.log(`📅 Date clicked: ${date} at row ${params.cell.row}`);
         }
       }),
       sortable: true,
@@ -147,9 +144,6 @@ export function createRendererColumns(data: any[][]) {
         startColor: '#1976d2',
         endColor: '#7b1fa2',
         onClick: (range, params) => {
-          if (range && range.start && range.end) {
-            console.log(`📆 Date range clicked at row ${params.cell.row}: ${range.start.toLocaleDateString()} - ${range.end.toLocaleDateString()}`);
-          }
         }
       }),
       sortable: true,
@@ -186,7 +180,6 @@ export function createRendererColumns(data: any[][]) {
           { label: 'Critical', value: 'Critical' }
         ],
         onChange: (value, params) => {
-          console.log(`Priority changed: Row ${params.cell.row}, New value: ${value}`);
         }
       }),
       sortable: true,
@@ -206,10 +199,8 @@ export function createRendererColumns(data: any[][]) {
         removable: true,
         showOverflowTooltip: true,
         onRemove: (chip, params) => {
-          console.log(`Tag removed: "${chip.label}" from row ${params.cell.row}`);
         },
         onClick: (chip, params) => {
-          console.log(`Tag clicked: "${chip.label}" on row ${params.cell.row}`);
         }
       }),
       sortable: false,
@@ -231,10 +222,8 @@ export function createRendererColumns(data: any[][]) {
         removable: true,
         showOverflowTooltip: true,
         onRemove: (chip, params) => {
-          console.log(`Tag removed: "${chip.label}" from row ${params.cell.row}`);
         },
         onClick: (chip, params) => {
-          console.log(`Tag clicked: "${chip.label}" on row ${params.cell.row}`);
         }
       }),
       sortable: false,
@@ -262,7 +251,6 @@ export function createRendererColumns(data: any[][]) {
         ],
         searchable: true,
         onChange: (value, params) => {
-          console.log(`Category changed: Row ${params.cell.row}, New value: ${value}`);
         }
       }),
       sortable: true,

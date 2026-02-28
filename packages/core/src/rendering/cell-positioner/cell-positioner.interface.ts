@@ -100,6 +100,12 @@ export interface CellPositioner {
   refresh(): void;
 
   /**
+   * Lightweight refresh that only toggles selection/active/editing CSS classes
+   * on visible cells without re-running renderers. Use for selection changes.
+   */
+  refreshSelectionClasses(): void;
+
+  /**
    * Cleanup and release all resources
    */
   destroy(): void;

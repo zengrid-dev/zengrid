@@ -19,13 +19,18 @@ export function createResizePlugin(options?: ResizePluginOptions): GridPlugin {
 
       store.action(
         'resize:attach',
-        (el: HTMLElement) => {
+        (el: HTMLElement, preReadWidth?: number, preReadHeight?: number) => {
           if (observer) store.exec('resize:detach');
 
-          // Initialize dimensions immediately
-          const rect = el.getBoundingClientRect();
-          store.set('viewport.width', rect.width);
-          store.set('viewport.height', rect.height);
+          // Use pre-read dimensions if available to avoid forced reflow
+          if (preReadWidth !== undefined && preReadHeight !== undefined) {
+            store.set('viewport.width', preReadWidth);
+            store.set('viewport.height', preReadHeight);
+          } else {
+            const rect = el.getBoundingClientRect();
+            store.set('viewport.width', rect.width);
+            store.set('viewport.height', rect.height);
+          }
 
           if (typeof ResizeObserver === 'undefined') return;
           observer = new ResizeObserver((entries) => {

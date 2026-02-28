@@ -4,8 +4,6 @@ import { names, departments, priorities, categories, tagOptions } from '../confi
  * Generate test data - 100K rows x 18 columns (including new renderer showcase columns)
  */
 export function generateData(rowCount: number, colCount: number): any[][] {
-  console.time('Data Generation');
-
   const data: any[][] = [];
 
   for (let row = 0; row < rowCount; row++) {
@@ -123,7 +121,6 @@ export function generateData(rowCount: number, colCount: number): any[][] {
     data.push(rowData);
   }
 
-  console.timeEnd('Data Generation');
   return data;
 }
 

@@ -14,14 +14,9 @@ export interface SortHandlerContext {
  */
 export function createSortHandler(context: SortHandlerContext) {
   return async function handleSortRequest(sortState: any[]): Promise<void> {
-    // In frontend mode, this handler won't be called (auto mode detects undefined handler)
-    // In backend mode, perform server-side sorting
     if (context.sortMode !== 'backend') return;
 
-    console.log('🔄 Backend sort requested:', sortState);
-
     if (sortState.length === 0) {
-      // No sort - restore original order
       const newData = generateData(ROW_COUNT, COL_COUNT);
       context.setData(newData);
       const grid = context.getGrid();
@@ -35,7 +30,6 @@ export function createSortHandler(context: SortHandlerContext) {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Perform sorting on the data
     const sortedData = [...context.data].sort((a, b) => {
       const aVal = a[column];
       const bVal = b[column];
@@ -52,12 +46,9 @@ export function createSortHandler(context: SortHandlerContext) {
       return direction === 'asc' ? result : -result;
     });
 
-    // Update data and refresh grid
     context.setData(sortedData);
     const grid = context.getGrid();
     grid.setData(sortedData);
     grid.refresh();
-
-    console.log('✅ Backend sort completed');
   };
 }

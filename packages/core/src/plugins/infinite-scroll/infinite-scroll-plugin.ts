@@ -2,7 +2,9 @@ import type { GridPlugin, PluginDisposable } from '../../reactive/types';
 import type { ViewportModel } from '../../features/viewport/viewport-model';
 import type { ViewportEvent } from '../../features/viewport/types';
 import type { VirtualScroller } from '../../rendering/virtual-scroller';
-import type { GridDOM } from '../../grid/dom';
+export interface InfiniteScrollDOM {
+  updateCanvasSize(width: number, height: number): void;
+}
 
 export interface InfiniteScrollPluginOptions {
   enabled: boolean;
@@ -14,7 +16,7 @@ export interface InfiniteScrollPluginOptions {
   onDataPruned?: (rowsRemoved: number, virtualOffset: number) => void;
   getViewportModel: () => ViewportModel;
   getScroller: () => VirtualScroller | null;
-  getDOM: () => GridDOM;
+  getDOM: () => InfiniteScrollDOM | null;
   setData: (data: any[][]) => void;
   refresh: () => void;
   getState: () => { data: any[][]; rowCount: number };
@@ -98,7 +100,7 @@ export function createInfiniteScrollPlugin(options: InfiniteScrollPluginOptions)
           if (scroller) {
             scroller.setRowCount(updatedData.length);
             const dom = options.getDOM();
-            dom.updateCanvasSize(scroller.getTotalWidth(), scroller.getTotalHeight());
+            if (dom) dom.updateCanvasSize(scroller.getTotalWidth(), scroller.getTotalHeight());
           }
 
           options.refresh();

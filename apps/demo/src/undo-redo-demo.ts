@@ -117,18 +117,12 @@ export class UndoRedoDemo {
   private undo(): void {
     if (this.undoRedoManager.undo()) {
       this.updateHistoryDisplay();
-      console.log('Undo successful');
-    } else {
-      console.log('Nothing to undo');
     }
   }
 
   private redo(): void {
     if (this.undoRedoManager.redo()) {
       this.updateHistoryDisplay();
-      console.log('Redo successful');
-    } else {
-      console.log('Nothing to redo');
     }
   }
 

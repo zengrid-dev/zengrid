@@ -156,7 +156,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     const hoursInput = document.createElement('input');
     hoursInput.type = 'number';
     hoursInput.className = 'zg-datetime-time-input';
-    hoursInput.dataset.type = 'hours';
+    hoursInput.dataset['type'] = 'hours';
     hoursInput.min = this.options.timeFormat === '12h' ? '1' : '0';
     hoursInput.max = this.options.timeFormat === '12h' ? '12' : '23';
     hoursInput.placeholder = 'HH';
@@ -175,7 +175,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     const minutesInput = document.createElement('input');
     minutesInput.type = 'number';
     minutesInput.className = 'zg-datetime-time-input';
-    minutesInput.dataset.type = 'minutes';
+    minutesInput.dataset['type'] = 'minutes';
     minutesInput.min = '0';
     minutesInput.max = '59';
     minutesInput.placeholder = 'MM';
@@ -191,7 +191,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
       const secondsInput = document.createElement('input');
       secondsInput.type = 'number';
       secondsInput.className = 'zg-datetime-time-input';
-      secondsInput.dataset.type = 'seconds';
+      secondsInput.dataset['type'] = 'seconds';
       secondsInput.min = '0';
       secondsInput.max = '59';
       secondsInput.placeholder = 'SS';
@@ -205,7 +205,7 @@ export class DateTimeEditor implements CellEditor<Date | null> {
     if (this.options.timeFormat === '12h') {
       const ampmSelect = document.createElement('select');
       ampmSelect.className = 'zg-datetime-time-ampm';
-      ampmSelect.dataset.type = 'ampm';
+      ampmSelect.dataset['type'] = 'ampm';
       ['AM', 'PM'].forEach((v) => {
         const opt = document.createElement('option');
         opt.value = v;

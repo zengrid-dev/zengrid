@@ -79,10 +79,10 @@ export class CheckboxRenderer implements CellRenderer {
     checkbox.className = this.options.className;
 
     // Set data attributes for debugging
-    checkbox.dataset.row = String(params.cell.row);
-    checkbox.dataset.col = String(params.cell.col);
+    checkbox.dataset['row'] = String(params.cell.row);
+    checkbox.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      checkbox.dataset.field = params.column.field;
+      checkbox.dataset['field'] = params.column.field;
     }
 
     wrapper.appendChild(checkbox);

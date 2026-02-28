@@ -49,14 +49,37 @@ export class ProgrammaticOperations {
   }
 
   /**
-   * Auto-fit all columns
+   * Auto-fit all columns (batched to avoid layout thrashing)
    */
   autoFitAllColumns(): void {
     if (!this.config.autoFitCalculator) return;
 
     const colCount = this.config.dataSource.getColumnCount();
+
+    // Phase 1: Batch all reads (measure optimal widths)
+    const widths: Array<{ col: number; oldWidth: number; newWidth: number }> = [];
     for (let col = 0; col < colCount; col++) {
-      this.autoFitColumn(col);
+      const oldWidth = this.config.dataSource.getColumnWidth(col);
+      const optimalWidth = this.config.autoFitCalculator.calculateOptimalWidth(col);
+      const constrainedWidth = this.config.constraintManager.applyConstraints(col, optimalWidth);
+      if (constrainedWidth !== oldWidth) {
+        widths.push({ col, oldWidth, newWidth: constrainedWidth });
+      }
+    }
+
+    // Phase 2: Batch all writes (apply widths)
+    for (const { col, oldWidth, newWidth } of widths) {
+      this.config.dataSource.setColumnWidth(col, newWidth);
+      this.config.stateManager.recordResize(col, oldWidth, newWidth);
+      if (this.config.events) {
+        this.config.events.emit('column:resize', { column: col, oldWidth, newWidth });
+      }
+    }
+
+    // Phase 3: Single DOM update
+    if (widths.length > 0) {
+      this.config.onWidthChange();
+      this.config.onUpdateHandles();
     }
   }
 

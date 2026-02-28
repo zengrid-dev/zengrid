@@ -235,10 +235,10 @@ export class SelectRenderer implements CellRenderer {
     }
 
     // Update data attributes
-    select.dataset.row = String(params.cell.row);
-    select.dataset.col = String(params.cell.col);
+    select.dataset['row'] = String(params.cell.row);
+    select.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      select.dataset.field = params.column.field;
+      select.dataset['field'] = params.column.field;
     }
 
     // Update ARIA attributes

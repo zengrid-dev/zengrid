@@ -144,9 +144,9 @@ export function setAriaExpanded(trigger: HTMLElement, expanded: boolean): void {
  * Set data attributes on container
  */
 export function setDataAttributes(container: HTMLElement, params: RenderParams): void {
-  container.dataset.row = String(params.cell.row);
-  container.dataset.col = String(params.cell.col);
+  container.dataset['row'] = String(params.cell.row);
+  container.dataset['col'] = String(params.cell.col);
   if (params.column?.field) {
-    container.dataset.field = params.column.field;
+    container.dataset['field'] = params.column.field;
   }
 }

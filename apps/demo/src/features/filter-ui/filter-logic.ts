@@ -3,14 +3,11 @@ import { FilterPanel } from './filter-panel';
 import { operators } from '../../config/operators';
 
 export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[]): void {
-  console.log('🔍 Applying filters with advanced logic...');
-
   grid.clearFilters();
 
   const filterArray = filterPanel.getFiltersArray();
 
   if (filterArray.length === 0) {
-    console.log('   No filters to apply');
     filterPanel.filterPreview.style.display = 'none';
     return;
   }
@@ -40,14 +37,11 @@ export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[
   if (warnings.length > 0) {
     filterPanel.filterWarningContent.innerHTML = warnings.map(w => `<div style="margin-bottom: 0.75rem;">${w}</div>`).join('');
     filterPanel.filterWarning.style.display = 'block';
-    console.warn('⚠️ Impossible filter combinations detected:');
-    warnings.forEach((w, i) => console.warn(`   ${i + 1}. ${w.replace(/<[^>]*>/g, '')}`));
   } else {
     filterPanel.filterWarning.style.display = 'none';
   }
 
   // Build preview showing the actual filter chain
-  console.log('📊 Filter Chain:');
   let previewHTML = '<div style="margin-bottom: 0.5rem;"><strong>Filter Chain:</strong></div>';
   let previewText = '';
 
@@ -58,14 +52,12 @@ export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[
     const valueStr = filter.value !== undefined ? String(filter.value) : '';
 
     const conditionText = `${columnName} ${operatorLabel} ${valueStr}`;
-    console.log(`   ${i + 1}. ${conditionText}`);
 
     previewText += conditionText;
     previewHTML += `<div style="margin-left: 1rem;">${conditionText}</div>`;
 
     if (i < filterArray.length - 1) {
       const logic = filter.logicToNext || 'AND';
-      console.log(`      ${logic}`);
       previewHTML += `<div style="margin-left: 2rem; font-weight: 600; color: #0c5460;">${logic}</div>`;
       previewText += ` ${logic} `;
     }
@@ -82,8 +74,6 @@ export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[
 
     const logic = conditions.find(c => c.logic)?.logic || 'AND';
 
-    console.log(`   Applying ${conditions.length} condition(s) on column ${column} with ${logic} logic`);
-
     const cleanConditions = conditions.map(({ logic, ...rest }) => rest);
 
     (grid as any).filterManager.setColumnFilter(column, cleanConditions, logic);
@@ -96,11 +86,8 @@ export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[
 
     // Get visible rows and update the cache
     (grid as any).cachedVisibleRows = (grid as any).filterManager.getVisibleRows((grid as any).options.rowCount);
-    console.log(`🔍 Filter applied: ${(grid as any).cachedVisibleRows.length} of ${(grid as any).options.rowCount} rows visible`);
-
     // Re-apply sort if active
     if ((grid as any).sortManager && (grid as any).state.sortState.length > 0) {
-      console.log('🔄 Re-applying sort to filtered rows...');
       const currentSort = (grid as any).state.sortState;
       const SortManager = (grid as any).sortManager.constructor;
       (grid as any).sortManager = new SortManager({
@@ -128,7 +115,6 @@ export function applyFilters(filterPanel: FilterPanel, grid: Grid, columns: any[
     }
   }
 
-  console.log(`✅ Applied filters on ${columnGroups.size} column(s)`);
 }
 
 export function detectImpossibleFilters(filterArray: any[], columns: any[]): string[] {
@@ -214,9 +200,7 @@ export function updateFilterExports(event: any): void {
 }
 
 export function clearFilters(grid: Grid, filterPanel: FilterPanel): void {
-  console.log('🗑️ Clearing all filters...');
   grid.clearFilters();
   filterPanel.clear();
   updateFilterExports(null);
-  console.log('✅ All filters cleared');
 }

@@ -12,19 +12,20 @@
   background: transparent;
   z-index: 100;
   pointer-events: auto;
-  transition: background 0.15s ease;
+  transition: background var(--zg-transition-fast, 0.15s ease);
 }
 
 .zg-resize-handle:hover,
 .zg-resize-handle.active {
-  background: rgba(33, 150, 243, 0.6);
+  background: rgba(var(--zg-border-active, #2196f3), 0.6);
+  background: color-mix(in srgb, var(--zg-border-active, #2196f3) 60%, transparent);
 }
 
 /* Resize Preview Line */
 .zg-resize-preview {
   width: 2px;
-  background: #2196f3;
-  box-shadow: 0 0 4px rgba(33, 150, 243, 0.6);
+  background: var(--zg-border-active, #2196f3);
+  box-shadow: 0 0 4px var(--zg-border-active, #2196f3);
   pointer-events: none;
   z-index: 1000;
 }

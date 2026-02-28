@@ -85,7 +85,7 @@ export class DragTouchHandler {
 
     if (!headerCell) return;
 
-    const columnId = headerCell.dataset.columnId;
+    const columnId = headerCell.dataset['columnId'];
     if (!columnId) return;
 
     this.touchStartX = touch.clientX;

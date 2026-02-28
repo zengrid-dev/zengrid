@@ -51,7 +51,7 @@ export class CellPool implements ICellPool {
 
     // Track as active
     this.active.set(key, element);
-    element.dataset.cellKey = key;
+    element.dataset['cellKey'] = key;
 
     return element;
   }
@@ -124,7 +124,7 @@ export class CellPool implements ICellPool {
     element.className = 'zg-cell';
     element.innerHTML = '';
     element.style.cssText = 'position: absolute; display: none;';
-    delete element.dataset.cellKey;
+    delete element.dataset['cellKey'];
     // Clear row/col data attributes to prevent stale data on reuse
     element.removeAttribute('data-row');
     element.removeAttribute('data-col');

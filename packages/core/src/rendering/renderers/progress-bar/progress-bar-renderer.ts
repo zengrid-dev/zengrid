@@ -197,12 +197,12 @@ export class ProgressBarRenderer implements CellRenderer {
       fill.style.backgroundColor = color;
 
       // Set data attributes for testing/debugging
-      fill.dataset.percentage = String(clampedPercentage.toFixed(2));
-      fill.dataset.value = String(rawValue);
-      fill.dataset.row = String(params.cell.row);
-      fill.dataset.col = String(params.cell.col);
+      fill.dataset['percentage'] = String(clampedPercentage.toFixed(2));
+      fill.dataset['value'] = String(rawValue);
+      fill.dataset['row'] = String(params.cell.row);
+      fill.dataset['col'] = String(params.cell.col);
       if (params.column?.field) {
-        fill.dataset.field = params.column.field;
+        fill.dataset['field'] = params.column.field;
       }
     }
 

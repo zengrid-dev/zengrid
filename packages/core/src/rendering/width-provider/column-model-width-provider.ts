@@ -1,7 +1,6 @@
 import { PrefixSumArray } from '@zengrid/shared';
 import type { WidthProvider } from './width-provider.interface';
 import type { ColumnModel } from '../../features/columns/column-model';
-import type { ColumnState } from '../../features/columns/types';
 
 /**
  * ColumnModelWidthProvider - Adapter that bridges ColumnModel to WidthProvider interface
@@ -35,55 +34,41 @@ import type { ColumnState } from '../../features/columns/types';
 export class ColumnModelWidthProvider implements WidthProvider {
   private columnModel: ColumnModel;
   private cache: PrefixSumArray | null = null;
-  private cachedColumns: ColumnState[] | null = null;
-  private dirty = true;
-  private unsubscribe: (() => void) | null = null;
+  private cachedWidths: number[] = [];
 
   constructor(columnModel: ColumnModel) {
     this.columnModel = columnModel;
-
-    // Subscribe to ColumnModel changes to invalidate cache
-    this.unsubscribe = this.columnModel.subscribeAll({
-      onChange: (event) => {
-        if (event.type === 'width' || event.type === 'reorder' || event.type === 'visibility') {
-          this.dirty = true;
-          this.cachedColumns = null;
-        }
-      },
-    });
   }
 
   /**
    * Ensure PrefixSumArray cache is up-to-date.
-   * Rebuilds from ColumnModel only when dirty.
+   * Always validates against the column model's current state to avoid
+   * stale data from batch notification ordering issues.
    */
   private ensureCache(): void {
-    if (!this.dirty && this.cache) return;
-
-    const columns = this.getOrderedColumns();
+    const columns = this.columnModel.getVisibleColumnsInOrder();
     const widths = columns.map((col) => col.actualWidth);
 
-    if (widths.length === 0) {
-      this.cache = new PrefixSumArray({ values: [] });
-    } else {
-      this.cache = new PrefixSumArray({ values: widths });
-    }
+    // Fast-path: check if widths match cached values
+    if (this.cache && this.widthsMatch(widths)) return;
 
-    this.dirty = false;
+    this.cache = new PrefixSumArray({ values: widths });
+    this.cachedWidths = widths;
   }
 
   /**
-   * Get columns in visual order (cached between invalidations)
+   * Compare current widths against cached widths
    */
-  private getOrderedColumns(): ColumnState[] {
-    if (!this.cachedColumns) {
-      this.cachedColumns = this.columnModel.getVisibleColumnsInOrder();
+  private widthsMatch(widths: number[]): boolean {
+    if (widths.length !== this.cachedWidths.length) return false;
+    for (let i = 0; i < widths.length; i++) {
+      if (widths[i] !== this.cachedWidths[i]) return false;
     }
-    return this.cachedColumns;
+    return true;
   }
 
   getWidth(index: number): number {
-    const columns = this.getOrderedColumns();
+    const columns = this.columnModel.getVisibleColumnsInOrder();
     if (index < 0 || index >= columns.length) {
       throw new RangeError(`Column index ${index} out of bounds [0, ${columns.length})`);
     }
@@ -110,13 +95,11 @@ export class ColumnModelWidthProvider implements WidthProvider {
    * Maps visual index to column ID and delegates to ColumnModel.setWidth().
    */
   setWidth(index: number, width: number): void {
-    const columns = this.getOrderedColumns();
+    const columns = this.columnModel.getVisibleColumnsInOrder();
     if (index < 0 || index >= columns.length) {
       throw new RangeError(`Column index ${index} out of bounds [0, ${columns.length})`);
     }
-    // Delegate to ColumnModel — constraints are enforced there
     this.columnModel.setWidth(columns[index].id, width);
-    // Note: the subscription will mark dirty automatically
   }
 
   get length(): number {
@@ -124,14 +107,10 @@ export class ColumnModelWidthProvider implements WidthProvider {
   }
 
   /**
-   * Clean up subscription when provider is no longer needed
+   * Clean up when provider is no longer needed
    */
   destroy(): void {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-    }
     this.cache = null;
-    this.cachedColumns = null;
+    this.cachedWidths = [];
   }
 }

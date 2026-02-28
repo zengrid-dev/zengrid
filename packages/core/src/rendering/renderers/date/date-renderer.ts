@@ -194,12 +194,12 @@ export class DateRenderer implements CellRenderer {
     // Set data attributes for testing/debugging
     // WARNING: data-row/col must ONLY be on .zg-cell elements (set by CellPositioner)
     if (params.column?.field) {
-      container.dataset.field = params.column.field;
+      container.dataset['field'] = params.column.field;
     }
     if (date) {
-      container.dataset.date = date.toISOString();
+      container.dataset['date'] = date.toISOString();
     } else {
-      delete container.dataset.date;
+      delete container.dataset['date'];
     }
   }
 

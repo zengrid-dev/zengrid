@@ -24,10 +24,10 @@ export function createContainer(
   label.style.userSelect = 'none';
 
   // Set data attributes
-  label.dataset.row = String(params.cell.row);
-  label.dataset.col = String(params.cell.col);
+  label.dataset['row'] = String(params.cell.row);
+  label.dataset['col'] = String(params.cell.col);
   if (params.column?.field) {
-    label.dataset.field = params.column.field;
+    label.dataset['field'] = params.column.field;
   }
 
   return label;

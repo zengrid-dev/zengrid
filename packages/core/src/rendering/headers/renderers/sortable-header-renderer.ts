@@ -37,7 +37,7 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
   /**
    * Initial render of sortable header
    */
-  render(element: HTMLElement, params: HeaderRenderParams): void {
+  override render(element: HTMLElement, params: HeaderRenderParams): void {
     // Call parent render
     super.render(element, params);
 
@@ -57,7 +57,7 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
   /**
    * Update sortable header
    */
-  update(element: HTMLElement, params: HeaderRenderParams): void {
+  override update(element: HTMLElement, params: HeaderRenderParams): void {
     // Call parent update
     super.update(element, params);
 
@@ -230,7 +230,7 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
   /**
    * Get additional CSS class for sorted state
    */
-  getHeaderClass?(params: HeaderRenderParams): string | undefined {
+  override getHeaderClass?(params: HeaderRenderParams): string | undefined {
     const parentClass = super.getHeaderClass?.(params);
     const classes: string[] = parentClass ? [parentClass] : [];
 

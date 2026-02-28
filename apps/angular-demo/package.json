@@ -1,0 +1,34 @@
+{
+  "name": "@zengrid/angular-demo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "dev": "ng serve --open"
+  },
+  "dependencies": {
+    "@angular/animations": "^21.1.5",
+    "@angular/common": "^21.1.5",
+    "@angular/compiler": "^21.1.5",
+    "@angular/core": "^21.1.5",
+    "@angular/forms": "^21.1.5",
+    "@angular/platform-browser": "^21.1.5",
+    "@angular/platform-browser-dynamic": "^21.1.5",
+    "@angular/router": "^21.1.5",
+    "@zengrid/angular": "workspace:*",
+    "@zengrid/core": "workspace:*",
+    "@zengrid/shared": "workspace:*",
+    "@preact/signals-core": "^1.13.0",
+    "vanilla-calendar-pro": "^3.0.5",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.8.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.1.4",
+    "@angular/cli": "^21.1.4",
+    "@angular/compiler-cli": "^21.1.5",
+    "typescript": "~5.9.3"
+  }
+}

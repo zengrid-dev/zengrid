@@ -268,10 +268,10 @@ export class ChipRenderer implements CellRenderer {
     this.eventHandlers.set(element, handlers);
 
     // Update data attributes
-    container.dataset.row = String(params.cell.row);
-    container.dataset.col = String(params.cell.col);
+    container.dataset['row'] = String(params.cell.row);
+    container.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      container.dataset.field = params.column.field;
+      container.dataset['field'] = params.column.field;
     }
   }
 
@@ -334,8 +334,8 @@ export class ChipRenderer implements CellRenderer {
       chipEl.className += ` ${chip.className}`;
     }
     chipEl.setAttribute('role', 'listitem');
-    chipEl.dataset.chipIndex = String(index);
-    chipEl.dataset.chipValue = String(chip.value ?? chip.label);
+    chipEl.dataset['chipIndex'] = String(index);
+    chipEl.dataset['chipValue'] = String(chip.value ?? chip.label);
 
     // Apply colors
     const bgColor = chip.color || this.options.defaultColor;

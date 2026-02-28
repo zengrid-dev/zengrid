@@ -201,12 +201,12 @@ export class ButtonRenderer implements CellRenderer {
     }
 
     // Update data attributes
-    button.dataset.row = String(params.cell.row);
-    button.dataset.col = String(params.cell.col);
+    button.dataset['row'] = String(params.cell.row);
+    button.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      button.dataset.field = params.column.field;
+      button.dataset['field'] = params.column.field;
     }
-    button.dataset.variant = this.options.variant;
+    button.dataset['variant'] = this.options.variant;
 
     // Apply styles
     this.applyButtonStyles(button, disabled);

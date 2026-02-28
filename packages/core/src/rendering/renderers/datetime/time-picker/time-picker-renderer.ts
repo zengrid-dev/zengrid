@@ -194,8 +194,8 @@ export class TimePickerRenderer implements CellRenderer {
 
     element.appendChild(container);
 
-    container.dataset.row = String(params.cell.row);
-    container.dataset.col = String(params.cell.col);
+    container.dataset['row'] = String(params.cell.row);
+    container.dataset['col'] = String(params.cell.col);
   }
 
   private createTimeInputs(value: TimeValue | null): HTMLElement {
@@ -324,8 +324,8 @@ export class TimePickerRenderer implements CellRenderer {
       textSpan.classList.toggle('placeholder', !newValue);
     }
 
-    container.dataset.row = String(params.cell.row);
-    container.dataset.col = String(params.cell.col);
+    container.dataset['row'] = String(params.cell.row);
+    container.dataset['col'] = String(params.cell.col);
   }
 
   destroy(element: HTMLElement): void {

@@ -57,7 +57,7 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
   /**
    * Initial render of filterable header
    */
-  render(element: HTMLElement, params: HeaderRenderParams): void {
+  override render(element: HTMLElement, params: HeaderRenderParams): void {
     // Call parent render (sortable)
     super.render(element, params);
 
@@ -71,7 +71,7 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
   /**
    * Update filterable header
    */
-  update(element: HTMLElement, params: HeaderRenderParams): void {
+  override update(element: HTMLElement, params: HeaderRenderParams): void {
     // Call parent update
     super.update(element, params);
 
@@ -187,7 +187,7 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
   /**
    * Get additional CSS class for filter state
    */
-  getHeaderClass?(params: HeaderRenderParams): string | undefined {
+  override getHeaderClass?(params: HeaderRenderParams): string | undefined {
     const parentClass = super.getHeaderClass?.(params);
     const classes: string[] = parentClass ? [parentClass] : [];
 
@@ -201,7 +201,7 @@ export class FilterableHeaderRenderer extends SortableHeaderRenderer {
   /**
    * Cleanup - remove filter button listeners
    */
-  destroy(element: HTMLElement): void {
+  override destroy(element: HTMLElement): void {
     const filterBtn = element.querySelector('.zg-filter-trigger');
     if (filterBtn) {
       // Clone to remove all event listeners

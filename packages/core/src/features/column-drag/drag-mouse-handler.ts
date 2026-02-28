@@ -79,7 +79,7 @@ export class DragMouseHandler {
     const headerCell = (e.target as HTMLElement).closest('[data-column-id]') as HTMLElement;
     if (!headerCell) return;
 
-    const columnId = headerCell.dataset.columnId;
+    const columnId = headerCell.dataset['columnId'];
     if (!columnId) return;
 
     // Check if column can be dragged

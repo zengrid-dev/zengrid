@@ -9,19 +9,42 @@
   --zg-header-height: 35px;
   --zg-col-width: 100px;
 
-  /* Colors */
-  --zg-bg-color: #ffffff;
-  --zg-text-color: #000000;
-  --zg-border-color: #d0d0d0;
-  --zg-header-bg: #f5f5f5;
-  --zg-header-text: #333333;
-  --zg-selected-bg: #e3f2fd;
-  --zg-selected-border: #1976d2;
-  --zg-focus-ring: #1976d2;
-  --zg-hover-bg: #f0f0f0;
+  /* Colors - Background */
+  --zg-bg-primary: #ffffff;
+  --zg-bg-secondary: #f5f5f5;
+  --zg-bg-hover: #f0f4f8;
+  --zg-bg-selected: #e3f2fd;
+  --zg-bg-active: #ffffff;
+  --zg-bg-editing: #ffffff;
+  --zg-bg-disabled: #fafafa;
+
+  /* Colors - Border */
+  --zg-border-color: #e0e0e0;
+  --zg-border-active: #2196f3;
+  --zg-border-selected: #2196f3;
+  --zg-border-editing: #4caf50;
+  --zg-border-focus: #2196f3;
+
+  /* Colors - Text */
+  --zg-text-primary: #333333;
+  --zg-text-secondary: #666666;
+  --zg-text-disabled: #999999;
+  --zg-text-negative: #d32f2f;
+  --zg-text-link: #1976d2;
+
+  /* Colors - State */
+  --zg-state-success: #4caf50;
+  --zg-state-warning: #ff9800;
+  --zg-state-error: #f44336;
+  --zg-state-info: #2196f3;
+
+  /* Colors - Scrollbar */
+  --zg-scrollbar-thumb: rgba(0, 0, 0, 0.3);
+  --zg-scrollbar-thumb-hover: rgba(0, 0, 0, 0.5);
 
   /* Spacing */
-  --zg-cell-padding: 8px 12px;
+  --zg-cell-padding-x: 8px;
+  --zg-cell-padding-y: 0;
   --zg-header-padding: 12px;
   --zg-border-width: 1px;
 
@@ -30,17 +53,37 @@
   --zg-font-size: 14px;
   --zg-line-height: 1.5;
 
+  /* Shadows */
+  --zg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --zg-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --zg-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+  /* Transitions */
+  --zg-transition-fast: 0.1s ease;
+  --zg-transition-normal: 0.2s ease;
+
+  /* Legacy aliases (backwards compat) */
+  --zg-bg-color: var(--zg-bg-primary);
+  --zg-text-color: var(--zg-text-primary);
+  --zg-header-bg: var(--zg-bg-secondary);
+  --zg-header-text: var(--zg-text-primary);
+  --zg-selected-bg: var(--zg-bg-selected);
+  --zg-selected-border: var(--zg-border-selected);
+  --zg-focus-ring: var(--zg-border-focus);
+  --zg-hover-bg: var(--zg-bg-hover);
+  --zg-cell-padding: var(--zg-cell-padding-y) var(--zg-cell-padding-x);
+
   /* Calendar theming variables */
-  --zg-calendar-bg: var(--zg-bg-color, #ffffff);
-  --zg-calendar-text: var(--zg-text-color, #1a1a2e);
-  --zg-calendar-border: var(--zg-border-color, #e0e0e0);
-  --zg-calendar-header-bg: var(--zg-header-bg, #f5f5f5);
-  --zg-calendar-selected-bg: var(--zg-selected-bg, #e3f2fd);
-  --zg-calendar-selected-text: var(--zg-text-color, #1a1a2e);
-  --zg-calendar-today-border: var(--zg-focus-ring, #2196f3);
-  --zg-calendar-hover-bg: var(--zg-hover-bg, rgba(0, 0, 0, 0.04));
-  --zg-calendar-disabled-text: #9e9e9e;
-  --zg-calendar-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --zg-calendar-bg: var(--zg-bg-primary);
+  --zg-calendar-text: var(--zg-text-primary);
+  --zg-calendar-border: var(--zg-border-color);
+  --zg-calendar-header-bg: var(--zg-bg-secondary);
+  --zg-calendar-selected-bg: var(--zg-bg-selected);
+  --zg-calendar-selected-text: var(--zg-text-primary);
+  --zg-calendar-today-border: var(--zg-border-focus);
+  --zg-calendar-hover-bg: var(--zg-bg-hover);
+  --zg-calendar-disabled-text: var(--zg-text-disabled);
+  --zg-calendar-shadow: var(--zg-shadow-lg);
   --zg-calendar-radius: 8px;
 }
 
@@ -114,11 +157,21 @@
   background: var(--zg-hover-bg);
 }
 
-/* Selected cell */
+/* Selected cell - unified row highlight: hide vertical dividers, show only top/bottom edges */
 .zg-cell-selected {
   background: var(--zg-selected-bg);
-  box-shadow: inset 0 0 0 2px var(--zg-selected-border);
+  box-shadow:
+    inset 0 1px 0 0 var(--zg-selected-border),
+    inset 0 -1px 0 0 var(--zg-selected-border);
   z-index: 1;
+}
+
+/* First selected cell in row: add left edge */
+.zg-cell-selected[data-col="0"] {
+  box-shadow:
+    inset 1px 0 0 0 var(--zg-selected-border),
+    inset 0 1px 0 0 var(--zg-selected-border),
+    inset 0 -1px 0 0 var(--zg-selected-border);
 }
 
 /* Active/focused cell */
@@ -338,16 +391,9 @@
     inset 0 -1px 0 0 var(--zg-border-color);
 }
 
-/* Dark theme */
-.zg-grid.zg-theme-dark {
-  --zg-bg-color: #1e1e1e;
-  --zg-text-color: #ffffff;
-  --zg-border-color: #3e3e3e;
-  --zg-header-bg: #2d2d2d;
-  --zg-header-text: #ffffff;
-  --zg-selected-bg: #1a3a52;
-  --zg-hover-bg: #2d2d2d;
-}
+/* Dark theme - applied via ThemeManager inline CSS variables on container.
+   Legacy .zg-theme-dark class is still set for backwards compat but
+   no CSS overrides are needed here since the theme manager handles it. */
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
@@ -366,7 +412,7 @@
 }
 
 .zg-cell-negative {
-  color: #d32f2f;
+  color: var(--zg-text-negative, #d32f2f);
 }
 
 /* Image renderer */
@@ -437,12 +483,13 @@
 
 /* Scroll mode (scrolls within fixed cell height) */
 .zg-cell-overflow-scroll {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  white-space: normal !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  white-space: normal;
   word-wrap: break-word;
   scroll-behavior: smooth;
   scrollbar-width: thin;
+  contain: layout style;         /* Remove paint containment so scrollbar can render */
 }
 
 .zg-cell-overflow-scroll::-webkit-scrollbar {
@@ -473,18 +520,20 @@
 
 /* Chip cell overrides - allow proper overflow handling */
 .zg-cell-chip {
-  white-space: normal;     /* Override default nowrap */
-  overflow: visible;       /* Allow chip container to handle overflow */
+  white-space: nowrap;
+  overflow: hidden;          /* Clip chips to cell bounds by default */
+  contain: layout style;     /* Relax paint containment for chip rendering */
 }
 
 /* When chip cell has scroll mode, enable horizontal scrolling */
 .zg-cell-overflow-scroll.zg-cell-chip {
-  overflow-x: auto !important;  /* Allow horizontal scrolling */
-  overflow-y: hidden !important; /* Prevent vertical overflow */
+  overflow-x: auto;              /* Allow horizontal scrolling */
+  overflow-y: hidden;            /* Prevent vertical overflow */
   display: flex;                 /* Enable flexbox for proper containment */
   align-items: center;           /* Vertically center chips */
   white-space: nowrap;           /* Keep chips in single line */
   scrollbar-width: thin;         /* Thin scrollbar for Firefox */
+  contain: layout style;         /* Remove paint containment so scrollbar can render */
 }
 
 .zg-cell-overflow-scroll.zg-cell-chip::-webkit-scrollbar {
@@ -520,10 +569,10 @@
 
 .zg-chip-container--scroll {
   flex-wrap: nowrap;
-  overflow: visible;       /* Let parent cell handle scrolling */
-  max-height: 100%;        /* Constrain to cell height */
-  width: max-content;      /* Expand to fit all chips */
-  min-width: 100%;         /* At least full cell width */
+  overflow: hidden;          /* Parent cell handles scrolling */
+  max-height: 100%;          /* Constrain to cell height */
+  width: max-content;        /* Expand to fit all chips */
+  min-width: 100%;           /* At least full cell width */
 }
 
 .zg-chip-container--collapse {

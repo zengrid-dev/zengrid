@@ -183,10 +183,10 @@ export class DropdownRenderer implements CellRenderer {
     const selectedValues = this.state.normalizeValue(params.value);
     this.state.updateSelectedStates(menu, selectedValues);
 
-    container.dataset.row = String(params.cell.row);
-    container.dataset.col = String(params.cell.col);
+    container.dataset['row'] = String(params.cell.row);
+    container.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      container.dataset.field = params.column.field;
+      container.dataset['field'] = params.column.field;
     }
 
     trigger.setAttribute(

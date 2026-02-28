@@ -3,7 +3,6 @@
  */
 
 :root {
-  --zg-primary-color: #2196F3;
   --zg-drag-ghost-opacity: 0.7;
   --zg-drag-highlight-opacity: 0.1;
 }
@@ -14,19 +13,19 @@
   pointer-events: none;
   opacity: var(--zg-drag-ghost-opacity);
   z-index: 10000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--zg-shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
   transform: scale(1.02);
-  transition: transform 0.1s ease;
+  transition: transform var(--zg-transition-fast, 0.1s ease);
 }
 
 /* Drop indicator line */
 .zg-column-drop-indicator {
   position: fixed;
   width: 3px;
-  background: var(--zg-primary-color);
+  background: var(--zg-border-active, #2196f3);
   pointer-events: none;
   z-index: 10001;
-  box-shadow: 0 0 8px var(--zg-primary-color);
+  box-shadow: 0 0 8px var(--zg-border-active, #2196f3);
 }
 
 /* Adjacent column highlight */
@@ -36,8 +35,8 @@
   bottom: 0;
   pointer-events: none;
   z-index: 9999;
-  background: rgba(33, 150, 243, var(--zg-drag-highlight-opacity));
-  border: 2px solid var(--zg-primary-color);
+  background: color-mix(in srgb, var(--zg-border-active, #2196f3) 10%, transparent);
+  border: 2px solid var(--zg-border-active, #2196f3);
 }
 
 .zg-drag-highlight-left {
@@ -56,9 +55,9 @@
 
 /* Keyboard reorder mode */
 .zg-header-cell--reorder-mode {
-  outline: 2px solid var(--zg-primary-color);
+  outline: 2px solid var(--zg-border-active, #2196f3);
   outline-offset: -2px;
-  background: rgba(33, 150, 243, var(--zg-drag-highlight-opacity));
+  background: color-mix(in srgb, var(--zg-border-active, #2196f3) 10%, transparent);
 }
 
 /* Default cursor for draggable headers */
@@ -73,15 +72,6 @@
 /* Locked columns (non-draggable) */
 .zg-header-cell--locked {
   cursor: default !important;
-}
-
-/* Dark theme adjustments */
-.zg-grid.zg-theme-dark {
-  --zg-drag-highlight-opacity: 0.2;
-}
-
-.zg-grid.zg-theme-dark .zg-column-drag-ghost {
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 /* Reduced motion */

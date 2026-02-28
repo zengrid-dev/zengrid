@@ -159,6 +159,9 @@ export { createHitTester } from './selection/hit-tester';
 // Main Grid class
 export { Grid } from './grid/index';
 
+// Grid Events
+export type { GridEvents } from './events/grid-events';
+
 // Interactive Renderers
 export type {
   CheckboxRendererOptions,
@@ -377,6 +380,42 @@ export { createLegacyApiPlugin, createDevToolsConnector } from './plugins';
 export type { DevToolsConnectorOptions } from './plugins';
 export { createAsyncSortPlugin, createAsyncFilterPlugin } from './plugins';
 export type { AsyncSortPluginOptions, AsyncFilterPluginOptions } from './plugins';
+
+// Theming System
+export type {
+  ZenGridTheme,
+  PartialTheme,
+  ThemeColors,
+  ThemeTypography,
+  ThemeSpacing,
+  ThemeBorders,
+  ThemeShadows,
+  ThemeTransitions,
+} from './theming';
+export {
+  applyTheme,
+  removeTheme,
+  themeToCSSVariables,
+  registerTheme,
+  getTheme,
+  hasTheme,
+  listThemes,
+  getAllThemes,
+  unregisterTheme,
+  ThemeBuilder,
+  createTheme,
+  lighten,
+  darken,
+  alpha,
+  lightTheme,
+  darkTheme,
+  materialTheme,
+  githubTheme,
+  nordTheme,
+  draculaTheme,
+  oneDarkTheme,
+  solarizedTheme,
+} from './theming';
 
 // Version
 export const VERSION = '0.1.0';

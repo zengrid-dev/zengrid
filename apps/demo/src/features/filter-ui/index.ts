@@ -21,7 +21,6 @@ export function setupFilterUI(grid: Grid, columns: any[]): FilterPanel {
 
   // Listen to filter:export event
   grid.on('filter:export', (event) => {
-    console.log('📤 Filter Export Event:', event);
     updateFilterExports(event);
   });
 

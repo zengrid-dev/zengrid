@@ -98,10 +98,10 @@ export class LinkRenderer implements CellRenderer {
     linkElement.setAttribute('role', 'link');
 
     // Add data attributes
-    linkElement.dataset.row = String(params.cell.row);
-    linkElement.dataset.col = String(params.cell.col);
+    linkElement.dataset['row'] = String(params.cell.row);
+    linkElement.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      linkElement.dataset.field = params.column.field;
+      linkElement.dataset['field'] = params.column.field;
     }
 
     element.appendChild(linkElement);
@@ -192,7 +192,7 @@ export class LinkRenderer implements CellRenderer {
       }
 
       // Update data-url attribute
-      linkElement.dataset.url = url;
+      linkElement.dataset['url'] = url;
     }
   }
 

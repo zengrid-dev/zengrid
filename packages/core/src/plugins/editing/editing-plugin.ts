@@ -19,7 +19,7 @@ export function createEditingPlugin(_options?: EditingPluginOptions): GridPlugin
   return {
     name: 'editing',
     phase: 45,
-    dependencies: ['core', 'selection'],
+    dependencies: ['core'],
     setup(store, api): PluginDisposable {
       store.extend('editing.active', null as CellRef | null, 'editing', 45);
 

@@ -45,23 +45,23 @@
   --zg-transition-normal: 0.2s ease;
 }
 
-/* Dark theme */
+/* Dark theme — Slate/Emerald palette (matches zengrid.dev) */
 [data-theme="dark"] {
-  --zg-bg-primary: #1e1e1e;
-  --zg-bg-secondary: #2d2d2d;
-  --zg-bg-hover: #3a3a3a;
-  --zg-bg-selected: #1a3a52;
-  --zg-bg-active: #1e1e1e;
-  --zg-bg-editing: #1e1e1e;
+  --zg-bg-primary: #0f172a;       /* Slate 900 */
+  --zg-bg-secondary: #1e293b;     /* Slate 800 */
+  --zg-bg-hover: #334155;         /* Slate 700 */
+  --zg-bg-selected: #064e3b;      /* Emerald 900 */
+  --zg-bg-active: #0f172a;        /* Slate 900 */
+  --zg-bg-editing: #0f172a;       /* Slate 900 */
 
-  --zg-border-color: #404040;
-  --zg-border-active: #42a5f5;
-  --zg-border-editing: #66bb6a;
-  --zg-border-selected: #42a5f5;
+  --zg-border-color: #1e293b;     /* Slate 800 */
+  --zg-border-active: #10b981;    /* Emerald 500 */
+  --zg-border-editing: #34d399;   /* Emerald 400 */
+  --zg-border-selected: #10b981;  /* Emerald 500 */
 
-  --zg-text-primary: #e0e0e0;
-  --zg-text-secondary: #b0b0b0;
-  --zg-text-disabled: #707070;
+  --zg-text-primary: #f8fafc;     /* Slate 50 */
+  --zg-text-secondary: #94a3b8;   /* Slate 400 */
+  --zg-text-disabled: #475569;    /* Slate 600 */
 }
 
 /* Grid container */
@@ -160,22 +160,22 @@
   background: var(--zg-bg-hover);
 }
 
-.zg-cell-selected {
-  background: var(--zg-bg-selected) !important;
+.zg-grid .zg-cell.zg-cell-selected {
+  background: var(--zg-bg-selected);
   box-shadow:
     inset -1px 0 0 0 var(--zg-border-selected),
-    inset 0 -1px 0 0 var(--zg-border-selected) !important;
+    inset 0 -1px 0 0 var(--zg-border-selected);
 }
 
-.zg-cell-active {
-  box-shadow: inset 0 0 0 2px var(--zg-border-active) !important;
-  background: var(--zg-bg-active) !important;
+.zg-grid .zg-cell.zg-cell-active {
+  box-shadow: inset 0 0 0 2px var(--zg-border-active);
+  background: var(--zg-bg-active);
   z-index: 2;
 }
 
-.zg-cell-editing {
-  background: var(--zg-bg-editing) !important;
-  box-shadow: inset 0 0 0 2px var(--zg-border-editing) !important;
+.zg-grid .zg-cell.zg-cell-editing {
+  background: var(--zg-bg-editing);
+  box-shadow: inset 0 0 0 2px var(--zg-border-editing);
   z-index: 3;
 }
 

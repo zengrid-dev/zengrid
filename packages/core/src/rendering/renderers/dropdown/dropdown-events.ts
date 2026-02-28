@@ -50,7 +50,7 @@ export class DropdownEventManager {
 
       if (optionEl && !optionEl.classList.contains('disabled')) {
         e.stopPropagation();
-        const valueStr = optionEl.dataset.value;
+        const valueStr = optionEl.dataset['value'];
         if (valueStr) {
           const value = JSON.parse(valueStr);
           this.handleOptionSelect(

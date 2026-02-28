@@ -26,3 +26,15 @@ export { createAsyncSortPlugin } from './async-sort-plugin';
 export type { AsyncSortPluginOptions } from './async-sort-plugin';
 export { createAsyncFilterPlugin } from './async-filter-plugin';
 export type { AsyncFilterPluginOptions } from './async-filter-plugin';
+
+// New plugins (Iteration 1)
+export { createDomPlugin } from './dom';
+export type { DomPluginOptions } from './dom';
+export { createRenderingPlugin } from './rendering';
+export type { RenderingPluginOptions } from './rendering';
+export { createHeaderPlugin } from './header';
+export type { HeaderPluginOptions } from './header';
+export { createPaginationPlugin } from './pagination';
+export type { PaginationPluginOptions } from './pagination';
+export { createColumnPlugin } from './column';
+export type { ColumnPluginOptions } from './column';

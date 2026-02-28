@@ -116,10 +116,10 @@ export function createContainer(
   container.style.height = '100%';
   container.style.boxSizing = 'border-box';
 
-  container.dataset.row = String(params.cell.row);
-  container.dataset.col = String(params.cell.col);
+  container.dataset['row'] = String(params.cell.row);
+  container.dataset['col'] = String(params.cell.col);
   if (params.column?.field) {
-    container.dataset.field = params.column.field;
+    container.dataset['field'] = params.column.field;
   }
 
   return container;

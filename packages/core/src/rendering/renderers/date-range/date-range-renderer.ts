@@ -253,17 +253,17 @@ export class DateRangeRenderer implements CellRenderer {
     // Set data attributes
     // WARNING: data-row/col must ONLY be on .zg-cell elements (set by CellPositioner)
     if (params.column?.field) {
-      container.dataset.field = params.column.field;
+      container.dataset['field'] = params.column.field;
     }
     if (range.start) {
-      container.dataset.startDate = range.start.toISOString();
+      container.dataset['startDate'] = range.start.toISOString();
     } else {
-      delete container.dataset.startDate;
+      delete container.dataset['startDate'];
     }
     if (range.end) {
-      container.dataset.endDate = range.end.toISOString();
+      container.dataset['endDate'] = range.end.toISOString();
     } else {
-      delete container.dataset.endDate;
+      delete container.dataset['endDate'];
     }
   }
 

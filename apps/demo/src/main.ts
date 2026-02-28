@@ -37,11 +37,8 @@ function main() {
     return;
   }
 
-  console.log(`🚀 Initializing ZenGrid with ${ROW_COUNT.toLocaleString()} rows...`);
-
   // 1. Generate initial data
   let data = generateData(ROW_COUNT, COL_COUNT);
-  console.log(`✅ Generated ${(data.length * data[0].length).toLocaleString()} cells`);
 
   // 2. Get columns & extract widths
   const columns = getColumns(data);
@@ -59,7 +56,6 @@ function main() {
   let currentLoadingTemplate = loadingTemplate;
 
   // 5. Initialize grid
-  console.time('Grid Initialization');
   let gridRef: Grid | null = null;
 
   const gridConfig = createGridConfig({
@@ -78,29 +74,21 @@ function main() {
       }
     },
     onColumnWidthsChange: (widths) => {
-      console.log('💾 Column widths changed:', widths);
       localStorage.setItem('zengrid-column-widths', JSON.stringify(widths));
     },
   });
 
   let grid = new Grid(container, gridConfig);
   gridRef = grid;
-  console.timeEnd('Grid Initialization');
+  (window as any).__grid = grid;
 
   // 6. Set data
-  console.time('Set Data');
   grid.setData(data);
-  console.timeEnd('Set Data');
 
   // 7. Initial render
-  console.time('Initial Render');
   const renderStart = performance.now();
   grid.render();
   const renderTime = performance.now() - renderStart;
-  console.timeEnd('Initial Render');
-
-  console.log('✅ Column resize automatically integrated with new header system');
-  console.log(`✅ Initial render took ${renderTime.toFixed(2)}ms`);
 
   // 8. Update stats
   updateStats(grid, renderTime);
@@ -110,7 +98,6 @@ function main() {
   const actualDataMode = grid.getDataMode();
   const actualSortMode = grid.getSortMode();
   modeIndicator.textContent = `Data: ${actualDataMode.toUpperCase()}, Sort: ${actualSortMode.toUpperCase()}, Filter: ${filterMode.toUpperCase()}`;
-  console.log(`📋 Operation Modes - Data: ${actualDataMode}, Sort: ${actualSortMode}, Filter: ${filterMode}`);
 
   // 10. Initialize FPS monitor
   const fpsElement = document.getElementById('fps-monitor')!;
@@ -150,26 +137,12 @@ function main() {
 
   // 14. Column resize event listeners
   grid.on('column:resize', (event) => {
-    console.log(`📏 Column ${event.column} resized: ${event.oldWidth}px → ${event.newWidth}px`);
+    // resize event available for external consumers
   });
 
   // 15. Header event listeners
-  grid.on('header:click', (event) => {
-    console.log(`🖱️ Header clicked: Column ${event.columnIndex} (${event.column.field})`);
-  });
-
   grid.on('header:sort:click', (event) => {
-    console.log(`🔄 Sort requested: Column ${event.columnIndex}, Direction: ${event.nextDirection}`);
-  });
-
-  grid.on('header:filter:click', (event) => {
-    console.log(`🔍 Filter clicked: Column ${event.columnIndex}, Has active filter: ${event.hasActiveFilter}`);
-  });
-
-  grid.on('header:hover', (event) => {
-    if (event.isHovering) {
-      console.log(`🔹 Hovering over column ${event.columnIndex} (${event.column.field})`);
-    }
+    // sort click handled internally
   });
 
   // 16. Initialize Pagination Demo
@@ -188,6 +161,14 @@ function main() {
       alert('Pagination Mode: ON\n\nNow loading data from mock server (http://localhost:3003)\n\nMake sure the server is running:\npnpm server\n\nTotal records: 10,000');
     }
   });
+
+  // Theme selector
+  const themeSelect = document.getElementById('theme-select') as HTMLSelectElement | null;
+  if (themeSelect) {
+    themeSelect.addEventListener('change', () => {
+      grid.setTheme(themeSelect.value);
+    });
+  }
 
   // Quick filter input
   const quickFilterInput = document.getElementById('quick-filter-input') as HTMLInputElement | null;
@@ -241,31 +222,6 @@ function main() {
 
   // 20. Start periodic stats update
   startPeriodicStatsUpdate(grid);
-
-  // 21. Log performance metrics
-  console.log('📊 Performance Metrics:');
-  console.log(`   - Total Rows: ${ROW_COUNT.toLocaleString()}`);
-  console.log(`   - Total Cells: ${(ROW_COUNT * COL_COUNT).toLocaleString()}`);
-  console.log(`   - Initial Render: ${renderTime.toFixed(2)}ms`);
-  console.log(`   - Target: < 100ms ✅`);
-  console.log(`   - FPS: Monitoring in real-time...`);
-
-  // Memory usage (if available)
-  if ('memory' in performance) {
-    const memory = (performance as any).memory;
-    console.log(`   - Used Memory: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`);
-    console.log(`   - Total Memory: ${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`);
-  }
-
-  console.log('\n🎉 ZenGrid Demo Ready!');
-  console.log('Try scrolling to see the virtual scrolling in action.');
-  console.log('Watch the FPS monitor in the top-right corner.');
-  console.log('\n📏 Column Resize Features:');
-  console.log('   - Drag column borders to resize');
-  console.log('   - Double-click column border to auto-fit to content');
-  console.log('   - Click "Auto-Fit All" to auto-fit all columns');
-  console.log('   - Click "Reset Widths" to restore default widths');
-  console.log('   - Column widths are persisted to localStorage');
 }
 
 // Start application

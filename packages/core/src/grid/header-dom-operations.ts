@@ -64,8 +64,8 @@ export function renderHeaderCell(
 
   // Create header cell element
   const element = document.createElement('div');
-  element.dataset.columnId = columnId;
-  element.dataset.columnIndex = String(columnIndex);
+  element.dataset['columnId'] = columnId;
+  element.dataset['columnIndex'] = String(columnIndex);
 
   // Render
   renderer.render(element, params);

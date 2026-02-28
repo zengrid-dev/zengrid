@@ -35,5 +35,4 @@ export function setupSidebarMenu() {
     });
   }
 
-  console.log('✅ Sidebar menu initialized with collapsible categories and sidebar toggle');
 }

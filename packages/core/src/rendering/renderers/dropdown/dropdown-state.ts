@@ -101,7 +101,7 @@ export class DropdownState {
     if (!optionsList) return;
 
     optionsList.querySelectorAll('.zg-dropdown-option').forEach((optionEl) => {
-      const valueStr = (optionEl as HTMLElement).dataset.value;
+      const valueStr = (optionEl as HTMLElement).dataset['value'];
       if (valueStr) {
         const value = JSON.parse(valueStr);
         const isSelected = selectedValues.some((v) => deepEqual(v, value));
@@ -128,7 +128,7 @@ export class DropdownState {
 
     const optionElements = optionsList.querySelectorAll('.zg-dropdown-option');
     optionElements.forEach((optionEl) => {
-      const valueStr = (optionEl as HTMLElement).dataset.value;
+      const valueStr = (optionEl as HTMLElement).dataset['value'];
       if (valueStr) {
         const value = JSON.parse(valueStr);
         const isVisible = filteredOptions.some((opt) => deepEqual(opt.value, value));

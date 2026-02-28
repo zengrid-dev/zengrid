@@ -184,10 +184,10 @@ export class TextEditor implements CellEditor<any> {
     );
 
     // Set data attributes
-    input.dataset.row = String(params.cell.row);
-    input.dataset.col = String(params.cell.col);
+    input.dataset['row'] = String(params.cell.row);
+    input.dataset['col'] = String(params.cell.col);
     if (params.column?.field) {
-      input.dataset.field = params.column.field;
+      input.dataset['field'] = params.column.field;
     }
 
     // Inline styles for better UX
