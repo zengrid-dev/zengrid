@@ -19,7 +19,7 @@ build
 .nx/workspace-data
 
 # angular
-.angular/cache
+**/.angular/cache
 
 # misc
 .DS_Store
