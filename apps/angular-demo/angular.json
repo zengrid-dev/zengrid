@@ -21,7 +21,9 @@
               "../../packages/core/src/styles.css",
               "../../packages/core/src/features/loading/loading.styles.css",
               "../../packages/core/src/features/column-resize/column-resize.styles.css",
-              "../../packages/core/src/features/column-drag/column-drag.styles.css"
+              "../../packages/core/src/features/column-drag/column-drag.styles.css",
+              "node_modules/vanilla-calendar-pro/styles/index.css",
+              "../../packages/core/src/datetime-core/theming/datetime.css"
             ],
             "scripts": []
           },

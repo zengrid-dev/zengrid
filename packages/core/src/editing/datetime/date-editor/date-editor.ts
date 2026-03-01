@@ -185,35 +185,26 @@ export class DateEditor implements CellEditor<Date | null> {
 
     const calendarOptions: any = {
       type: 'default',
-      settings: {
-        visibility: {
-          theme: theme === 'auto' ? 'system' : theme,
-        },
-        selection: {
-          day: 'single',
-        },
-        range: {
-          min: minDate ? formatDateForCalendar(minDate) : '1900-01-01',
-          max: maxDate ? formatDateForCalendar(maxDate) : '2099-12-31',
-        },
-      },
-      actions: {
-        clickDay: (_e: any, self: any) => {
-          if (self.selectedDates && self.selectedDates.length > 0) {
-            const selectedDateStr = self.selectedDates[0];
-            const selectedDate = new Date(selectedDateStr);
-            if (!isNaN(selectedDate.getTime())) {
-              this.handleDateSelect(selectedDate);
-            }
+      selectionDatesMode: 'single',
+      enableJumpToSelectedDate: true,
+      dateMin: minDate ? formatDateForCalendar(minDate) : '1900-01-01',
+      dateMax: maxDate ? formatDateForCalendar(maxDate) : '2099-12-31',
+      onClickDate: (self: any, event: any) => {
+        const dateEl = (event?.target as HTMLElement)?.closest?.('[data-vc-date]');
+        const dateStr = (dateEl as HTMLElement)?.dataset?.['vcDate'] || (self.selectedDates?.[0] ?? null);
+        if (dateStr) {
+          const selectedDate = new Date(dateStr);
+          if (!isNaN(selectedDate.getTime())) {
+            this.handleDateSelect(selectedDate);
           }
-        },
+        }
       },
     };
 
     if (this.currentValue) {
-      calendarOptions.settings.selected = {
-        dates: [formatDateForCalendar(this.currentValue)],
-      };
+      calendarOptions.selectedDates = [formatDateForCalendar(this.currentValue)];
+      calendarOptions.selectedMonth = this.currentValue.getMonth();
+      calendarOptions.selectedYear = this.currentValue.getFullYear();
     }
 
     try {
@@ -244,6 +235,18 @@ export class DateEditor implements CellEditor<Date | null> {
       };
       this.inputElement.addEventListener('change', handleChange);
       cleanupFns.push(() => this.inputElement?.removeEventListener('change', handleChange));
+    }
+
+    // Input handler (for popup mode typed values)
+    if (this.options.useCalendarPopup) {
+      const handleInput = () => {
+        const value = this.inputElement?.value.trim() ?? '';
+        this.currentValue = value ? parseDate(value) : null;
+        this.params?.onChange?.(this.currentValue);
+        this.syncCalendarSelection(this.currentValue);
+      };
+      this.inputElement.addEventListener('input', handleInput);
+      cleanupFns.push(() => this.inputElement?.removeEventListener('input', handleInput));
     }
 
     // Blur handler
@@ -289,6 +292,23 @@ export class DateEditor implements CellEditor<Date | null> {
     this.cleanup = () => {
       cleanupFns.forEach((fn) => fn());
     };
+  }
+
+  private syncCalendarSelection(date: Date | null): void {
+    if (!this.calendar) return;
+
+    try {
+      if (!this.calendar.settings.selected) {
+        this.calendar.settings.selected = { dates: [] };
+      }
+
+      this.calendar.settings.selected.dates = date ? [formatDateForCalendar(date)] : [];
+      if (typeof this.calendar.update === 'function') {
+        this.calendar.update();
+      }
+    } catch (_error) {
+      // Ignore calendar sync errors to avoid breaking typed input.
+    }
   }
 
   private showPopup(): void {
