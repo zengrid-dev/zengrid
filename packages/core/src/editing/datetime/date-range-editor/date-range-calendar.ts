@@ -18,7 +18,7 @@ export async function initializeCalendars(
   currentValue: DateRange,
   handlers: CalendarHandlers
 ): Promise<CalendarRefs> {
-  const { minDate, maxDate, theme } = options;
+  const { minDate, maxDate } = options;
   const dateMinStr = minDate ? formatDateForCalendar(minDate) : '1900-01-01';
   const dateMaxStr = maxDate ? formatDateForCalendar(maxDate) : '2099-12-31';
 

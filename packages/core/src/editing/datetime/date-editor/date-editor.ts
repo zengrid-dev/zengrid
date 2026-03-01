@@ -181,7 +181,7 @@ export class DateEditor implements CellEditor<Date | null> {
   private async initializeCalendar(): Promise<void> {
     if (!this.calendarWrapper) return;
 
-    const { minDate, maxDate, theme } = this.options;
+    const { minDate, maxDate } = this.options;
 
     const calendarOptions: any = {
       type: 'default',
