@@ -175,6 +175,13 @@ export class CellPositioner implements ICellPositioner {
     }
   }
 
+  /**
+   * Clear rendered cells tracking so next renderVisibleCells re-renders all cells
+   */
+  clearRenderedCells(): void {
+    this.renderedCells.clear();
+  }
+
   refreshSelectionClasses(): void {
     if (!this.lastRange) {
       if (IS_DEV) {
@@ -190,6 +197,7 @@ export class CellPositioner implements ICellPositioner {
         const element = this.pool.acquire(key);
         element.classList.toggle('zg-cell-selected', this.isSelected(row, col));
         element.classList.toggle('zg-cell-active', this.isActive(row, col));
+        element.classList.toggle('zg-cell-editing', this.isEditing(row, col));
       }
     }
   }
