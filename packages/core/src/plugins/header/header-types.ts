@@ -2,14 +2,14 @@
  * HeaderManager types and interfaces
  */
 
-import type { SortState, FilterModel } from '../types';
-import type { EventEmitter } from '../events/event-emitter';
-import type { GridEvents } from '../events/grid-events';
-import type { ColumnModel } from '../features/columns/column-model';
+import type { SortState, FilterModel } from '../../types';
+import type { EventEmitter } from '../../events/event-emitter';
+import type { GridEvents } from '../../events/grid-events';
+import type { ColumnModel } from '../../features/columns/column-model';
 import type {
   HeaderRenderer,
   HeaderRenderParams,
-} from '../rendering/headers/header-renderer.interface';
+} from '../../rendering/headers/header-renderer.interface';
 
 /**
  * Configuration for HeaderManager

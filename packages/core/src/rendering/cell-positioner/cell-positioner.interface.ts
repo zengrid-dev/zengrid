@@ -100,6 +100,11 @@ export interface CellPositioner {
   refresh(): void;
 
   /**
+   * Clear rendered cells tracking so next renderVisibleCells re-renders all cells
+   */
+  clearRenderedCells(): void;
+
+  /**
    * Lightweight refresh that only toggles selection/active/editing CSS classes
    * on visible cells without re-running renderers. Use for selection changes.
    */

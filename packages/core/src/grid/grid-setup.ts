@@ -14,7 +14,6 @@ import { createResizePlugin } from '../plugins/resize';
 import { createSelectionPlugin } from '../plugins/selection';
 import { createEditingPlugin } from '../plugins/editing';
 import { createUndoRedoPlugin } from '../plugins/undo-redo';
-import { createLegacyApiPlugin } from '../plugins/legacy-bridge';
 import { createDomPlugin } from '../plugins/dom';
 import { createRenderingPlugin } from '../plugins/rendering';
 import { createHeaderPlugin } from '../plugins/header';
@@ -22,6 +21,7 @@ import { createPaginationPlugin } from '../plugins/pagination';
 import { createColumnPlugin } from '../plugins/column';
 import { createFilterUIPlugin } from '../plugins/filter-ui';
 import { createInfiniteScrollPlugin } from '../plugins/infinite-scroll';
+import { createLifecyclePlugin } from '../plugins/lifecycle';
 import { ViewportModel } from '../features/viewport/viewport-model';
 import type { SlimGridContext } from './grid-context';
 
@@ -109,7 +109,14 @@ export function installAllPlugins(ctx: SlimGridContext): void {
   }
 
   // Phase 45: Editing
-  pluginHost.use(createEditingPlugin());
+  pluginHost.use(createEditingPlugin({
+    options,
+    state: ctx.state,
+    container: ctx.container,
+    events,
+    getColumnModel: () => columnModel,
+    getDataAccessor: () => dataAccessor,
+  }));
 
   // Phase 50: Scroll, Viewport
   pluginHost.use(createScrollPlugin());
@@ -144,8 +151,18 @@ export function installAllPlugins(ctx: SlimGridContext): void {
   // Phase 170: Undo/Redo
   pluginHost.use(createUndoRedoPlugin());
 
-  // Phase 200: Legacy bridge
-  pluginHost.use(createLegacyApiPlugin());
+  // Phase 250: Lifecycle
+  pluginHost.use(
+    createLifecyclePlugin({
+      options,
+      state: ctx.state,
+      container: ctx.container,
+      events,
+      getColumnModel: () => columnModel,
+      getDataAccessor: () => dataAccessor,
+      setColumnModel: (cm: any) => { columnModel = cm; },
+    })
+  );
 
   // Setup pipeline computeds
   ctx.pipelineRegistry.setupCoreComputeds(store);
@@ -156,6 +173,11 @@ export function installAllPlugins(ctx: SlimGridContext): void {
   (ctx as any)._setSelectionChecker = (sc: any) => { selectionChecker = sc; };
   (ctx as any)._getColumnModel = () => columnModel;
   (ctx as any)._getDataAccessor = () => dataAccessor;
+
+  // Wire selection checker updates from lifecycle plugin
+  events.on('selection:checkerUpdate' as any, (checker: any) => {
+    selectionChecker = checker;
+  });
 
   // Install filter UI if columns + filter are present
   if (options.columns && options.columns.length > 0 && pluginHost.has('filter') && !pluginHost.has('filter-ui')) {

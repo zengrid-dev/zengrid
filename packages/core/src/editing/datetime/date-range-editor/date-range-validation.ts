@@ -12,7 +12,6 @@ export function resolveOptions(options: DateRangeEditorOptions): ResolvedDateRan
     className: options.className ?? 'zg-date-range-editor',
     theme: options.theme ?? 'light',
     autoFocus: options.autoFocus ?? true,
-    commitOnBlur: options.commitOnBlur ?? true,
     allowSameDate: options.allowSameDate ?? true,
     closeOnScroll: options.closeOnScroll ?? true,
     separator: options.separator ?? ' - ',

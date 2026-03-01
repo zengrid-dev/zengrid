@@ -179,6 +179,7 @@ export class ChipRenderer implements CellRenderer {
    * Initial render - creates chip structure
    */
   render(element: HTMLElement, params: RenderParams): void {
+    this.destroy(element);
     element.classList.add('zg-cell-chip');
 
     // Create container

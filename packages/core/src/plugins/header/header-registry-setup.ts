@@ -2,14 +2,14 @@
  * HeaderManager - Renderer registry setup
  */
 
-import { HeaderRendererRegistry } from '../rendering/headers/header-registry';
+import { HeaderRendererRegistry } from '../../rendering/headers/header-registry';
 import {
   TextHeaderRenderer,
   SortableHeaderRenderer,
   FilterableHeaderRenderer,
   CheckboxHeaderRenderer,
   IconHeaderRenderer,
-} from '../rendering/headers/renderers';
+} from '../../rendering/headers/renderers';
 
 /**
  * Register default header renderers

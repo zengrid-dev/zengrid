@@ -6,7 +6,6 @@ interface EventEmitterLike {
 
 export class GridApiImpl implements GridApi {
   private namespaces = new Map<string, Record<string, Function>>();
-  private legacyHandlers = new Map<string, (...args: unknown[]) => unknown>();
 
   constructor(
     private store: GridStore,
@@ -28,20 +27,8 @@ export class GridApiImpl implements GridApi {
     this.eventEmitter.emit(name, data);
   }
 
-  onLegacy(method: string, handler: (...args: unknown[]) => unknown): void {
-    this.legacyHandlers.set(method, handler);
-  }
-
   getMethod(namespace: string, method: string): Function | undefined {
     return this.namespaces.get(namespace)?.[method];
-  }
-
-  callLegacy(method: string, ...args: unknown[]): unknown {
-    const handler = this.legacyHandlers.get(method);
-    if (!handler) {
-      throw new Error(`Legacy method "${method}" not found`);
-    }
-    return handler(...args);
   }
 
   getNamespaces(): string[] {

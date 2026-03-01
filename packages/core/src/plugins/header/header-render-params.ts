@@ -2,11 +2,11 @@
  * HeaderManager - Render params builder
  */
 
-import type { ColumnDef, SortState, FilterModel } from '../types';
-import type { GridEvents } from '../events/grid-events';
-import type { EventEmitter } from '../events/event-emitter';
-import { resolveHeaderConfig } from '../rendering/headers/header-config-resolver';
-import type { HeaderRenderParams } from '../rendering/headers/header-renderer.interface';
+import type { ColumnDef, SortState, FilterModel } from '../../types';
+import type { GridEvents } from '../../events/grid-events';
+import type { EventEmitter } from '../../events/event-emitter';
+import { resolveHeaderConfig } from '../../rendering/headers/header-config-resolver';
+import type { HeaderRenderParams } from '../../rendering/headers/header-renderer.interface';
 
 /**
  * Build HeaderRenderParams

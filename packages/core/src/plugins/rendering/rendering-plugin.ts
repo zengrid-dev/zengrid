@@ -15,7 +15,7 @@ import { CheckboxRenderer } from '../../rendering/renderers/checkbox';
 import { ProgressBarRenderer } from '../../rendering/renderers/progress-bar';
 import { LinkRenderer } from '../../rendering/renderers/link';
 import { ButtonRenderer } from '../../rendering/renderers/button';
-import { DateRenderer } from '../../rendering/renderers/date';
+import { DateRenderer } from '../../rendering/renderers/datetime';
 import { SelectRenderer } from '../../rendering/renderers/select';
 import { ChipRenderer } from '../../rendering/renderers/chip';
 import { DropdownRenderer } from '../../rendering/renderers/dropdown';
@@ -261,12 +261,15 @@ export function createRenderingPlugin(opts: RenderingPluginOptions): GridPlugin 
           canvas.style.width = `${scroller.getTotalWidth()}px`;
           canvas.style.height = `${scroller.getTotalHeight()}px`;
 
-          // Re-render with current scroll position so positioner picks up new widths
+          // Re-render visible cells so positioner picks up new widths and data mapping
+          // renderVisibleCells updates the visible range, then refresh() re-renders all
+          // visible cells with correct lastRenderer tracking for proper destroy() cycles
           if (positioner) {
             positioner.renderVisibleCells(
               state.scrollPosition.top,
               state.scrollPosition.left,
             );
+            positioner.refresh();
           }
         },
         'rendering',
@@ -403,6 +406,29 @@ export function createRenderingPlugin(opts: RenderingPluginOptions): GridPlugin 
           registry.register(name, renderer);
         },
         'rendering'
+      );
+
+      // Reactive sync: when viewIndices changes, auto-update row count + canvas + cache + refresh
+      let lastViewIndicesRef: number[] | undefined;
+      store.effect(
+        'rendering:syncAfterPipeline',
+        () => {
+          const viewIndices = store.get('rows.viewIndices') as number[] | undefined;
+          if (viewIndices === lastViewIndicesRef) return;
+          lastViewIndicesRef = viewIndices;
+          if (!scroller) return;
+          const visibleCount = viewIndices ? viewIndices.length : options.rowCount;
+          scroller.setRowCount(visibleCount);
+          const canvas = store.get('dom.canvas') as HTMLElement | null;
+          if (canvas) {
+            canvas.style.width = `${scroller.getTotalWidth()}px`;
+            canvas.style.height = `${scroller.getTotalHeight()}px`;
+          }
+          if (cache) cache.clear();
+          if (positioner) positioner.refresh();
+        },
+        'rendering',
+        30
       );
 
       // Setup loading listeners (store unsubs for teardown)

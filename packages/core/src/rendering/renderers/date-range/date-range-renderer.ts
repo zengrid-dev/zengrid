@@ -113,6 +113,7 @@ export class DateRangeRenderer implements CellRenderer {
    * Initial render - creates date range display structure
    */
   render(element: HTMLElement, params: RenderParams): void {
+    this.destroy(element);
     element.classList.add('zg-cell-date-range');
 
     // Create date range container

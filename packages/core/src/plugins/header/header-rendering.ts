@@ -2,9 +2,9 @@
  * HeaderManager - Rendering operations
  */
 
-import type { ColumnModel } from '../features/columns/column-model';
+import type { ColumnModel } from '../../features/columns/column-model';
 import type { HeaderCellMetadata, HeaderManagerConfig } from './header-types';
-import { HeaderRendererRegistry } from '../rendering/headers/header-registry';
+import { HeaderRendererRegistry } from '../../rendering/headers/header-registry';
 import { buildRenderParams } from './header-render-params';
 import { renderHeaderCell } from './header-dom-operations';
 

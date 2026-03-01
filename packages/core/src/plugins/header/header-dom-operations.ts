@@ -2,11 +2,11 @@
  * HeaderManager - DOM operations
  */
 
-import type { ColumnDef } from '../types';
+import type { ColumnDef } from '../../types';
 import type { HeaderCellMetadata } from './header-types';
-import { HeaderRendererRegistry } from '../rendering/headers/header-registry';
-import { resolveHeaderConfig } from '../rendering/headers/header-config-resolver';
-import type { HeaderRenderParams } from '../rendering/headers/header-renderer.interface';
+import { HeaderRendererRegistry } from '../../rendering/headers/header-registry';
+import { resolveHeaderConfig } from '../../rendering/headers/header-config-resolver';
+import type { HeaderRenderParams } from '../../rendering/headers/header-renderer.interface';
 
 /**
  * Create header cells container

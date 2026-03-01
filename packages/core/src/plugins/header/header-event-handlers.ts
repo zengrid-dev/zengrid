@@ -2,9 +2,9 @@
  * HeaderManager - Event handlers
  */
 
-import type { SortState } from '../types';
-import type { EventEmitter } from '../events/event-emitter';
-import type { GridEvents } from '../events/grid-events';
+import type { SortState } from '../../types';
+import type { EventEmitter } from '../../events/event-emitter';
+import type { GridEvents } from '../../events/grid-events';
 
 /**
  * Event handler callbacks interface

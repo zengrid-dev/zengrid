@@ -132,6 +132,5 @@ export interface GridApi {
   register(namespace: string, methods: Record<string, Function>): void;
   exec(action: string, ...args: unknown[]): void | { undo: () => void };
   fireEvent(name: string, data: unknown): void;
-  onLegacy(method: string, handler: (...args: unknown[]) => unknown): void;
   getMethod(namespace: string, method: string): Function | undefined;
 }

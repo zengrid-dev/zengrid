@@ -113,6 +113,7 @@ export class ButtonRenderer implements CellRenderer {
    * Initial render - creates button structure
    */
   render(element: HTMLElement, params: RenderParams): void {
+    this.destroy(element);
     element.classList.add('zg-cell-button');
 
     // Create button element

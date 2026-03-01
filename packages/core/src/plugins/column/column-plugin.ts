@@ -64,10 +64,13 @@ export function createColumnPlugin(opts: ColumnPluginOptions): GridPlugin {
                   const visibleCount = columnModel?.getVisibleCount() ?? options.colCount;
                   store.exec('rendering:setColCount', visibleCount);
                 }
-                store.exec('rendering:updateCanvasSize');
-                store.exec('rendering:refresh');
                 if (event.type === 'reorder' || event.type === 'visibility') {
+                  store.exec('rendering:clearCache');
+                  store.exec('rendering:updateScroller');
                   if (resizeManager) resizeManager.updateHandles();
+                } else {
+                  store.exec('rendering:updateCanvasSize');
+                  store.exec('rendering:refresh');
                 }
               }
             },
@@ -112,7 +115,8 @@ export function createColumnPlugin(opts: ColumnPluginOptions): GridPlugin {
             getColWidth: (col: number) => scroller.getColWidth(col),
             onWidthChange: (col: number, width: number) => {
               if (columnModel) {
-                const columnId = `col-${col}`;
+                const columnId = columnModel.getVisibleColumnsInOrder()[col]?.id;
+                if (!columnId) return;
                 columnModel.setWidth(columnId, width);
               } else {
                 scroller.updateColWidth(col, width);
@@ -130,13 +134,15 @@ export function createColumnPlugin(opts: ColumnPluginOptions): GridPlugin {
             columnConstraints,
             constraintProvider: columnModel
               ? (col: number) => {
-                  const columnId = `col-${col}`;
+                  const columnId = columnModel!.getVisibleColumnsInOrder()[col]?.id;
+                  if (!columnId) return { minWidth: 50, maxWidth: 1000 };
                   return columnModel!.getConstraints(columnId) ?? { minWidth: 50, maxWidth: 1000 };
                 }
               : undefined,
             isColumnResizable: columnModel
               ? (col: number) => {
-                  const columnId = `col-${col}`;
+                  const columnId = columnModel!.getVisibleColumnsInOrder()[col]?.id;
+                  if (!columnId) return true;
                   return columnModel!.isResizable(columnId);
                 }
               : undefined,
@@ -144,12 +150,25 @@ export function createColumnPlugin(opts: ColumnPluginOptions): GridPlugin {
             autoFitPadding: options.columnResize?.autoFitPadding,
             getHeaderText: options.columns
               ? (col: number) => {
+                  if (columnModel) {
+                    const colState = columnModel.getVisibleColumnsInOrder()[col];
+                    if (!colState) return undefined;
+                    const columnDef = options.columns?.[colState.dataIndex];
+                    return columnDef ? getHeaderText(columnDef.header) : undefined;
+                  }
                   const columnDef = options.columns?.[col];
                   return columnDef ? getHeaderText(columnDef.header) : undefined;
                 }
               : undefined,
             getFullHeaderWidth: options.columns
-              ? (col: number) => calculateFullHeaderWidth(col)
+              ? (col: number) => {
+                  if (columnModel) {
+                    const colState = columnModel.getVisibleColumnsInOrder()[col];
+                    if (!colState) return undefined;
+                    return calculateFullHeaderWidth(colState.dataIndex);
+                  }
+                  return calculateFullHeaderWidth(col);
+                }
               : undefined,
             skipHeaderOnAutoSize: options.columnResize?.skipHeaderOnAutoSize,
             showHandles: options.columnResize?.showHandles,

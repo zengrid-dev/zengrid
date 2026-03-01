@@ -170,7 +170,7 @@ export class ZenGridComponent {
   readonly cellAfterChange = output<GridEvents['cell:afterChange']>();
 
   // --- Selection Events ---
-  readonly selectionChange = output<GridEvents['selection:change']>();
+  readonly selectionChangeEvent = output<GridEvents['selection:change']>({ alias: 'selectionChanged' });
   readonly selectionStart = output<GridEvents['selection:start']>();
   readonly selectionEnd = output<GridEvents['selection:end']>();
 
@@ -366,7 +366,7 @@ export class ZenGridComponent {
       cellChange: this.cellChange,
       cellBeforeChange: this.cellBeforeChange,
       cellAfterChange: this.cellAfterChange,
-      selectionChange: this.selectionChange,
+      selectionChange: this.selectionChangeEvent,
       selectionStart: this.selectionStart,
       selectionEnd: this.selectionEnd,
       editStart: this.editStart,
@@ -615,29 +615,30 @@ export class ZenGridComponent {
   }
 
   // --- Sort API ---
-  sort(column: number, direction: 'asc' | 'desc' | null = 'asc'): void {
-    this.grid?.sort(column, direction);
+  sortColumn(column: number, direction: 'asc' | 'desc' | null = 'asc'): void {
+    if (direction === null) this.grid?.sort.clear();
+    else this.grid?.sort.apply([{ column, direction }]);
   }
 
   toggleSort(column: number): void {
-    this.grid?.toggleSort(column);
+    this.grid?.sort.toggle(column);
   }
 
   getSortState(): SortState[] {
-    return this.grid?.getSortState() ?? [];
+    return this.grid?.sort.getState() ?? [];
   }
 
   clearSort(): void {
-    this.grid?.clearSort();
+    this.grid?.sort.clear();
   }
 
   setSortState(sortState: SortState[]): void {
-    this.grid?.setSortState(sortState);
+    this.grid?.sort.setState(sortState);
   }
 
   // --- Filter API ---
   setFilter(column: number, operator: string, value: any): void {
-    this.grid?.setFilter(column, operator, value);
+    this.grid?.filter.set(column, operator, value);
   }
 
   setColumnFilter(
@@ -645,72 +646,72 @@ export class ZenGridComponent {
     conditions: Array<{ operator: string; value: any }>,
     logic: 'AND' | 'OR' = 'AND'
   ): void {
-    this.grid?.setColumnFilter(column, conditions, logic);
+    this.grid?.filter.setColumn(column, conditions, logic);
   }
 
   getFilterState(): FilterModel[] {
-    return this.grid?.getFilterState() ?? [];
+    return this.grid?.filter.getState() ?? [];
   }
 
   setFilterState(models: FilterModel[]): void {
-    this.grid?.setFilterState(models);
+    this.grid?.filter.setState(models);
   }
 
   clearFilters(): void {
-    this.grid?.clearFilters();
+    this.grid?.filter.clear();
   }
 
   clearColumnFilter(column: number): void {
-    this.grid?.clearColumnFilter(column);
+    this.grid?.filter.clearColumn(column);
   }
 
   setQuickFilter(query: string, columns?: number[]): void {
-    this.grid?.setQuickFilter(query, columns);
+    this.grid?.filter.setQuick(query, columns);
   }
 
   clearQuickFilter(): void {
-    this.grid?.clearQuickFilter();
+    this.grid?.filter.clearQuick();
   }
 
   // --- Export API ---
   exportCSV(options: GridExportOptions = {}): string {
-    return this.grid?.exportCSV(options) ?? '';
+    return this.grid?.export.csv(options) ?? '';
   }
 
   exportTSV(options: GridExportOptions = {}): string {
-    return this.grid?.exportTSV(options) ?? '';
+    return this.grid?.export.tsv(options) ?? '';
   }
 
   // --- Pagination API ---
   goToPage(page: number): void {
-    this.grid?.goToPage(page);
+    this.grid?.pagination.goTo(page);
     this.currentPage.set(page);
   }
 
   nextPage(): void {
-    this.grid?.nextPage();
-    this.currentPage.set(this.grid?.getCurrentPage() ?? 1);
+    this.grid?.pagination.next();
+    this.currentPage.set(this.grid?.pagination.getCurrentPage() ?? 1);
   }
 
   previousPage(): void {
-    this.grid?.previousPage();
-    this.currentPage.set(this.grid?.getCurrentPage() ?? 1);
+    this.grid?.pagination.previous();
+    this.currentPage.set(this.grid?.pagination.getCurrentPage() ?? 1);
   }
 
   setPageSize(pageSize: number): void {
-    this.grid?.setPageSize(pageSize);
+    this.grid?.pagination.setPageSize(pageSize);
   }
 
   getCurrentPage(): number {
-    return this.grid?.getCurrentPage() ?? 1;
+    return this.grid?.pagination.getCurrentPage() ?? 1;
   }
 
   getPageSize(): number {
-    return this.grid?.getPageSize() ?? 0;
+    return this.grid?.pagination.getPageSize() ?? 0;
   }
 
   getTotalPages(): number {
-    return this.grid?.getTotalPages() ?? 0;
+    return this.grid?.pagination.getTotalPages() ?? 0;
   }
 
   // --- Column API ---

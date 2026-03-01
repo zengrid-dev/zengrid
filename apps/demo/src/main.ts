@@ -31,6 +31,10 @@ import { InfiniteScrollManager } from './features/infinite-scroll';
 import { setupFilterUI } from './features/filter-ui';
 
 function main() {
+  const debugLog = (...args: any[]) => {
+    console.debug('[ZenGrid][Demo]', ...args);
+  };
+
   const container = document.getElementById('grid-container');
   if (!container) {
     console.error('Grid container not found');
@@ -144,6 +148,79 @@ function main() {
   grid.on('header:sort:click', (event) => {
     // sort click handled internally
   });
+
+  // Debug editing lifecycle
+  grid.on('edit:start', (event) => {
+    debugLog('edit:start', event);
+  });
+  grid.on('edit:commit', (event) => {
+    debugLog('edit:commit', event);
+  });
+  grid.on('edit:cancel', (event) => {
+    debugLog('edit:cancel', event);
+  });
+  grid.on('edit:end', (event) => {
+    debugLog('edit:end', event);
+  });
+
+  // 15.1 Single-click edit for Project Duration column
+  // Note: demo disables selection, so 'cell:click' event is not emitted.
+  // Use direct DOM click handling instead.
+  const scrollContainer = grid.getStore().get('dom.scrollContainer') as HTMLElement | null;
+  debugLog('scrollContainer available', !!scrollContainer);
+  if (scrollContainer) {
+    const win = window as any;
+    const existingDateRangeClickBinding = win.__zenGridDateRangeClickBinding as
+      | { container: HTMLElement; handler: (event: MouseEvent) => void }
+      | undefined;
+    if (existingDateRangeClickBinding) {
+      existingDateRangeClickBinding.container.removeEventListener(
+        'click',
+        existingDateRangeClickBinding.handler,
+        true
+      );
+    }
+
+    const dateRangeClickHandler = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const cell = target.closest('.zg-cell[data-row][data-col]') as HTMLElement | null;
+      if (!cell) {
+        debugLog('click ignored - no cell', { tag: target.tagName, className: target.className });
+        return;
+      }
+
+      const row = parseInt(cell.dataset['row'] ?? '-1', 10);
+      const col = parseInt(cell.dataset['col'] ?? '-1', 10);
+      if (Number.isNaN(row) || Number.isNaN(col) || row < 0 || col < 0) {
+        debugLog('click ignored - invalid coordinates', { row, col, dataset: cell.dataset });
+        return;
+      }
+
+      const column = columns[col];
+      if (!column || column.field !== 'dateRange') {
+        debugLog('click ignored - non-dateRange column', { row, col, field: column?.field });
+        return;
+      }
+
+      const editingActive = grid.getStore().get('editing.active');
+      if (editingActive) {
+        debugLog('click ignored - editor already active', editingActive);
+        return;
+      }
+
+      debugLog('starting edit from click', { row, col, field: column.field });
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
+      grid.getStore().exec('editing:startEdit', { row, col });
+    };
+
+    scrollContainer.addEventListener('click', dateRangeClickHandler, true);
+    win.__zenGridDateRangeClickBinding = {
+      container: scrollContainer,
+      handler: dateRangeClickHandler,
+    };
+  }
 
   // 16. Initialize Pagination Demo
   const paginationDemo = new PaginationDemo(grid);

@@ -9,6 +9,22 @@ export interface HeaderHandlers {
   onApply: () => void;
 }
 
+function bindPopupButton(
+  button: HTMLButtonElement,
+  handler: () => void
+): void {
+  // Keep popup button interactions from leaking to grid-level click handlers.
+  button.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    handler();
+  });
+}
+
 export function createInputElement(
   options: ResolvedDateRangeEditorOptions,
   currentValue: DateRange
@@ -105,19 +121,19 @@ function createHeaderElement(
   clearBtn.type = 'button';
   clearBtn.className = 'zg-date-range-btn zg-date-range-btn-clear';
   clearBtn.textContent = 'Clear';
-  clearBtn.onclick = () => handlers.onClear();
+  bindPopupButton(clearBtn, handlers.onClear);
 
   const cancelBtn = document.createElement('button');
   cancelBtn.type = 'button';
   cancelBtn.className = 'zg-date-range-btn zg-date-range-btn-cancel';
   cancelBtn.textContent = 'Cancel';
-  cancelBtn.onclick = () => handlers.onCancel();
+  bindPopupButton(cancelBtn, handlers.onCancel);
 
   const applyBtn = document.createElement('button');
   applyBtn.type = 'button';
   applyBtn.className = 'zg-date-range-btn zg-date-range-btn-apply';
   applyBtn.textContent = 'Apply';
-  applyBtn.onclick = () => handlers.onApply();
+  bindPopupButton(applyBtn, handlers.onApply);
 
   buttonContainer.appendChild(clearBtn);
   buttonContainer.appendChild(cancelBtn);

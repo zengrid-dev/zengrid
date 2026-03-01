@@ -51,6 +51,8 @@ import type {
 export class RendererCache implements IRendererCache {
   private cache: LRUCache<string, CachedRenderContent>;
   private config: Required<RendererCacheConfig>;
+  private static objectIds = new WeakMap<object, number>();
+  private static nextObjectId = 1;
 
   constructor(config: RendererCacheConfig = {}) {
     this.config = {
@@ -148,12 +150,59 @@ export class RendererCache implements IRendererCache {
       isEditing?: boolean;
     }
   ): string {
-    const valueStr = value === null || value === undefined ? '' : String(value);
+    const valueStr = RendererCache.serializeValue(value);
     const stateStr = state
       ? `${state.isSelected ? 's' : ''}${state.isActive ? 'a' : ''}${state.isEditing ? 'e' : ''}`
       : '';
 
     return `${rendererName}:${col}:${valueStr}:${stateStr}`;
+  }
+
+  private static serializeValue(value: any): string {
+    if (value === null || value === undefined) return '';
+
+    const valueType = typeof value;
+    if (
+      valueType === 'string' ||
+      valueType === 'number' ||
+      valueType === 'boolean' ||
+      valueType === 'bigint'
+    ) {
+      return `${valueType}:${String(value)}`;
+    }
+
+    if (valueType === 'symbol') {
+      return `symbol:${String(value)}`;
+    }
+
+    if (valueType === 'function') {
+      return `function:${value.name || 'anonymous'}`;
+    }
+
+    if (value instanceof Date) {
+      return `date:${value.getTime()}`;
+    }
+
+    if (valueType === 'object') {
+      try {
+        return `json:${JSON.stringify(value, (_key, item) =>
+          typeof item === 'bigint' ? `bigint:${item.toString()}` : item
+        )}`;
+      } catch {
+        return `object:${RendererCache.getObjectIdentity(value as object)}`;
+      }
+    }
+
+    return String(value);
+  }
+
+  private static getObjectIdentity(value: object): number {
+    const existing = RendererCache.objectIds.get(value);
+    if (existing !== undefined) return existing;
+
+    const id = RendererCache.nextObjectId++;
+    RendererCache.objectIds.set(value, id);
+    return id;
   }
 
   /**

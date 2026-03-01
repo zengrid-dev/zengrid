@@ -40,10 +40,10 @@ export class DropZoneDetector {
     const scrollLeft = this.getScrollLeft();
     const adjustedX = x + scrollLeft;
 
-    // Get visible columns sorted by order (excluding source column)
+    // Get all visible columns sorted by order (including source for position calculation)
     const columns = this.columnModel
       .getColumns()
-      .filter((col) => col.visible && col.id !== sourceColumnId)
+      .filter((col) => col.visible)
       .sort((a, b) => a.order - b.order);
 
     if (columns.length === 0) {
@@ -51,11 +51,22 @@ export class DropZoneDetector {
     }
 
     let cumulativeX = 0;
+    let lastNonSourceColumn: typeof columns[0] | null = null;
+    let lastNonSourceEnd = 0;
 
     for (const column of columns) {
       const colStart = cumulativeX;
       const colEnd = colStart + column.actualWidth;
+      cumulativeX = colEnd;
+
+      // Include source column width in layout but skip it as a drop target
+      if (column.id === sourceColumnId) {
+        continue;
+      }
+
       const colMid = (colStart + colEnd) / 2;
+      lastNonSourceColumn = column;
+      lastNonSourceEnd = colEnd;
 
       // Check if mouse is over this column
       if (adjustedX >= colStart && adjustedX < colEnd) {
@@ -78,21 +89,18 @@ export class DropZoneDetector {
           indicatorX: indicatorX,
         };
       }
-
-      cumulativeX = colEnd;
     }
 
     // If past all columns, drop at end
-    const lastColumn = columns[columns.length - 1];
-    if (adjustedX >= cumulativeX) {
-      if (this.noDropColumns.has(lastColumn.id)) {
+    if (lastNonSourceColumn && adjustedX >= lastNonSourceEnd) {
+      if (this.noDropColumns.has(lastNonSourceColumn.id)) {
         return this.createInvalidResult();
       }
 
       return {
         valid: true,
-        columnId: lastColumn.id,
-        columnIndex: lastColumn.order,
+        columnId: lastNonSourceColumn.id,
+        columnIndex: lastNonSourceColumn.order,
         position: 'after',
         // Return absolute position within full header content (not adjusted for scroll)
         indicatorX: cumulativeX,

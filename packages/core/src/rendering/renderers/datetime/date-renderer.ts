@@ -34,6 +34,7 @@ export class DateRenderer implements CellRenderer {
   }
 
   render(element: HTMLElement, params: RenderParams): void {
+    this.destroy(element);
     element.classList.add('zg-cell-date-display');
 
     const span = document.createElement('span');

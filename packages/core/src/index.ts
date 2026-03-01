@@ -181,12 +181,8 @@ export { LinkRenderer } from './rendering/renderers/link';
 export type { ButtonRendererOptions, createButtonRenderer } from './rendering/renderers/button';
 export { ButtonRenderer } from './rendering/renderers/button';
 
-export type {
-  DateRendererOptions,
-  DateFormat as DateRendererFormat,
-  createDateRenderer,
-} from './rendering/renderers/date';
-export { DateRenderer } from './rendering/renderers/date';
+export type { DateRendererOptions } from './rendering/renderers/datetime';
+export { DateRenderer, createDateRenderer } from './rendering/renderers/datetime';
 
 export type {
   DateRangeRendererOptions,
@@ -335,17 +331,15 @@ export { MultiColumnSorter, SortStateManager } from './features/sorting';
 // Utilities
 export { DependencyGraph, EventEmitter } from './utils';
 
-// TODO: Implement remaining modules
-//
-// // Keyboard
-// export { KeyboardNavigator } from './keyboard/keyboard-navigator';
-//
-// // Accessibility
-// export { ARIAManager } from './a11y/aria-manager';
-// export { FocusManager } from './a11y/focus-manager';
-//
-// // Features
-// export { BasicFilter } from './features/filtering/basic-filter';
+// Keyboard
+export { KeyboardNavigator } from './keyboard';
+export type { KeyboardNavigatorOptions } from './keyboard';
+
+// Accessibility
+export { ARIAManager } from './a11y';
+export type { ARIAManagerOptions } from './a11y';
+export { FocusManager } from './a11y';
+export type { FocusManagerOptions } from './a11y';
 export { ClipboardManager } from './features/copy-paste/clipboard-manager';
 export { CSVExporter } from './features/export/csv-exporter';
 
@@ -376,10 +370,21 @@ export type {
   EditingPluginOptions,
   UndoRedoPluginOptions,
 } from './plugins';
-export { createLegacyApiPlugin, createDevToolsConnector } from './plugins';
+export { createDevToolsConnector } from './plugins';
 export type { DevToolsConnectorOptions } from './plugins';
 export { createAsyncSortPlugin, createAsyncFilterPlugin } from './plugins';
 export type { AsyncSortPluginOptions, AsyncFilterPluginOptions } from './plugins';
+export { createLifecyclePlugin } from './plugins';
+export type { LifecyclePluginOptions } from './plugins';
+
+// Grid Namespaced APIs
+export type { SortApi } from './grid/api';
+export type { FilterApi } from './grid/api';
+export type { PaginationApi } from './grid/api';
+export type { ColumnApi } from './grid/api';
+export type { ScrollApi } from './grid/api';
+export type { StateApi } from './grid/api';
+export type { ExportApi } from './grid/api';
 
 // Theming System
 export type {

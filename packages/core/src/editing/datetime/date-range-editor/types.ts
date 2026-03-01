@@ -34,8 +34,6 @@ export interface DateRangeEditorOptions {
   autoFocus?: boolean;
   /** Custom validator function */
   validator?: (value: DateRange) => boolean | string;
-  /** Commit on blur (default: true) */
-  commitOnBlur?: boolean;
   /** Allow same start and end date (default: true) */
   allowSameDate?: boolean;
   /** Close popup when scrolling (default: true) */
@@ -56,7 +54,6 @@ export interface ResolvedDateRangeEditorOptions {
   className: string;
   theme: DatetimeTheme;
   autoFocus: boolean;
-  commitOnBlur: boolean;
   allowSameDate: boolean;
   closeOnScroll: boolean;
   separator: string;

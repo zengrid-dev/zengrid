@@ -3,16 +3,16 @@ import type { GridOptions, SortState, FilterModel } from '../../types';
 import type { EventEmitter } from '../../events/event-emitter';
 import type { GridEvents } from '../../events/grid-events';
 import type { HeaderRenderer } from '../../rendering/headers/header-renderer.interface';
-import type { HeaderCellMetadata } from '../../grid/header-types';
+import type { HeaderCellMetadata } from './header-types';
 import { HeaderRendererRegistry } from '../../rendering/headers/header-registry';
-import { registerDefaultRenderers } from '../../grid/header-registry-setup';
+import { registerDefaultRenderers } from './header-registry-setup';
 import {
   createHeaderCellsContainer,
   destroyHeaders,
   syncHorizontalScroll,
-} from '../../grid/header-dom-operations';
-import { renderAllHeaders, updateHeaderByColumnId, updateHeaderByIndex, updateAllHeaders } from '../../grid/header-rendering';
-import { subscribeToColumnChanges } from '../../grid/header-reactive-subscription';
+} from './header-dom-operations';
+import { renderAllHeaders, updateHeaderByColumnId, updateHeaderByIndex, updateAllHeaders } from './header-rendering';
+import { subscribeToColumnChanges } from './header-reactive-subscription';
 import type { ColumnModel } from '../../features/columns/column-model';
 
 export interface HeaderPluginOptions {

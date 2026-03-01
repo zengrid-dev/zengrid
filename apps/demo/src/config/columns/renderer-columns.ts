@@ -130,7 +130,7 @@ export function createRendererColumns(data: any[][]) {
         text: 'Project Duration',
         type: 'sortable',
         leadingIcon: { content: '📆', position: 'leading' },
-        tooltip: { content: 'Project Duration - Double-click to edit date range' },
+        tooltip: { content: 'Project Duration - Click to edit date range' },
         sortIndicator: { show: true, position: 'trailing' },
         interactive: true,
       },
@@ -143,8 +143,6 @@ export function createRendererColumns(data: any[][]) {
         chipStyle: false,
         startColor: '#1976d2',
         endColor: '#7b1fa2',
-        onClick: (range, params) => {
-        }
       }),
       sortable: true,
       minWidth: 250,

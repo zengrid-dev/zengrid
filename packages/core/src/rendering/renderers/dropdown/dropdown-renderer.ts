@@ -110,6 +110,7 @@ export class DropdownRenderer implements CellRenderer {
   }
 
   render(element: HTMLElement, params: RenderParams): void {
+    this.destroy(element);
     element.classList.add('zg-cell-dropdown');
 
     const container = document.createElement('div');

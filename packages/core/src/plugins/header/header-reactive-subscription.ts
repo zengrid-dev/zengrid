@@ -3,8 +3,8 @@
  */
 
 import type { StateSubscriber } from '@zengrid/shared';
-import type { ColumnModel } from '../features/columns/column-model';
-import type { ColumnEvent } from '../features/columns/types';
+import type { ColumnModel } from '../../features/columns/column-model';
+import type { ColumnEvent } from '../../features/columns/types';
 
 /**
  * Reactive subscription callbacks

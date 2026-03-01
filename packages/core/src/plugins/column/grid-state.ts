@@ -1,6 +1,6 @@
-import type { ColumnStateSnapshot, GridStateSnapshot, SortState, FilterModel } from '../types';
-import type { ColumnModel } from '../features/columns/column-model';
-import { ColumnVisibilityPlugin } from '../features/columns/plugins/column-visibility';
+import type { ColumnStateSnapshot, GridStateSnapshot, SortState, FilterModel } from '../../types';
+import type { ColumnModel } from '../../features/columns/column-model';
+import { ColumnVisibilityPlugin } from '../../features/columns/plugins/column-visibility';
 
 export function getColumnState(columnModel: ColumnModel | null): ColumnStateSnapshot[] {
   if (!columnModel) return [];

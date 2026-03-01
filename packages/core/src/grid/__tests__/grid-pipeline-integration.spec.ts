@@ -46,7 +46,7 @@ describe('Pipeline Integration: core only', () => {
 
 describe('Pipeline Integration: after sort', () => {
   it('rows.viewIndices = sorted order', () => {
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     const store = grid.getStore();
     const viewIndices = store.get('rows.viewIndices') as number[];
     // Ascending by col 0: 5(4), 10(1), 20(2), 30(0), 40(3)
@@ -56,7 +56,7 @@ describe('Pipeline Integration: after sort', () => {
 
 describe('Pipeline Integration: sort + filter', () => {
   it('rows.viewIndices = sorted+filtered', () => {
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     // Filter: col 0 > 15 → keeps idx 0(30), 2(20), 3(40)
     grid.setColumnFilter(0, [{ operator: 'greaterThan', value: 15 }]);
     const store = grid.getStore();
@@ -66,7 +66,7 @@ describe('Pipeline Integration: sort + filter', () => {
   });
 
   it('clear filter → falls back to sorted', () => {
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     grid.setColumnFilter(0, [{ operator: 'greaterThan', value: 15 }]);
     grid.clearFilters();
     const store = grid.getStore();
@@ -76,7 +76,7 @@ describe('Pipeline Integration: sort + filter', () => {
   });
 
   it('clear sort → falls back to raw indices', () => {
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     grid.clearSort();
     const store = grid.getStore();
     const viewIndices = store.get('rows.viewIndices') as number[];
@@ -92,7 +92,7 @@ describe('Pipeline Integration: sort + filter', () => {
 
 describe('Pipeline Integration: setData propagation', () => {
   it('setData with new data propagates through pipeline', () => {
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     // Replace data
     const newData = [
       [100, 'Z'],
@@ -100,7 +100,7 @@ describe('Pipeline Integration: setData propagation', () => {
     ];
     grid.setData(newData);
     // Re-sort after data change (store has new data, need to re-trigger sort)
-    grid.sort(0, 'asc');
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
     const store = grid.getStore();
     expect(store.get('rows.raw')).toEqual(newData);
     expect(store.get('rows.count')).toBe(2);

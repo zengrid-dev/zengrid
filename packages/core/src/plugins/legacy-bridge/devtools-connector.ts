@@ -142,9 +142,9 @@ export function createDevToolsConnector(options?: DevToolsConnectorOptions): Gri
         const result = originalExec(name, ...args);
 
         const payload: Record<string, unknown> = {};
-        if (args.length === 1) payload.args = args[0];
-        else if (args.length > 1) payload.args = args;
-        if (parentAction) payload.parent = parentAction;
+        if (args.length === 1) payload['args'] = args[0];
+        else if (args.length > 1) payload['args'] = args;
+        if (parentAction) payload['parent'] = parentAction;
 
         devtools.send(
           { type: name, payload: Object.keys(payload).length > 0 ? payload : undefined },

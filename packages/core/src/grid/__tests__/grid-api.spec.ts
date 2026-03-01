@@ -70,22 +70,6 @@ describe('GridApiImpl', () => {
     });
   });
 
-  describe('onLegacy + callLegacy', () => {
-    it('round-trips legacy handlers', () => {
-      api.onLegacy('getRowCount', () => 100);
-      expect(api.callLegacy('getRowCount')).toBe(100);
-    });
-
-    it('passes arguments to legacy handler', () => {
-      api.onLegacy('getCell', (row: unknown, col: unknown) => `${row},${col}`);
-      expect(api.callLegacy('getCell', 3, 5)).toBe('3,5');
-    });
-
-    it('throws on unknown legacy method', () => {
-      expect(() => api.callLegacy('missing')).toThrow('Legacy method "missing" not found');
-    });
-  });
-
   describe('getNamespaces', () => {
     it('lists all registered namespaces', () => {
       api.register('sort', { apply: () => {} });

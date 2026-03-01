@@ -19,77 +19,68 @@ export async function initializeCalendars(
   handlers: CalendarHandlers
 ): Promise<CalendarRefs> {
   const { minDate, maxDate, theme } = options;
-  const baseSettings = {
-    visibility: {
-      theme: theme === 'auto' ? 'system' : theme,
-    },
-    selection: {
-      day: 'single',
-    },
-    range: {
-      min: minDate ? formatDateForCalendar(minDate) : '1900-01-01',
-      max: maxDate ? formatDateForCalendar(maxDate) : '2099-12-31',
-    },
-  };
+  const dateMinStr = minDate ? formatDateForCalendar(minDate) : '1900-01-01';
+  const dateMaxStr = maxDate ? formatDateForCalendar(maxDate) : '2099-12-31';
 
   try {
     const { Calendar } = await import('vanilla-calendar-pro');
 
     const startOptions: any = {
       type: 'default',
+      selectionDatesMode: 'single',
       enableJumpToSelectedDate: true,
-      settings: {
-        ...baseSettings,
-        selected: currentValue.start
-          ? {
-              dates: [formatDateForCalendar(currentValue.start)],
-              month: currentValue.start.getMonth(),
-              year: currentValue.start.getFullYear(),
-            }
-          : {},
-      },
-      actions: {
-        clickDay: (_e: any, self: any) => {
-          if (self.selectedDates && self.selectedDates.length > 0) {
-            const selectedDate = new Date(self.selectedDates[0]);
-            if (!isNaN(selectedDate.getTime())) {
-              handlers.onStartDateSelect(selectedDate);
-            }
+      dateMin: dateMinStr,
+      dateMax: dateMaxStr,
+      selectedDates: currentValue.start
+        ? [formatDateForCalendar(currentValue.start)]
+        : [],
+      selectedMonth: currentValue.start
+        ? currentValue.start.getMonth()
+        : undefined,
+      selectedYear: currentValue.start
+        ? currentValue.start.getFullYear()
+        : undefined,
+      onClickDate(self: any, event: any) {
+        const dateEl = event?.target?.closest?.('[data-vc-date]');
+        const dateStr = dateEl?.dataset?.vcDate || (self.selectedDates?.[0] ?? null);
+        if (dateStr) {
+          const selectedDate = new Date(dateStr);
+          if (!isNaN(selectedDate.getTime())) {
+            handlers.onStartDateSelect(selectedDate);
           }
-        },
+        }
       },
     };
     const startCalendar = new Calendar(startDiv, startOptions);
     startCalendar.init();
 
+    const endDateMin = currentValue.start
+      ? formatDateForCalendar(currentValue.start)
+      : dateMinStr;
     const endOptions: any = {
       type: 'default',
+      selectionDatesMode: 'single',
       enableJumpToSelectedDate: true,
-      settings: {
-        ...baseSettings,
-        selected: currentValue.end
-          ? {
-              dates: [formatDateForCalendar(currentValue.end)],
-              month: currentValue.end.getMonth(),
-              year: currentValue.end.getFullYear(),
-            }
-          : {},
-        range: {
-          ...baseSettings.range,
-          min: currentValue.start
-            ? formatDateForCalendar(currentValue.start)
-            : baseSettings.range.min,
-        },
-      },
-      actions: {
-        clickDay: (_e: any, self: any) => {
-          if (self.selectedDates && self.selectedDates.length > 0) {
-            const selectedDate = new Date(self.selectedDates[0]);
-            if (!isNaN(selectedDate.getTime())) {
-              handlers.onEndDateSelect(selectedDate);
-            }
+      dateMin: endDateMin,
+      dateMax: dateMaxStr,
+      selectedDates: currentValue.end
+        ? [formatDateForCalendar(currentValue.end)]
+        : [],
+      selectedMonth: currentValue.end
+        ? currentValue.end.getMonth()
+        : undefined,
+      selectedYear: currentValue.end
+        ? currentValue.end.getFullYear()
+        : undefined,
+      onClickDate(self: any, event: any) {
+        const dateEl = event?.target?.closest?.('[data-vc-date]');
+        const dateStr = dateEl?.dataset?.vcDate || (self.selectedDates?.[0] ?? null);
+        if (dateStr) {
+          const selectedDate = new Date(dateStr);
+          if (!isNaN(selectedDate.getTime())) {
+            handlers.onEndDateSelect(selectedDate);
           }
-        },
+        }
       },
     };
     const endCalendar = new Calendar(endDiv, endOptions);
@@ -108,28 +99,28 @@ export function clearCalendars(
   options: ResolvedDateRangeEditorOptions
 ): void {
   if (refs.startCalendar) {
-    refs.startCalendar.settings.selected.dates = [];
-    refs.startCalendar.update();
+    refs.startCalendar.selectedDates = [];
+    refs.startCalendar.update({ dates: true });
   }
   if (refs.endCalendar) {
-    refs.endCalendar.settings.selected.dates = [];
-    refs.endCalendar.settings.range.min = options.minDate
+    refs.endCalendar.selectedDates = [];
+    refs.endCalendar.dateMin = options.minDate
       ? formatDateForCalendar(options.minDate)
       : '1900-01-01';
-    refs.endCalendar.update();
+    refs.endCalendar.update({ dates: true });
   }
 }
 
 export function updateEndCalendarMinDate(endCalendar: any, date: Date): void {
   if (!endCalendar) return;
-  endCalendar.settings.range.min = formatDateForCalendar(date);
-  endCalendar.update();
+  endCalendar.dateMin = formatDateForCalendar(date);
+  endCalendar.update({ dates: true });
 }
 
 export function resetEndCalendarSelection(endCalendar: any, endDate: Date | null): void {
   if (!endCalendar) return;
-  endCalendar.settings.selected.dates = endDate ? [formatDateForCalendar(endDate)] : [];
-  endCalendar.update();
+  endCalendar.selectedDates = endDate ? [formatDateForCalendar(endDate)] : [];
+  endCalendar.update({ dates: true });
 }
 
 export function destroyCalendars(refs: CalendarRefs): void {

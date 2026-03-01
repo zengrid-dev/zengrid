@@ -63,7 +63,7 @@ describe('Grid Bridge: sort operations', () => {
   });
 
   it('sort(col, dir) syncs to store', () => {
-    grid.sort(0, 'desc');
+    grid.sort.apply([{ column: 0, direction: 'desc' }]);
     const store = grid.getStore();
     const state = store.get('sort.state') as any[];
     expect(state).toEqual([{ column: 0, direction: 'desc' }]);
@@ -73,8 +73,8 @@ describe('Grid Bridge: sort operations', () => {
   });
 
   it('sort(col, null) clears sort in store', () => {
-    grid.sort(0, 'asc');
-    grid.sort(0, null);
+    grid.sort.apply([{ column: 0, direction: 'asc' }]);
+    grid.sort.clear();
     const store = grid.getStore();
     expect(store.get('sort.state')).toEqual([]);
     expect(store.get('pipeline.sort')).toBeUndefined();
