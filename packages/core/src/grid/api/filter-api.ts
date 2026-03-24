@@ -1,15 +1,19 @@
-import type { FilterModel } from '../../types';
+import type { FilterExpression, FilterModel } from '../../types';
+import type { FilterExportResult } from '../../features/filtering/adapters/types';
+import type { FieldFilterState } from '../../features/filtering/types';
 import type { SlimGridContext } from '../grid-context';
 
 export interface FilterApi {
   set(column: number, operator: string, value: any): void;
   setColumn(column: number, conditions: Array<{ operator: string; value: any }>, logic?: 'AND' | 'OR'): void;
+  setFieldState(state: FieldFilterState): void;
   clear(): void;
   clearColumn(column: number): void;
   getState(): FilterModel[];
   setState(models: FilterModel[]): void;
-  getFieldState(): any;
-  getExports(): any;
+  getFieldState(): FieldFilterState | null;
+  getExports(): FilterExportResult | null;
+  getExpression(): FilterExpression | null;
   getMode(): 'frontend' | 'backend';
   setQuick(query: string, columns?: number[]): void;
   clearQuick(): void;
@@ -32,6 +36,11 @@ export function createFilterApi(ctx: SlimGridContext): FilterApi {
       ctx.store.exec('filter:setColumn', column, conditions, logic);
     },
 
+    setFieldState(state: FieldFilterState): void {
+      if (!hasFilterPlugin()) return;
+      ctx.store.exec('filter:setFieldState', state);
+    },
+
     clear(): void {
       if (!hasFilterPlugin()) return;
       ctx.store.exec('filter:clear');
@@ -52,19 +61,29 @@ export function createFilterApi(ctx: SlimGridContext): FilterApi {
       ctx.store.exec('filter:setState', models);
     },
 
-    getFieldState() {
+    getFieldState(): FieldFilterState | null {
       if (!hasFilterPlugin()) return null;
       const api = ctx.gridApi.getMethod('filter', 'getFieldFilterState');
-      return api ? api() : null;
+      return api ? (api() as FieldFilterState | null) : null;
     },
 
-    getExports() {
+    getExports(): FilterExportResult | null {
       if (!hasFilterPlugin()) return null;
       const api = ctx.gridApi.getMethod('filter', 'getFilterExports');
-      return api ? api() : null;
+      return api ? (api() as FilterExportResult | null) : null;
+    },
+
+    getExpression(): FilterExpression | null {
+      if (!hasFilterPlugin()) return null;
+      const api = ctx.gridApi.getMethod('filter', 'getExpression');
+      return api ? (api() as FilterExpression | null) : null;
     },
 
     getMode(): 'frontend' | 'backend' {
+      if (!hasFilterPlugin()) return 'frontend';
+      const api = ctx.gridApi.getMethod('filter', 'getMode');
+      if (api) return api() as 'frontend' | 'backend';
+
       const mode = ctx.options.filterMode ?? 'frontend';
       if (mode === 'auto') return ctx.options.onFilterRequest ? 'backend' : 'frontend';
       return mode;

@@ -52,6 +52,47 @@ describe('Pipeline Integration: after sort', () => {
     // Ascending by col 0: 5(4), 10(1), 20(2), 30(0), 40(3)
     expect(viewIndices).toEqual([4, 1, 2, 0, 3]);
   });
+
+  it('rows.viewIndices honor multiple sort keys and keep stable ties', () => {
+    grid.setData([
+      [1, 'b'],
+      [1, 'a'],
+      [2, 'a'],
+      [1, 'a'],
+    ]);
+
+    grid.sort.apply([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    expect(viewIndices).toEqual([1, 3, 0, 2]);
+  });
+
+
+  it('rows.viewIndices honor explicit sortIndex priority over array order', () => {
+    grid.setData([
+      [1, 'b'],
+      [1, 'a'],
+      [2, 'a'],
+      [1, 'a'],
+    ]);
+
+    grid.sort.apply([
+      { column: 1, direction: 'asc', sortIndex: 1 },
+      { column: 0, direction: 'asc', sortIndex: 0 },
+    ]);
+
+    const store = grid.getStore();
+    const viewIndices = store.get('rows.viewIndices') as number[];
+    expect(grid.sort.getState()).toEqual([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+    expect(viewIndices).toEqual([1, 3, 0, 2]);
+  });
 });
 
 describe('Pipeline Integration: sort + filter', () => {
@@ -93,19 +134,38 @@ describe('Pipeline Integration: sort + filter', () => {
 describe('Pipeline Integration: setData propagation', () => {
   it('setData with new data propagates through pipeline', () => {
     grid.sort.apply([{ column: 0, direction: 'asc' }]);
-    // Replace data
     const newData = [
       [100, 'Z'],
       [50, 'Y'],
     ];
+
     grid.setData(newData);
-    // Re-sort after data change (store has new data, need to re-trigger sort)
-    grid.sort.apply([{ column: 0, direction: 'asc' }]);
+
     const store = grid.getStore();
     expect(store.get('rows.raw')).toEqual(newData);
     expect(store.get('rows.count')).toBe(2);
     const viewIndices = store.get('rows.viewIndices') as number[];
-    // Ascending: 50(1), 100(0)
     expect(viewIndices).toEqual([1, 0]);
+  });
+
+  it('preserves multi-column sort state across setData', () => {
+    grid.sort.apply([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+
+    grid.setData([
+      [1, 'b'],
+      [1, 'a'],
+      [2, 'a'],
+      [1, 'a'],
+    ]);
+
+    const store = grid.getStore();
+    expect(grid.sort.getState()).toEqual([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+    expect(store.get('rows.viewIndices')).toEqual([1, 3, 0, 2]);
   });
 });

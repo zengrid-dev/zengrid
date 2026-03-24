@@ -57,6 +57,10 @@ export function createSortApi(ctx: SlimGridContext): SortApi {
     },
 
     getMode(): 'frontend' | 'backend' {
+      if (!hasSortPlugin()) return 'frontend';
+      const getMode = ctx.gridApi.getMethod('sort', 'getMode');
+      if (getMode) return getMode() as 'frontend' | 'backend';
+
       const mode = ctx.options.sortMode ?? 'frontend';
       if (mode === 'auto') return ctx.options.onSortRequest ? 'backend' : 'frontend';
       return mode;

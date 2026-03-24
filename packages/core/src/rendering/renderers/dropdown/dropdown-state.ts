@@ -7,6 +7,12 @@ import { deepEqual, SimpleLRUCache } from '../renderer-utils';
 export const globalOpenDropdowns = new Set<HTMLElement>();
 
 /**
+ * Tracks the live menu element for each dropdown container. Menus stay body-portaled
+ * for their whole lifetime so DOM ownership does not change between open/close.
+ */
+export const globalOpenDropdownMenus = new WeakMap<HTMLElement, HTMLElement>();
+
+/**
  * Manages dropdown state and selection
  */
 export class DropdownState {
@@ -161,18 +167,48 @@ export class DropdownState {
   }
 
   /**
+   * Registers a dropdown menu and keeps it portaled to document.body for its full lifetime.
+   */
+  registerMenu(menu: HTMLElement, container: HTMLElement): void {
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
+
+    globalOpenDropdownMenus.set(container, menu);
+    menu.style.display = 'none';
+  }
+
+  /**
    * Opens dropdown menu
    */
   openDropdown(menu: HTMLElement, container: HTMLElement): void {
     this.closeOtherDropdowns(container);
 
+    // Append menu to body to escape overflow:hidden on grid cells
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
+
     menu.style.display = 'block';
     container.classList.add('open');
     globalOpenDropdowns.add(container);
+    globalOpenDropdownMenus.set(container, menu);
 
+    // Position menu below the trigger
     const trigger = container.querySelector('.zg-dropdown-trigger') as HTMLElement;
     if (trigger) {
       trigger.setAttribute('aria-expanded', 'true');
+      const rect = trigger.getBoundingClientRect();
+      menu.style.position = 'fixed';
+      menu.style.left = `${rect.left}px`;
+      menu.style.top = `${rect.bottom + 2}px`;
+      menu.style.minWidth = `${rect.width}px`;
+
+      // If menu would overflow below viewport, open above
+      const menuRect = menu.getBoundingClientRect();
+      if (menuRect.bottom > window.innerHeight) {
+        menu.style.top = `${rect.top - menuRect.height - 2}px`;
+      }
     }
   }
 
@@ -194,9 +230,11 @@ export class DropdownState {
    * Closes all other open dropdowns
    */
   private closeOtherDropdowns(currentContainer: HTMLElement): void {
-    for (const openContainer of globalOpenDropdowns) {
+    for (const openContainer of Array.from(globalOpenDropdowns)) {
       if (openContainer !== currentContainer) {
-        const openMenu = openContainer.querySelector('.zg-dropdown-menu') as HTMLElement;
+        const openMenu =
+          globalOpenDropdownMenus.get(openContainer) ||
+          (openContainer.querySelector('.zg-dropdown-menu') as HTMLElement | null);
         if (openMenu) {
           this.closeDropdown(openMenu, openContainer);
         }

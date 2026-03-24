@@ -8,11 +8,40 @@ import { resetScheduler } from '../../reactive/effect-scheduler';
 import { createCorePlugin } from '../core-plugin';
 import { createFilterPlugin } from '../filter-plugin';
 import { createSortPlugin } from '../sort-plugin';
+import type { FieldFilterState } from '../../features/filtering/types';
+import type { FilterExpression } from '../../types';
 
 let store: GridStoreImpl;
 let emitter: EventEmitter;
 let api: GridApiImpl;
 let host: PluginHost;
+
+function normalizeFilterExpression(expression: FilterExpression | null): FilterExpression | null {
+  if (!expression) {
+    return expression;
+  }
+
+  return {
+    ...expression,
+    fieldState: expression.fieldState
+      ? {
+          ...expression.fieldState,
+          timestamp: 0,
+        }
+      : expression.fieldState,
+    filterExport: expression.filterExport
+      ? {
+          ...expression.filterExport,
+          state: expression.filterExport.state
+            ? {
+                ...expression.filterExport.state,
+                timestamp: 0,
+              }
+            : expression.filterExport.state,
+        }
+      : expression.filterExport,
+  };
+}
 
 beforeEach(() => {
   resetTracking();
@@ -60,6 +89,63 @@ describe('FilterPlugin', () => {
     expect(store.get('filter.state')).toEqual([]);
   });
 
+  it('filter:setQuickFilter filters rows and persists a shared expression', () => {
+    host.use(createCorePlugin({ initialData: [['Alice'], ['Bob'], ['Alicia']] }));
+    host.use(createFilterPlugin({ colCount: 1, columns: [{ field: 'name', header: 'Name' }] }));
+
+    store.exec('filter:setQuickFilter', 'ali', [0]);
+
+    expect(store.get('pipeline.filter')).toEqual([0, 2]);
+    expect(store.get('filter.expression')).toEqual(
+      expect.objectContaining({
+        type: 'model',
+        models: [],
+        quickFilter: { query: 'ali', columns: [0] },
+      })
+    );
+  });
+
+  it('filter:setQuickFilter without column scoping searches globally and composes with column filters', () => {
+    host.use(
+      createCorePlugin({
+        initialData: [
+          ['Alice', 'Sales', 'Boston'],
+          ['Bob', 'Sales', 'Austin'],
+          ['Cara', 'Support', 'Boston'],
+          ['Alicia', 'Sales', 'Boston'],
+        ],
+      })
+    );
+    host.use(
+      createFilterPlugin({
+        colCount: 3,
+        columns: [
+          { field: 'name', header: 'Name' },
+          { field: 'department', header: 'Department' },
+          { field: 'city', header: 'City' },
+        ],
+      })
+    );
+
+    store.exec('filter:setColumn', 1, [{ operator: 'equals', value: 'Sales' }]);
+    store.exec('filter:setQuickFilter', 'boston');
+
+    expect(store.get('pipeline.filter')).toEqual([0, 3]);
+    expect(store.get('filter.expression')).toEqual(
+      expect.objectContaining({
+        type: 'model',
+        models: [
+          {
+            column: 1,
+            conditions: [{ operator: 'equals', value: 'Sales' }],
+            logic: 'AND',
+          },
+        ],
+        quickFilter: { query: 'boston', columns: null },
+      })
+    );
+  });
+
   it('composed with sort: filter output preserves sort order', () => {
     // Column 0 values: 50, 10, 40, 20, 30
     host.use(createCorePlugin({ initialData: [[50], [10], [40], [20], [30]] }));
@@ -76,6 +162,68 @@ describe('FilterPlugin', () => {
     store.exec('filter:setColumn', 0, [{ operator: 'greaterThan', value: 25 }]);
     const filtered = store.get('pipeline.filter') as number[];
     expect(filtered).toEqual([4, 2, 0]);
+  });
+
+  it('normalizes field-state entry to the same expression and export shape as model-state entry', () => {
+    const fieldState: FieldFilterState = {
+      root: {
+        logic: 'AND',
+        conditions: [{ field: 'score', operator: 'gt', value: 15 }],
+      },
+      activeFields: ['score'],
+      timestamp: Date.now(),
+    };
+
+    host.use(
+      createCorePlugin({
+        initialData: [
+          ['Alice', 10],
+          ['Bob', 20],
+          ['Alicia', 25],
+        ],
+      })
+    );
+    host.use(
+      createFilterPlugin({
+        colCount: 2,
+        columns: [
+          { field: 'name', header: 'Name' },
+          { field: 'score', header: 'Score' },
+        ],
+      })
+    );
+
+    store.exec('filter:setState', [
+      {
+        column: 1,
+        conditions: [{ operator: 'greaterThan', value: 15 }],
+        logic: 'AND',
+      },
+    ]);
+    store.exec('filter:setQuickFilter', 'ali', [0]);
+
+    const modelExpression = normalizeFilterExpression(
+      store.get('filter.expression') as FilterExpression | null
+    );
+    const modelExports = normalizeFilterExpression(modelExpression)?.filterExport;
+
+    store.exec('filter:clear');
+    store.exec('filter:setFieldState', fieldState);
+    store.exec('filter:setQuickFilter', 'ali', [0]);
+
+    const fieldExpression = normalizeFilterExpression(
+      store.get('filter.expression') as FilterExpression | null
+    );
+
+    expect(store.get('filter.state')).toEqual([
+      {
+        column: 1,
+        conditions: [{ operator: 'greaterThan', value: 15 }],
+        logic: 'AND',
+      },
+    ]);
+    expect(fieldExpression).toEqual(modelExpression);
+    expect(fieldExpression?.filterExport).toEqual(modelExports);
   });
 
   it('API methods are registered', () => {

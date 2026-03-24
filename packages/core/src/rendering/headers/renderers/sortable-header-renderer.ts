@@ -46,12 +46,13 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
 
     // Make cursor pointer to indicate clickable
     element.style.cursor = 'pointer';
+    element.tabIndex = 0;
 
     // Add sort indicator
     this.renderSortIndicator(element, params);
 
-    // Override click handler to include sort toggle
-    this.setupSortClickHandler(element, params);
+    // Override interaction handlers to include sort toggle
+    this.setupSortInteractionHandlers(element, params);
   }
 
   /**
@@ -71,6 +72,8 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
     } else if (params.sortDirection === 'desc') {
       element.classList.add('sorted-desc');
     }
+
+    element.tabIndex = 0;
   }
 
   /**
@@ -150,7 +153,7 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
     }
 
     // Show sort priority for multi-column sort
-    if (sortPriority !== undefined && sortPriority > 0) {
+    if (sortPriority !== undefined && sortPriority >= 0 && sortDirection) {
       const priorityBadge = document.createElement('span');
       priorityBadge.className = 'zg-sort-priority';
       priorityBadge.textContent = String(sortPriority + 1);
@@ -176,13 +179,13 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
   /**
    * Setup sort click handler
    */
-  protected setupSortClickHandler(element: HTMLElement, params: HeaderRenderParams): void {
+  protected setupSortInteractionHandlers(element: HTMLElement, params: HeaderRenderParams): void {
     // Remove existing click listeners (stored by parent)
     const existingListeners = (element as any)._headerListeners || [];
     existingListeners
-      .filter((l: any) => l.event === 'click')
+      .filter((l: any) => l.event === 'click' || l.event === 'keydown')
       .forEach((l: any) => {
-        element.removeEventListener('click', l.handler);
+        element.removeEventListener(l.event, l.handler);
       });
 
     // Add new sort click handler
@@ -199,19 +202,7 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
       }
 
       // Emit header:sort:click event (specific sort click)
-      if (params.emit) {
-        params.emit('header:sort:click', {
-          columnIndex: params.columnIndex,
-          column: params.column,
-          currentDirection: params.sortDirection,
-          nextDirection:
-            params.sortDirection === 'asc'
-              ? 'desc'
-              : params.sortDirection === 'desc'
-                ? null
-                : 'asc',
-        });
-      }
+      this.emitSortInteraction(params, mouseEvent, 'click');
 
       // Call user's onClick if provided
       if (params.config.onClick) {
@@ -219,12 +210,59 @@ export class SortableHeaderRenderer extends TextHeaderRenderer {
       }
     };
 
+    const sortKeyDownHandler = (e: Event) => {
+      const keyboardEvent = e as KeyboardEvent;
+      if (!this.isSortActivationKey(keyboardEvent)) {
+        return;
+      }
+
+      keyboardEvent.preventDefault();
+      this.emitSortInteraction(params, keyboardEvent, 'keyboard');
+    };
+
     element.addEventListener('click', sortClickHandler);
+    element.addEventListener('keydown', sortKeyDownHandler);
 
     // Update stored listeners
-    const newListeners = existingListeners.filter((l: any) => l.event !== 'click');
+    const newListeners = existingListeners.filter(
+      (l: any) => l.event !== 'click' && l.event !== 'keydown'
+    );
     newListeners.push({ event: 'click', handler: sortClickHandler });
+    newListeners.push({ event: 'keydown', handler: sortKeyDownHandler });
     (element as any)._headerListeners = newListeners;
+  }
+
+  private emitSortInteraction(
+    params: HeaderRenderParams,
+    nativeEvent: MouseEvent | KeyboardEvent,
+    trigger: 'click' | 'keyboard'
+  ): void {
+    if (!params.emit) {
+      return;
+    }
+
+    params.emit('header:sort:click', {
+      columnIndex: params.columnIndex,
+      column: params.column,
+      currentDirection: params.sortDirection,
+      nextDirection:
+        params.sortDirection === 'asc'
+          ? 'desc'
+          : params.sortDirection === 'desc'
+            ? null
+            : 'asc',
+      additive: this.isAdditiveSortInteraction(nativeEvent),
+      trigger,
+      nativeEvent,
+    });
+  }
+
+  private isAdditiveSortInteraction(event: MouseEvent | KeyboardEvent): boolean {
+    return !!(event.shiftKey || event.ctrlKey || event.metaKey);
+  }
+
+  private isSortActivationKey(event: KeyboardEvent): boolean {
+    return event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar';
   }
 
   /**

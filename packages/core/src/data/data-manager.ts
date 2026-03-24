@@ -1,7 +1,17 @@
-import type { DataLoadRequest, DataLoadResponse, SortState, FilterModel } from '../types';
+import type { DataLoadRequest, DataLoadResponse, FilterExpression, SortDescriptor, SortState, FilterModel } from '../types';
 import { OperationModeManager, type OperationModeConfig } from '@zengrid/shared';
 import type { EventEmitter } from '../events/event-emitter';
 import type { GridEvents } from '../events/grid-events';
+
+function createAbortError(message: string): Error {
+  const error = new Error(message);
+  error.name = 'AbortError';
+  return error;
+}
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
 
 /**
  * Data manager options
@@ -79,20 +89,28 @@ export class DataManager extends OperationModeManager<
   private cachedRanges: Map<string, any[][]> = new Map();
   private totalRows: number = 0;
   private pendingRequests: Map<string, Promise<void>> = new Map();
+  private requestControllers: Map<string, AbortController> = new Map();
   private isLoading: boolean = false;
   private maxCacheSize: number = 100; // Maximum cached ranges
+  private requestSequence: number = 0;
+  private destroyed: boolean = false;
 
   constructor(options: DataManagerOptions) {
     super(options.modeConfig, { rowCount: options.rowCount });
     this.rowCount = Math.max(0, options.rowCount || 0);
     this.events = options.events;
     this.totalRows = Math.max(0, options.rowCount || 0);
+
+    if (this.isBackendMode()) {
+      this.data = new Array(this.totalRows);
+    }
   }
 
   /**
    * Set data (frontend mode)
    */
   setData(data: any[][]): void {
+    if (this.destroyed) return;
     // Validate input
     if (!data) {
       console.warn('setData() called with null/undefined. Using empty array.');
@@ -174,8 +192,12 @@ export class DataManager extends OperationModeManager<
       queryString?: string;
       graphqlWhere?: Record<string, any>;
       sql?: import('../features/filtering/adapters/types').SQLFilterExport;
-    }
+      expression?: FilterExpression;
+    },
+    sort?: SortDescriptor[]
   ): Promise<void> {
+    if (this.destroyed) return;
+
     // In frontend mode, data is already loaded
     if (this.isFrontendMode()) {
       return;
@@ -200,7 +222,7 @@ export class DataManager extends OperationModeManager<
 
     // Handle empty range
     if (startRow === endRow) {
-      console.warn('loadRange() called with empty range:', { startRow, endRow });
+      this.events?.emit('warning', { message: 'loadRange() called with empty range', context: { startRow, endRow } });
       return;
     }
 
@@ -219,7 +241,10 @@ export class DataManager extends OperationModeManager<
     }
 
     // Generate cache key
-    const cacheKey = `${startRow}-${endRow}-${JSON.stringify(sortState)}-${JSON.stringify(filterState)}`;
+    const sortKeys = sortState?.map(s => `${s.column}:${s.direction}`).join(',') ?? '';
+    const filterVal = filterExports?.expression ?? filterState;
+    const filterKey = filterVal ? JSON.stringify(filterVal, Object.keys(filterVal).sort()) : '';
+    const cacheKey = `${startRow}-${endRow}-${sortKeys}-${filterKey}`;
 
     // Check cache first
     if (this.cachedRanges.has(cacheKey)) {
@@ -241,6 +266,7 @@ export class DataManager extends OperationModeManager<
       sortState,
       filterState,
       filterExports,
+      sort,
       cacheKey
     );
 
@@ -269,8 +295,10 @@ export class DataManager extends OperationModeManager<
           queryString?: string;
           graphqlWhere?: Record<string, any>;
           sql?: import('../features/filtering/adapters/types').SQLFilterExport;
+          expression?: FilterExpression;
         }
       | undefined,
+    sort: SortDescriptor[] | undefined,
     cacheKey: string
   ): Promise<void> {
     const loadStartTime = Date.now();
@@ -296,18 +324,36 @@ export class DataManager extends OperationModeManager<
     const pageSize = endRow - startRow;
     const page = Math.floor(startRow / pageSize);
 
+    const requestId = ++this.requestSequence;
+    const controller = new AbortController();
+    this.requestControllers.set(cacheKey, controller);
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let abortListener: EventListener | null = null;
+
     // Prepare request with filter exports
+    const hasActiveFilterExports = Boolean(
+      filterExports &&
+        (filterExports.filter !== undefined ||
+          filterExports.queryString !== undefined ||
+          filterExports.graphqlWhere !== undefined ||
+          filterExports.sql !== undefined)
+    );
+
     const request: DataLoadRequest = {
       startRow,
       endRow,
+      requestId,
+      signal: controller.signal,
       sortState,
+      sort,
+      filterExpression: filterExports?.expression,
       filterState,
       filter: filterExports?.filter,
-      filterExport: filterExports
+      filterExport: hasActiveFilterExports
         ? {
-            queryString: filterExports.queryString || '',
-            graphqlWhere: filterExports.graphqlWhere || {},
-            sql: filterExports.sql || {
+            queryString: filterExports?.queryString || '',
+            graphqlWhere: filterExports?.graphqlWhere || {},
+            sql: filterExports?.sql || {
               whereClause: '',
               positionalParams: [],
               namedParams: {},
@@ -323,14 +369,27 @@ export class DataManager extends OperationModeManager<
     };
 
     try {
-      // Call backend with timeout
+      // Call backend with timeout and cancellation support
       const timeoutMs = 30000; // 30 second timeout
-      const response = await Promise.race([
-        this.callback!(request),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Data load timeout')), timeoutMs)
-        ),
-      ]);
+      const abortPromise = new Promise<never>((_, reject) => {
+        if (controller.signal.aborted) {
+          reject(createAbortError(`Data load cancelled for rows ${startRow}-${endRow}`));
+          return;
+        }
+
+        abortListener = () => {
+          reject(createAbortError(`Data load cancelled for rows ${startRow}-${endRow}`));
+        };
+        controller.signal.addEventListener('abort', abortListener, { once: true });
+      });
+
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Data load timeout')), timeoutMs);
+      });
+
+      const response = await Promise.race([this.callback!(request), timeoutPromise, abortPromise]);
+
+      if (this.destroyed || controller.signal.aborted || requestId !== this.requestSequence) return;
 
       // Validate response
       this.validateLoadResponse(response, startRow, endRow);
@@ -343,7 +402,7 @@ export class DataManager extends OperationModeManager<
 
       // Handle empty response
       if (!response.data || response.data.length === 0) {
-        console.warn('Backend returned empty data for range:', { startRow, endRow });
+        this.events?.emit('warning', { message: 'Backend returned empty data for range', context: { startRow, endRow } });
         this.mergeRangeData(startRow, []);
       } else {
         // Merge loaded data
@@ -361,6 +420,14 @@ export class DataManager extends OperationModeManager<
         });
       }
     } catch (error) {
+      if (controller.signal.aborted || isAbortError(error)) {
+        throw isAbortError(error)
+          ? error
+          : createAbortError(`Data load cancelled for rows ${startRow}-${endRow}`);
+      }
+
+      if (this.destroyed) return;
+
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('Failed to load data range:', errorMessage, { startRow, endRow });
 
@@ -374,14 +441,24 @@ export class DataManager extends OperationModeManager<
 
       throw error;
     } finally {
-      this.isLoading = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (abortListener) {
+        controller.signal.removeEventListener('abort', abortListener);
+      }
+      this.requestControllers.delete(cacheKey);
 
-      // Emit loading:end event
-      if (this.events) {
-        this.events.emit('loading:end', {
-          timestamp: Date.now(),
-          duration: Date.now() - loadStartTime,
-        });
+      if (!this.destroyed) {
+        this.isLoading = false;
+
+        // Emit loading:end event
+        if (this.events) {
+          this.events.emit('loading:end', {
+            timestamp: Date.now(),
+            duration: Date.now() - loadStartTime,
+          });
+        }
       }
     }
   }
@@ -447,9 +524,14 @@ export class DataManager extends OperationModeManager<
    * Merge loaded range data into existing data
    */
   private mergeRangeData(startRow: number, rangeData: any[][]): void {
+    if (this.totalRows > this.data.length) {
+      this.data.length = this.totalRows;
+    }
+
     // Ensure data array is large enough
-    while (this.data.length < startRow + rangeData.length) {
-      this.data.push([]);
+    const requiredLength = startRow + rangeData.length;
+    if (this.data.length < requiredLength) {
+      this.data.length = requiredLength;
     }
 
     // Merge range data
@@ -476,6 +558,8 @@ export class DataManager extends OperationModeManager<
    * Update row count
    */
   updateRowCount(rowCount: number): void {
+    if (this.destroyed) return;
+
     const newCount = Math.max(0, rowCount || 0);
     this.rowCount = newCount;
     this.totalRows = newCount;
@@ -483,6 +567,10 @@ export class DataManager extends OperationModeManager<
     // If reducing row count, clear cache as it may be invalid
     if (newCount < this.data.length) {
       this.clearCache();
+    }
+
+    if (this.isBackendMode()) {
+      this.data.length = newCount;
     }
   }
 
@@ -504,6 +592,11 @@ export class DataManager extends OperationModeManager<
    * Cancel all pending requests
    */
   cancelPendingRequests(): void {
+    for (const controller of this.requestControllers.values()) {
+      controller.abort();
+    }
+
+    this.requestControllers.clear();
     this.pendingRequests.clear();
     this.isLoading = false;
   }
@@ -542,6 +635,7 @@ export class DataManager extends OperationModeManager<
    * Destroy data manager
    */
   destroy(): void {
+    this.destroyed = true;
     this.cancelPendingRequests();
     this.data = [];
     this.cachedRanges.clear();

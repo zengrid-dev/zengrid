@@ -387,6 +387,9 @@ export interface GridEvents {
     column: import('../types').ColumnDef;
     currentDirection?: 'asc' | 'desc';
     nextDirection: 'asc' | 'desc' | null;
+    additive?: boolean;
+    trigger?: 'click' | 'keyboard';
+    nativeEvent?: MouseEvent | KeyboardEvent;
   };
 
   'header:filter:click': {

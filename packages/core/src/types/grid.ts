@@ -6,7 +6,7 @@ import type { RendererCacheConfig } from '../rendering/cache';
 import type { OperationMode } from '@zengrid/shared';
 import type { CellRef, CellRange } from './cell';
 import type { ColumnDef, SortIcons } from './column';
-import type { SortState } from './sort';
+import type { SortRequest, SortState } from './sort';
 import type { FilterModel, FilterExpression } from './filter';
 import type { DataLoadRequest, DataLoadResponse } from './data';
 import type { PaginationConfig } from './pagination';
@@ -91,8 +91,11 @@ export interface GridOptions {
    * Backend sorting callback
    * Called when sortMode is 'backend' or 'auto' (with callback present)
    * Application should fetch sorted data and call grid.setData()
+   *
+   * The first argument preserves the raw grid sort state for backward compatibility.
+   * The second argument provides a serialized backend request with field names when columns are configured.
    */
-  onSortRequest?: (sortState: SortState[]) => Promise<void> | void;
+  onSortRequest?: (sortState: SortState[], request?: SortRequest) => Promise<void> | void;
 
   /**
    * Backend filtering callback
@@ -100,8 +103,10 @@ export interface GridOptions {
    * Application should fetch filtered data and call grid.setData()
    *
    * Receives FilterExpression which contains:
-   * - SQL query with parameters (if using SQL-like syntax)
-   * - Filter models (if using traditional approach)
+   * - SQL query metadata (if using SQL-like syntax)
+   * - Column-based filter models
+   * - Quick filter state
+   * - Field-based filter state and backend export helpers when columns are configured
    *
    * @example SQL-like filtering
    * ```typescript

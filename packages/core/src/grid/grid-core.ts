@@ -2,6 +2,7 @@ import type {
   CellRef,
   GridOptions,
   GridExportOptions,
+  DataRequestState,
 } from '../types';
 import type { GridPlugin } from '../reactive';
 import type { SlimGridContext } from './grid-context';
@@ -78,7 +79,42 @@ export class Grid {
   }
 
   getDataMode(): 'frontend' | 'backend' {
-    return this.ctx.options.onLoadMoreRows ? 'backend' : 'frontend';
+    const api = this.ctx.gridApi.getMethod('data', 'getMode');
+    if (api) return api() as 'frontend' | 'backend';
+
+    const mode = this.ctx.options.dataMode ?? 'frontend';
+    if (mode === 'auto') return this.ctx.options.onDataRequest ? 'backend' : 'frontend';
+    return mode === 'backend' ? 'backend' : 'frontend';
+  }
+
+  getDataStatus(): DataRequestState {
+    const api = this.ctx.gridApi.getMethod('data', 'getStatus');
+    if (api) return api() as DataRequestState;
+
+    return {
+      mode: this.getDataMode(),
+      status: 'idle',
+      isLoading: false,
+      error: null,
+      lastRequest: null,
+      lastLoadedRange: null,
+      totalRows: this.ctx.options.rowCount,
+      canRetry: false,
+    };
+  }
+
+  async refreshData(): Promise<void> {
+    const api = this.ctx.gridApi.getMethod('data', 'refresh');
+    if (api) {
+      await api();
+    }
+  }
+
+  async retryDataRequest(): Promise<void> {
+    const api = this.ctx.gridApi.getMethod('data', 'retry');
+    if (api) {
+      await api();
+    }
   }
 
   // --- Render / Lifecycle ---
@@ -118,7 +154,7 @@ export class Grid {
   }
 
   updateOptions(options: Partial<GridOptions>): void {
-    this.ctx.options = { ...this.ctx.options, ...options };
+    Object.assign(this.ctx.options, options);
     this.ctx.store.exec('rendering:updateScroller');
     this.ctx.store.exec('rendering:refresh');
   }
@@ -288,4 +324,11 @@ export class Grid {
 
   exportCSV = (o?: GridExportOptions) => this.export.csv(o);
   exportTSV = (o?: GridExportOptions) => this.export.tsv(o);
+
+  /** @deprecated Use refreshData() */
+  refreshGridData = () => this.refreshData();
+  /** @deprecated Use retryDataRequest() */
+  retryDataRequestAsync = () => this.retryDataRequest();
+  /** @deprecated Use getDataStatus() */
+  getDataRequestStatus = () => this.getDataStatus();
 }

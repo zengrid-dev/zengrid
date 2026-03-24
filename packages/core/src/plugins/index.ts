@@ -31,6 +31,8 @@ export { createDomPlugin } from './dom';
 export type { DomPluginOptions } from './dom';
 export { createRenderingPlugin } from './rendering';
 export type { RenderingPluginOptions } from './rendering';
+export { createDataPlugin } from './data-plugin';
+export type { DataPluginOptions } from './data-plugin';
 export { createHeaderPlugin } from './header';
 export type { HeaderPluginOptions } from './header';
 export { createPaginationPlugin } from './pagination';

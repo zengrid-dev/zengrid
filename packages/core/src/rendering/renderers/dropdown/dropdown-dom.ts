@@ -213,11 +213,11 @@ export function updateTriggerDisplay(trigger: HTMLElement, displayText: string):
  */
 export function setAriaAttributes(
   container: HTMLElement,
+  menu: HTMLElement,
   params: RenderParams,
   multiSelect: boolean
 ): void {
   const trigger = container.querySelector('.zg-dropdown-trigger') as HTMLElement;
-  const menu = container.querySelector('.zg-dropdown-menu') as HTMLElement;
 
   if (trigger) {
     trigger.setAttribute('role', 'combobox');

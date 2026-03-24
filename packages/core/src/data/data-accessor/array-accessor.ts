@@ -6,12 +6,13 @@ import type { DataAccessor } from './data-accessor.interface';
  * Provides unified access to array-based data for sorting/filtering/searching.
  */
 export class ArrayAccessor<T = any> implements DataAccessor<T> {
-  private data: ReadonlyArray<ReadonlyArray<T>>;
+  private data: ReadonlyArray<ReadonlyArray<T> | undefined>;
   private _colCount: number;
 
   constructor(data: T[][]) {
     this.data = data;
-    this._colCount = data.length > 0 ? data[0].length : 0;
+    const sampleRow = data.find((row) => Array.isArray(row));
+    this._colCount = sampleRow?.length ?? 0;
   }
 
   getValue(row: number, col: number | string): T | undefined {

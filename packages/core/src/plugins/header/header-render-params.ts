@@ -29,7 +29,11 @@ export function buildRenderParams(
   const columnSort = sortState.find((s) => s.column === sortKey);
   const sortDirection = columnSort?.direction;
   const sortPriority =
-    sortState.length > 1 ? sortState.findIndex((s) => s.column === sortKey) + 1 : undefined;
+    columnSort && sortState.length > 1
+      ? typeof columnSort.sortIndex === 'number'
+        ? columnSort.sortIndex
+        : sortState.findIndex((s) => s.column === sortKey)
+      : undefined;
 
   // Check if column has active filter
   const hasFilter = filterState.some((f) => f.column === sortKey);

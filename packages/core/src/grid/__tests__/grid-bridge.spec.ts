@@ -148,6 +148,18 @@ describe('Grid Bridge: destroy', () => {
   });
 });
 
+describe('Grid Bridge: updateOptions', () => {
+  it('mutates the existing options object so held references stay current', () => {
+    const optionsRef = (grid as any).ctx.options;
+
+    grid.updateOptions({ rowHeight: 42, enableA11y: false });
+
+    expect((grid as any).ctx.options).toBe(optionsRef);
+    expect(optionsRef.rowHeight).toBe(42);
+    expect(optionsRef.enableA11y).toBe(false);
+  });
+});
+
 describe('Grid Bridge: public API accessors', () => {
   it('getStore() returns GridStoreImpl', () => {
     expect(grid.getStore()).toBeDefined();

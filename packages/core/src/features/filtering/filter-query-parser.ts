@@ -1,5 +1,7 @@
-// @ts-nocheck - TODO: Fix unused variable warnings in this file
-import type { FilterQuery, FilterExpression, FilterModel, FilterOperator } from '../../types';
+import type { FilterQuery, FilterExpression, FilterModel } from '../../types';
+
+type NamedQueryParams = Record<string, unknown>;
+type PositionalSqlParams = Array<string | number>;
 
 /**
  * FilterQueryParser - Parses SQL-like filter queries
@@ -35,16 +37,14 @@ import type { FilterQuery, FilterExpression, FilterModel, FilterOperator } from 
  * ```
  */
 export class FilterQueryParser {
-  // TODO: Add column mapping support for field name conversion
-  // private _columnMap: Map<string, number> = new Map();
+  private columnMap: Map<string, number> = new Map();
 
   /**
    * Set column name to index mapping
    * Required for converting SQL field names to column indices
    */
-  setColumnMapping(_mapping: Record<string, number>): void {
-    // this._columnMap = new Map(Object.entries(mapping));
-    // TODO: Implement field name to column index mapping
+  setColumnMapping(mapping: Record<string, number>): void {
+    this.columnMap = new Map(Object.entries(mapping));
   }
 
   /**
@@ -52,17 +52,13 @@ export class FilterQueryParser {
    */
   parse(query: FilterQuery): FilterExpression {
     try {
-      // Step 1: Bind named parameters to values
-      const boundSql = this.bindNamedParameters(query.sql, query.params || {});
-
-      // Step 2: Extract positional parameters
-      const { sql: positionSql, params } = this.extractPositionalParameters(boundSql);
+      const { sql: boundSql, params } = this.toPositionalQuery(query.sql, query.params ?? {});
 
       // Step 3: Return expression
       return {
         type: 'sql',
         sql: query.sql,
-        boundSql: positionSql,
+        boundSql,
         params,
       };
     } catch (error) {
@@ -70,64 +66,48 @@ export class FilterQueryParser {
     }
   }
 
-  /**
-   * Bind named parameters (:paramName) to their values
-   * Converts to positional placeholders (?)
-   */
-  private bindNamedParameters(sql: string, params: Record<string, any>): string {
-    let boundSql = sql;
-    const paramNames = Object.keys(params);
+  private toPositionalQuery(sql: string, namedParams: NamedQueryParams): {
+    sql: string;
+    params: PositionalSqlParams;
+  } {
+    const params: PositionalSqlParams = [];
 
-    // Replace named parameters with their values (quoted if string)
-    for (const paramName of paramNames) {
-      const value = params[paramName];
-      const regex = new RegExp(`:${paramName}\\b`, 'g');
+    const tokenRegex = /'([^']*)'|\b(\d+(?:\.\d+)?)\b|:([A-Za-z_][A-Za-z0-9_]*)\b/g;
+    const boundSql = sql.replace(
+      tokenRegex,
+      (match, stringValue?: string, numberValue?: string, namedParam?: string) => {
+        if (namedParam !== undefined) {
+          if (!Object.prototype.hasOwnProperty.call(namedParams, namedParam)) {
+            throw new Error(`Missing named parameter :${namedParam}`);
+          }
 
-      // Quote strings, keep numbers as-is
-      const quotedValue = typeof value === 'string' ? `'${value}'` : String(value);
-      boundSql = boundSql.replace(regex, quotedValue);
-    }
+          params.push(this.toSqlParamValue(namedParams[namedParam]));
+          return '?';
+        }
 
-    return boundSql;
-  }
+        if (stringValue !== undefined) {
+          params.push(stringValue);
+          return '?';
+        }
 
-  /**
-   * Extract positional parameters from SQL
-   * Converts literal values to ? placeholders
-   */
-  private extractPositionalParameters(sql: string): { sql: string; params: any[] } {
-    const params: any[] = [];
-    let positionSql = sql;
+        if (numberValue !== undefined) {
+          params.push(parseFloat(numberValue));
+          return '?';
+        }
 
-    // Match quoted strings
-    const stringRegex = /'([^']*)'/g;
-    positionSql = positionSql.replace(stringRegex, (_match, value) => {
-      params.push(value);
-      return '?';
-    });
-
-    // Match numbers (not part of keywords or identifiers)
-    const numberRegex = /\b(\d+(?:\.\d+)?)\b/g;
-    positionSql = positionSql.replace(numberRegex, (match, value) => {
-      // Skip if it's part of a keyword or identifier
-      if (this.isPartOfKeyword(positionSql, match)) {
         return match;
       }
-      params.push(parseFloat(value));
-      return '?';
-    });
+    );
 
-    return { sql: positionSql, params };
+    return { sql: boundSql, params };
   }
 
-  /**
-   * Check if a value is part of a SQL keyword
-   */
-  private isPartOfKeyword(sql: string, value: string): boolean {
-    const keywords = ['AND', 'OR', 'NOT', 'LIKE', 'BETWEEN', 'IN', 'NULL', 'IS'];
-    return keywords.some(
-      (keyword) => sql.includes(`${value}${keyword}`) || sql.includes(`${keyword}${value}`)
-    );
+  private toSqlParamValue(value: unknown): string | number {
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    return String(value);
   }
 
   /**
@@ -135,35 +115,156 @@ export class FilterQueryParser {
    * This is a simplified conversion - complex queries may not convert perfectly
    */
   parseToModels(query: FilterQuery, columnNames: string[]): FilterModel[] {
-    // This is a simplified implementation
-    // Full implementation would require a complete SQL parser
-    const models: FilterModel[] = [];
+    const inferredColumnMap =
+      this.columnMap.size > 0
+        ? this.columnMap
+        : new Map(columnNames.map((name, index) => [name, index] as const));
+    const parsedModels = this.parseSimpleModels(query, inferredColumnMap);
 
-    // For now, we'll support simple cases
-    // Complex queries should use backend filtering
+    if (parsedModels) {
+      return parsedModels;
+    }
+
     console.warn(
       'FilterQueryParser.parseToModels(): Converting SQL to FilterModels has limitations. Consider using backend filtering for complex queries.'
     );
 
-    return models;
+    return [];
   }
 
-  /**
-   * Convert SQL operator to FilterOperator
-   */
-  private sqlOperatorToFilterOperator(sqlOp: string): FilterOperator {
-    const mapping: Record<string, FilterOperator> = {
-      '=': 'equals',
-      '!=': 'notEquals',
-      '<>': 'notEquals',
-      '>': 'greaterThan',
-      '<': 'lessThan',
-      '>=': 'greaterThanOrEqual',
-      '<=': 'lessThanOrEqual',
-      LIKE: 'contains',
-      'NOT LIKE': 'notContains',
-    };
+  private parseSimpleModels(query: FilterQuery, columnMap: Map<string, number>): FilterModel[] | null {
+    if (/[()]/.test(query.sql) || /\b(OR|BETWEEN|NOT BETWEEN|IN|NOT IN|IS NULL|IS NOT NULL)\b/i.test(query.sql)) {
+      return null;
+    }
 
-    return mapping[sqlOp.toUpperCase()] || 'equals';
+    const clauses = query.sql.split(/\s+AND\s+/i).map((clause) => clause.trim()).filter(Boolean);
+    const modelsByColumn = new Map<number, FilterModel>();
+
+    for (const clause of clauses) {
+      const parsedClause = this.parseSimpleClause(clause, query.params ?? {}, columnMap);
+      if (!parsedClause) {
+        return null;
+      }
+
+      const existingModel = modelsByColumn.get(parsedClause.column);
+      if (existingModel) {
+        existingModel.conditions.push(parsedClause.condition);
+        existingModel.logic = 'AND';
+        continue;
+      }
+
+      modelsByColumn.set(parsedClause.column, {
+        column: parsedClause.column,
+        conditions: [parsedClause.condition],
+      });
+    }
+
+    return Array.from(modelsByColumn.values());
+  }
+
+  private parseSimpleClause(
+    clause: string,
+    params: NamedQueryParams,
+    columnMap: Map<string, number>
+  ): { column: number; condition: FilterModel['conditions'][number] } | null {
+    const match = clause.match(
+      /^([A-Za-z_][A-Za-z0-9_.]*)\s*(=|!=|<>|>=|<=|>|<|LIKE|NOT LIKE)\s*(.+)$/i
+    );
+    if (!match) {
+      return null;
+    }
+
+    const [, fieldName, sqlOperator, rawValue] = match;
+    const column = columnMap.get(fieldName);
+    if (column === undefined) {
+      return null;
+    }
+
+    const value = this.resolveClauseValue(rawValue.trim(), params);
+    const operator = this.sqlOperatorToFilterOperator(sqlOperator.toUpperCase(), value);
+
+    return {
+      column,
+      condition: {
+        operator,
+        value: this.normalizeClauseValue(operator, value),
+      },
+    };
+  }
+
+  private resolveClauseValue(rawValue: string, params: NamedQueryParams): string | number {
+    if (rawValue.startsWith(':')) {
+      const paramName = rawValue.slice(1);
+      if (!Object.prototype.hasOwnProperty.call(params, paramName)) {
+        throw new Error(`Missing named parameter :${paramName}`);
+      }
+
+      return this.toSqlParamValue(params[paramName]);
+    }
+
+    if (rawValue.startsWith("'") && rawValue.endsWith("'")) {
+      return rawValue.slice(1, -1);
+    }
+
+    const numericValue = Number(rawValue);
+    if (!Number.isNaN(numericValue)) {
+      return numericValue;
+    }
+
+    return rawValue;
+  }
+
+  private normalizeClauseValue(operator: FilterModel['conditions'][number]['operator'], value: string | number) {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    if (operator === 'contains' || operator === 'notContains') {
+      return value.replace(/^%|%$/g, '');
+    }
+
+    if (operator === 'startsWith') {
+      return value.replace(/%$/g, '');
+    }
+
+    if (operator === 'endsWith') {
+      return value.replace(/^%/g, '');
+    }
+
+    return value;
+  }
+
+  private sqlOperatorToFilterOperator(sqlOperator: string, value: string | number): FilterModel['conditions'][number]['operator'] {
+    if (sqlOperator === 'LIKE' && typeof value === 'string') {
+      if (value.startsWith('%') && value.endsWith('%')) {
+        return 'contains';
+      }
+
+      if (value.endsWith('%')) {
+        return 'startsWith';
+      }
+
+      if (value.startsWith('%')) {
+        return 'endsWith';
+      }
+
+      return 'contains';
+    }
+
+    if (sqlOperator === 'NOT LIKE') {
+      return 'notContains';
+    }
+
+    const mapping = new Map<string, FilterModel['conditions'][number]['operator']>([
+      ['=', 'equals'],
+      ['!=', 'notEquals'],
+      ['<>', 'notEquals'],
+      ['>', 'greaterThan'],
+      ['<', 'lessThan'],
+      ['>=', 'greaterThanOrEqual'],
+      ['<=', 'lessThanOrEqual'],
+    ]);
+
+    return mapping.get(sqlOperator) ?? 'equals';
   }
 }

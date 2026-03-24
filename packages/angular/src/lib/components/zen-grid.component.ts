@@ -41,7 +41,7 @@ import type {
   RendererCacheConfig,
 } from '@zengrid/core';
 import { GridApiImpl, PluginHost } from '@zengrid/core';
-import type { OperationMode } from '@zengrid/shared';
+import { resolveOperationMode, type OperationMode } from '@zengrid/shared';
 import { EVENT_MAP } from '../utils/event-map';
 import { ZenColumnComponent } from './zen-column.component';
 import { TemplateBridgeService } from '../services/template-bridge.service';
@@ -88,9 +88,9 @@ export class ZenGridComponent {
   readonly _isBrowser = isPlatformBrowser(this.platformId);
 
   get placeholderHeight(): number {
-    const rh = this.rowHeight();
-    const h = typeof rh === 'number' ? rh : 30;
-    return this.rowCount() * h;
+    const rowHeight = this.getResolvedRowHeight();
+    const height = typeof rowHeight === 'number' ? rowHeight : 30;
+    return this.rowCount() * height;
   }
 
   private readonly gridContainerRef = viewChild<ElementRef<HTMLElement>>('gridContainer');
@@ -98,13 +98,21 @@ export class ZenGridComponent {
 
   private grid: Grid | null = null;
   private gridReady = false;
+  private readonly explicitInputs = new Set<'rowHeight' | 'colWidth' | 'columns'>();
+  private pendingModelDataSync: any[][] | null = null;
 
   // --- Core Inputs ---
   readonly rowCount = input.required<number>();
   readonly colCount = input.required<number>();
-  readonly rowHeight = input<number | number[]>(30);
-  readonly colWidth = input<number | number[]>(100);
-  readonly columns = input<ColumnDef[]>([]);
+  readonly rowHeight = input<number | number[]>(30, {
+    transform: (value) => this.markExplicitInput('rowHeight', value),
+  });
+  readonly colWidth = input<number | number[]>(100, {
+    transform: (value) => this.markExplicitInput('colWidth', value),
+  });
+  readonly columns = input<ColumnDef[]>([], {
+    transform: (value) => this.markExplicitInput('columns', value),
+  });
 
   // --- Feature Inputs ---
   readonly enableSelection = input<boolean | undefined>(undefined);
@@ -279,27 +287,26 @@ export class ZenGridComponent {
 
     // Sync data input → grid (skip first run, initGrid handles initial data)
     effect(() => {
-      const d = this.data();
-      if (!this.gridReady) return;
-      if (d && d.length > 0) {
-        this.grid!.setData(d);
+      const data = this.data();
+      if (!this.gridReady || this.getResolvedDataMode() !== 'frontend') return;
+      if (!Array.isArray(data)) return;
+
+      if (this.pendingModelDataSync === data) {
+        this.pendingModelDataSync = null;
+        return;
       }
+
+      this.grid!.setData(data);
     });
 
     // Sync columns from content children or input (skip first run)
     effect(() => {
-      const cols = this.columnChildren();
-      const inputCols = this.columns();
+      this.columnChildren();
+      this.columns();
       if (!this.gridReady) return;
 
-      let resolvedColumns: ColumnDef[];
-      if (cols.length > 0) {
-        resolvedColumns = cols.map(c => c.toColumnDef(this.templateBridge));
-      } else {
-        resolvedColumns = inputCols;
-      }
-
-      if (resolvedColumns.length > 0) {
+      const resolvedColumns = this.getComponentColumns();
+      if (resolvedColumns !== undefined) {
         this.grid!.updateOptions({ columns: resolvedColumns });
       }
     });
@@ -308,8 +315,8 @@ export class ZenGridComponent {
     const prevOptions: Record<string, any> = {};
     effect(() => {
       const current: Array<[string, any]> = [
-        ['rowHeight', this.rowHeight()],
-        ['colWidth', this.colWidth()],
+        ['rowHeight', this.getResolvedRowHeight()],
+        ['colWidth', this.getResolvedColWidth()],
         ['selectionType', this.selectionType()],
         ['enableSelection', this.enableSelection()],
         ['enableMultiSelection', this.enableMultiSelection()],
@@ -356,6 +363,51 @@ export class ZenGridComponent {
         this.grid!.updateOptions(changed);
       }
     });
+  }
+
+  private markExplicitInput<T>(name: 'rowHeight' | 'colWidth' | 'columns', value: T): T {
+    this.explicitInputs.add(name);
+    return value;
+  }
+
+  private hasExplicitInput(name: 'rowHeight' | 'colWidth' | 'columns'): boolean {
+    return this.explicitInputs.has(name);
+  }
+
+  private getResolvedDataMode(): 'frontend' | 'backend' {
+    return resolveOperationMode(
+      {
+        mode: this.dataMode() ?? (this.globalConfig?.['dataMode'] as OperationMode | undefined),
+        callback:
+          this.onDataRequest() ??
+          (this.globalConfig?.['onDataRequest'] as GridOptions['onDataRequest'] | undefined),
+      },
+      { rowCount: this.rowCount() }
+    );
+  }
+
+  private getResolvedRowHeight(): number | number[] {
+    const configured = this.globalConfig?.['rowHeight'] as GridOptions['rowHeight'] | undefined;
+    return this.hasExplicitInput('rowHeight') || configured === undefined ? this.rowHeight() : configured;
+  }
+
+  private getResolvedColWidth(): number | number[] {
+    const configured = this.globalConfig?.['colWidth'] as GridOptions['colWidth'] | undefined;
+    return this.hasExplicitInput('colWidth') || configured === undefined ? this.colWidth() : configured;
+  }
+
+  private getComponentColumns(): ColumnDef[] | undefined {
+    const columnChildren = this.columnChildren();
+    if (columnChildren.length > 0) {
+      return columnChildren.map(c => c.toColumnDef(this.templateBridge));
+    }
+
+    const inputColumns = this.columns();
+    if (this.hasExplicitInput('columns') || inputColumns.length > 0) {
+      return inputColumns;
+    }
+
+    return undefined;
   }
 
   private buildOutputMap(): void {
@@ -433,25 +485,18 @@ export class ZenGridComponent {
     if (!containerRef) return;
 
     const container = containerRef.nativeElement;
-    const columnChildren = this.columnChildren();
-    const inputColumns = this.columns();
     const dataValue = this.data();
-
-    let resolvedColumns: ColumnDef[];
-    if (columnChildren.length > 0) {
-      resolvedColumns = columnChildren.map(c => c.toColumnDef(this.templateBridge));
-    } else {
-      resolvedColumns = inputColumns;
-    }
+    const componentColumns = this.getComponentColumns();
+    const resolvedDataMode = this.getResolvedDataMode();
 
     const options: GridOptions = {
+      ...(this.globalConfig ?? {}),
       rowCount: this.rowCount(),
       colCount: this.colCount(),
-      rowHeight: this.rowHeight(),
-      colWidth: this.colWidth(),
-      columns: resolvedColumns.length > 0 ? resolvedColumns : undefined,
       ...this.getOptionalOptions(),
-      ...(this.globalConfig ?? {}),
+      rowHeight: this.getResolvedRowHeight(),
+      colWidth: this.getResolvedColWidth(),
+      ...(componentColumns !== undefined ? { columns: componentColumns } : {}),
     };
 
     this.grid = new Grid(container, options);
@@ -459,8 +504,8 @@ export class ZenGridComponent {
     // Wire up events
     this.wireEvents();
 
-    // Set initial data
-    if (dataValue && dataValue.length > 0) {
+    // Frontend mode owns the in-memory dataset, including an explicit empty array.
+    if (resolvedDataMode === 'frontend' && Array.isArray(dataValue)) {
       this.grid.setData(dataValue);
     }
 
@@ -606,7 +651,13 @@ export class ZenGridComponent {
   }
 
   setData(data: any[][]): void {
-    this.grid?.setData(data);
+    if (this.getResolvedDataMode() === 'frontend') {
+      if (this.grid) {
+        this.pendingModelDataSync = data;
+        this.grid.setData(data);
+      }
+    }
+
     this.data.set(data);
   }
 

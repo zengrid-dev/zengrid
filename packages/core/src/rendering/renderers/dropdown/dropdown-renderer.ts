@@ -9,7 +9,7 @@ import {
   updateTriggerDisplay,
   setAriaAttributes,
 } from './dropdown-dom';
-import { DropdownState } from './dropdown-state';
+import { DropdownState, globalOpenDropdownMenus } from './dropdown-state';
 import { DropdownNavigation } from './dropdown-navigation';
 import { DropdownEventManager } from './dropdown-events';
 
@@ -141,7 +141,7 @@ export class DropdownRenderer implements CellRenderer {
     );
     menu.appendChild(optionsList);
 
-    container.appendChild(menu);
+    this.state.registerMenu(menu, container);
 
     this.eventManager.attachEventHandlers(
       container,
@@ -157,7 +157,7 @@ export class DropdownRenderer implements CellRenderer {
       this.options.options!
     );
 
-    setAriaAttributes(container, params, this.options.multiSelect);
+    setAriaAttributes(container, menu, params, this.options.multiSelect);
 
     element.appendChild(container);
     this.update(element, params);
@@ -168,7 +168,9 @@ export class DropdownRenderer implements CellRenderer {
     if (!container) return;
 
     const trigger = container.querySelector('.zg-dropdown-trigger') as HTMLElement;
-    const menu = container.querySelector('.zg-dropdown-menu') as HTMLElement;
+    const menu =
+      globalOpenDropdownMenus.get(container) ||
+      (container.querySelector('.zg-dropdown-menu') as HTMLElement | null);
 
     if (!trigger || !menu) return;
 
@@ -199,12 +201,20 @@ export class DropdownRenderer implements CellRenderer {
   destroy(element: HTMLElement): void {
     const container = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
     if (container) {
-      const menu = container.querySelector('.zg-dropdown-menu') as HTMLElement;
-      if (menu && menu.style.display !== 'none') {
-        this.state.closeDropdown(menu, container);
-      }
+      const menu =
+        globalOpenDropdownMenus.get(container) ||
+        (container.querySelector('.zg-dropdown-menu') as HTMLElement | null);
 
       this.eventManager.removeEventHandlers(container);
+
+      if (menu) {
+        if (menu.style.display !== 'none') {
+          this.state.closeDropdown(menu, container);
+        }
+
+        globalOpenDropdownMenus.delete(container);
+        menu.remove();
+      }
     }
 
     element.innerHTML = '';

@@ -569,15 +569,31 @@
 
 .zg-chip-container--scroll {
   flex-wrap: nowrap;
-  overflow: hidden;          /* Parent cell handles scrolling */
-  max-height: 100%;          /* Constrain to cell height */
-  width: max-content;        /* Expand to fit all chips */
-  min-width: 100%;           /* At least full cell width */
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: 100%;
+  scrollbar-width: none;     /* Firefox */
+}
+
+.zg-chip-container--scroll::-webkit-scrollbar {
+  display: none;             /* Chrome/Safari */
 }
 
 .zg-chip-container--collapse {
   flex-wrap: nowrap;
   overflow: hidden;
+}
+
+/* Button Renderer Styles */
+.zg-cell.zg-cell-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zg-button {
+  line-height: 1;
+  text-align: center;
 }
 
 /* Checkbox Renderer Styles */

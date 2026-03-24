@@ -191,6 +191,26 @@ export class ChipRenderer implements CellRenderer {
     container.setAttribute('role', 'list');
     container.setAttribute('aria-label', 'Chip list');
 
+    // Apply overflow mode styles
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.gap = '2px';
+    container.style.height = '100%';
+
+    if (this.options.overflowMode === 'scroll') {
+      container.style.overflowX = 'auto';
+      container.style.overflowY = 'hidden';
+      container.style.flexWrap = 'nowrap';
+      container.style.scrollbarWidth = 'none'; // Firefox
+      // Webkit scrollbar hide via class (added below)
+    } else if (this.options.overflowMode === 'wrap') {
+      container.style.flexWrap = 'wrap';
+      container.style.overflow = 'hidden';
+    } else {
+      container.style.flexWrap = 'nowrap';
+      container.style.overflow = 'hidden';
+    }
+
     element.appendChild(container);
 
     // Set initial state via update()

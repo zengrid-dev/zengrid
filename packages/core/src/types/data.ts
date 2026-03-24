@@ -2,8 +2,8 @@
  * Data loading request/response types
  */
 
-import type { SortState } from './sort';
-import type { FilterModel } from './filter';
+import type { SortDescriptor, SortState } from './sort';
+import type { FilterExpression, FilterModel } from './filter';
 
 /**
  * Data loading request parameters
@@ -21,67 +21,56 @@ export interface DataLoadRequest {
   endRow: number;
 
   /**
+   * Monotonic identifier for this request lifecycle.
+   */
+  requestId?: number;
+
+  /**
+   * Abort signal for cancellation-aware backends.
+   */
+  signal?: AbortSignal;
+
+  /**
    * Current sort state
    */
   sortState?: SortState[];
 
   /**
+   * Serialized sort descriptors with optional field metadata
+   */
+  sort?: SortDescriptor[];
+
+  /**
+   * Shared filter expression used by backend callbacks and backend data mode.
+   */
+  filterExpression?: FilterExpression;
+
+  /**
    * Current filter state (column-based - DEPRECATED)
-   * @deprecated Use `filter` field-based format instead
-   * Kept for backwards compatibility
+   * @deprecated Use `filterExpression` or `filter` instead.
    */
   filterState?: FilterModel[];
 
   /**
-   * Field-based filter state (NEW - recommended)
-   * Uses field names instead of column indices
+   * Field-based filter state (recommended)
    */
   filter?: import('../features/filtering/types').FieldFilterState;
 
   /**
-   * Pre-computed filter exports (NEW)
-   * Ready-to-use formats for backend queries
-   *
-   * @example REST
-   * ```typescript
-   * fetch(`/api/users?${request.filterExport.queryString}`)
-   * // => /api/users?filter[age][gt]=18
-   * ```
-   *
-   * @example GraphQL
-   * ```typescript
-   * graphqlClient.query({
-   *   query: GET_USERS,
-   *   variables: { where: request.filterExport.graphqlWhere }
-   * })
-   * ```
-   *
-   * @example SQL
-   * ```typescript
-   * db.query(
-   *   `SELECT * FROM users WHERE ${request.filterExport.sql.whereClause}`,
-   *   request.filterExport.sql.positionalParams
-   * )
-   * ```
+   * Pre-computed filter exports.
    */
   filterExport?: {
-    /** REST query string (URL-encoded) */
     queryString: string;
-    /** GraphQL where clause */
     graphqlWhere: Record<string, any>;
-    /** SQL WHERE clause with parameters */
     sql: import('../features/filtering/adapters/types').SQLFilterExport;
   };
 
   /**
-   * Pagination info (NEW)
+   * Pagination info
    */
   pagination?: {
-    /** Current page (0-based) */
     page: number;
-    /** Items per page */
     pageSize: number;
-    /** Row offset (startRow) */
     offset: number;
   };
 }
@@ -109,4 +98,36 @@ export interface DataLoadResponse {
    * End row of loaded data
    */
   endRow: number;
+}
+
+/**
+ * Backend data request lifecycle state
+ */
+export interface DataRequestState {
+  /** Resolved data mode */
+  mode: 'frontend' | 'backend';
+
+  /** Current request status */
+  status: 'idle' | 'loading' | 'success' | 'empty' | 'error';
+
+  /** Whether a backend request is currently in flight */
+  isLoading: boolean;
+
+  /** Last request error, if any */
+  error: Error | null;
+
+  /** Last request sent to the backend */
+  lastRequest: DataLoadRequest | null;
+
+  /** Last successfully loaded row window */
+  lastLoadedRange: {
+    startRow: number;
+    endRow: number;
+  } | null;
+
+  /** Latest known total row count */
+  totalRows: number;
+
+  /** Whether retry is currently possible */
+  canRetry: boolean;
 }

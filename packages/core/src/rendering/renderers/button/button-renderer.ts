@@ -116,6 +116,11 @@ export class ButtonRenderer implements CellRenderer {
     this.destroy(element);
     element.classList.add('zg-cell-button');
 
+    // Center button within cell
+    element.style.display = 'flex';
+    element.style.alignItems = 'center';
+    element.style.justifyContent = 'center';
+
     // Create button element
     const button = document.createElement('button');
     button.type = 'button';
@@ -228,9 +233,12 @@ export class ButtonRenderer implements CellRenderer {
     }
     this.currentParams.delete(element);
 
-    // Clear content and remove classes
+    // Clear content and remove classes/styles
     element.innerHTML = '';
     element.classList.remove('zg-cell-button');
+    element.style.display = '';
+    element.style.alignItems = '';
+    element.style.justifyContent = '';
   }
 
   /**
@@ -299,8 +307,10 @@ export class ButtonRenderer implements CellRenderer {
     button.style.transition = 'all 0.2s ease';
     button.style.display = 'inline-flex';
     button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
     button.style.gap = '4px';
     button.style.whiteSpace = 'nowrap';
+    button.style.lineHeight = '1';
     button.style.opacity = disabled ? '0.6' : '1';
   }
 

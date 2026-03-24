@@ -23,3 +23,21 @@ export interface SortState {
   direction: SortDirection;
   sortIndex?: number; // For multi-column sort
 }
+
+/**
+ * Backend-friendly sort descriptor derived from the grid sort state
+ */
+export interface SortDescriptor {
+  column: number;
+  field?: string;
+  direction: Exclude<SortDirection, null>;
+  sortIndex: number;
+}
+
+/**
+ * Serialized backend sort request
+ */
+export interface SortRequest {
+  sortState: SortState[];
+  sort: SortDescriptor[];
+}

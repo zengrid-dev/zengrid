@@ -1,7 +1,7 @@
 import type { RenderParams } from '../renderer.interface';
 import type { DropdownOption } from './dropdown-types';
 import { deepEqual } from '../renderer-utils';
-import { DropdownState } from './dropdown-state';
+import { DropdownState, globalOpenDropdownMenus } from './dropdown-state';
 import { DropdownNavigation } from './dropdown-navigation';
 import { updateTriggerDisplay } from './dropdown-dom';
 
@@ -86,12 +86,23 @@ export class DropdownEventManager {
     }
 
     const documentClickHandler = (e: Event) => {
-      if (!container.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (!container.contains(target) && !menu.contains(target)) {
         this.closeDropdown(menu, container, options.searchable);
       }
     };
     document.addEventListener('click', documentClickHandler);
     handlers.set('documentClick', documentClickHandler);
+
+    // Close dropdown when any ancestor scrolls (menu is fixed-positioned on body)
+    const scrollHandler = () => {
+      if (menu.style.display !== 'none') {
+        this.closeDropdown(menu, container, options.searchable);
+      }
+    };
+    // Use capture to catch scroll on any ancestor
+    document.addEventListener('scroll', scrollHandler, true);
+    handlers.set('scroll', scrollHandler);
 
     const keydownHandler = (e: Event) => {
       this.navigation.handleKeyboardNavigation(
@@ -115,12 +126,16 @@ export class DropdownEventManager {
     const handlers = this.eventHandlers.get(container);
     if (handlers) {
       const trigger = container.querySelector('.zg-dropdown-trigger');
-      const menu = container.querySelector('.zg-dropdown-menu');
+      const menu =
+        globalOpenDropdownMenus.get(container) ||
+        (container.querySelector('.zg-dropdown-menu') as HTMLElement | null);
       const searchInput = menu?.querySelector('.zg-dropdown-search-input');
 
       for (const [eventType, handler] of handlers) {
         if (eventType === 'documentClick') {
           document.removeEventListener('click', handler);
+        } else if (eventType === 'scroll') {
+          document.removeEventListener('scroll', handler, true);
         } else if (eventType === 'click' && trigger) {
           trigger.removeEventListener('click', handler);
         } else if (eventType === 'optionClick' && menu) {

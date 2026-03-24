@@ -3,7 +3,21 @@
  */
 
 import { DropdownRenderer, createDropdownRenderer, type DropdownOption } from '../dropdown';
+import { globalOpenDropdownMenus } from '../dropdown/dropdown-state';
 import type { RenderParams } from '../renderer.interface';
+
+function getDropdownWrapper(root: HTMLElement): HTMLElement {
+  const wrapper = root.querySelector('.zg-dropdown-wrapper') as HTMLElement | null;
+  if (!wrapper) {
+    throw new Error('Dropdown wrapper not found');
+  }
+  return wrapper;
+}
+
+function getDropdownMenu(root: HTMLElement): HTMLElement {
+  const wrapper = getDropdownWrapper(root);
+  return (globalOpenDropdownMenus.get(wrapper) || wrapper.querySelector('.zg-dropdown-menu')) as HTMLElement;
+}
 
 describe('DropdownRenderer', () => {
   let renderer: DropdownRenderer;
@@ -34,12 +48,8 @@ describe('DropdownRenderer', () => {
 
   afterEach(() => {
     // Clean up any open dropdowns
-    const dropdowns = document.querySelectorAll('.zg-dropdown-wrapper');
-    dropdowns.forEach((dropdown) => {
-      const menu = dropdown.querySelector('.zg-dropdown-menu') as HTMLElement;
-      if (menu) {
-        menu.style.display = 'none';
-      }
+    document.querySelectorAll('.zg-dropdown-menu').forEach((menu) => {
+      menu.remove();
     });
     if (element.parentNode) {
       element.parentNode.removeChild(element);
@@ -71,7 +81,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input');
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input');
       expect(searchInput).toBeTruthy();
     });
 
@@ -122,7 +132,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       expect(menu.style.maxHeight).toBe('400px');
     });
 
@@ -157,8 +167,16 @@ describe('DropdownRenderer', () => {
     it('should create dropdown menu (initially hidden)', () => {
       renderer.render(element, params);
 
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       expect(menu).toBeTruthy();
+      expect(menu.style.display).toBe('none');
+    });
+
+    it('keeps the menu body-portaled even while hidden', () => {
+      renderer.render(element, params);
+
+      const menu = getDropdownMenu(element);
+      expect(menu.parentElement).toBe(document.body);
       expect(menu.style.display).toBe('none');
     });
 
@@ -189,14 +207,14 @@ describe('DropdownRenderer', () => {
     it('should render all options', () => {
       renderer.render(element, params);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       expect(options.length).toBe(3);
     });
 
     it('should mark selected option', () => {
       renderer.render(element, params);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const activeOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('active')
       );
@@ -223,7 +241,7 @@ describe('DropdownRenderer', () => {
       expect(trigger?.getAttribute('aria-expanded')).toBe('false');
       expect(trigger?.getAttribute('aria-label')).toContain('Status dropdown');
 
-      const optionsList = element.querySelector('.zg-dropdown-options');
+      const optionsList = getDropdownMenu(element).querySelector('.zg-dropdown-options');
       expect(optionsList?.getAttribute('role')).toBe('listbox');
       expect(optionsList?.getAttribute('aria-label')).toBe('Options list');
     });
@@ -235,7 +253,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input');
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input');
       expect(searchInput).toBeTruthy();
       expect(searchInput?.getAttribute('type')).toBe('text');
       expect(searchInput?.getAttribute('placeholder')).toBe('Search...');
@@ -245,7 +263,7 @@ describe('DropdownRenderer', () => {
     it('should not create search input when not searchable', () => {
       renderer.render(element, params);
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input');
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input');
       expect(searchInput).toBeNull();
     });
   });
@@ -267,7 +285,7 @@ describe('DropdownRenderer', () => {
       const params2 = { ...params, value: 'pending' };
       renderer.update(element, params2);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const pendingOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('pending')
       );
@@ -338,6 +356,32 @@ describe('DropdownRenderer', () => {
       renderer.destroy(element);
 
       expect(element.innerHTML).toBe('');
+    });
+
+    it('should remove body-portaled menu on destroy', () => {
+      renderer.render(element, params);
+
+      const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
+      const menu = getDropdownMenu(element);
+      trigger.click();
+
+      expect(menu.parentElement).toBe(document.body);
+
+      renderer.destroy(element);
+
+      expect(document.body.contains(menu)).toBe(false);
+      expect(element.innerHTML).toBe('');
+    });
+
+    it('should remove a hidden body-portaled menu on destroy', () => {
+      renderer.render(element, params);
+
+      const menu = getDropdownMenu(element);
+      expect(menu.parentElement).toBe(document.body);
+
+      renderer.destroy(element);
+
+      expect(document.body.contains(menu)).toBe(false);
     });
 
     it('should remove cell class', () => {
@@ -421,7 +465,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
 
       trigger.click();
 
@@ -433,13 +477,26 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
 
       trigger.click(); // Open
       trigger.click(); // Close
 
       expect(menu.style.display).toBe('none');
       expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('keeps the menu body-portaled after close', () => {
+      renderer.render(element, params);
+
+      const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
+      const menu = getDropdownMenu(element);
+
+      trigger.click();
+      trigger.click();
+
+      expect(menu.parentElement).toBe(document.body);
+      expect(menu.style.display).toBe('none');
     });
 
     it('should close other dropdowns when opening', () => {
@@ -452,14 +509,15 @@ describe('DropdownRenderer', () => {
 
       const trigger1 = element1.querySelector('.zg-dropdown-trigger') as HTMLElement;
       const trigger2 = element2.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu1 = element1.querySelector('.zg-dropdown-menu') as HTMLElement;
-      const menu2 = element2.querySelector('.zg-dropdown-menu') as HTMLElement;
-
+      const menu1 = getDropdownMenu(element1);
+      const menu2 = getDropdownMenu(element2);
       trigger1.click(); // Open first
       expect(menu1.style.display).toBe('block');
+      expect(menu1.parentElement).toBe(document.body);
 
       trigger2.click(); // Open second, should close first
       expect(menu1.style.display).toBe('none');
+      expect(menu1.parentElement).toBe(document.body);
       expect(menu2.style.display).toBe('block');
     });
 
@@ -474,7 +532,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       ) as HTMLElement;
@@ -489,10 +547,10 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const inactiveOption = options[1] as HTMLElement;
       inactiveOption.click();
 
@@ -508,10 +566,10 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params2);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const inactiveOption = options[1] as HTMLElement;
       inactiveOption.click();
 
@@ -528,7 +586,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input');
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input');
       expect(document.activeElement).toBe(searchInput);
     });
   });
@@ -547,7 +605,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const pendingOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('pending')
       ) as HTMLElement;
@@ -570,7 +628,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const activeOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('active')
       ) as HTMLElement;
@@ -613,7 +671,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const optionsList = element.querySelector('.zg-dropdown-options');
+      const optionsList = getDropdownMenu(element).querySelector('.zg-dropdown-options');
       expect(optionsList?.getAttribute('aria-multiselectable')).toBe('true');
     });
   });
@@ -629,11 +687,11 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'pend';
       searchInput.dispatchEvent(new Event('input'));
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
         (opt) => (opt as HTMLElement).style.display !== 'none'
       );
@@ -652,11 +710,11 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'PENDING';
       searchInput.dispatchEvent(new Event('input'));
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
         (opt) => (opt as HTMLElement).style.display !== 'none'
       );
@@ -675,11 +733,11 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'ACTIVE';
       searchInput.dispatchEvent(new Event('input'));
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
         (opt) => (opt as HTMLElement).style.display !== 'none'
       );
@@ -697,7 +755,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'act';
       searchInput.dispatchEvent(new Event('input'));
 
@@ -707,7 +765,7 @@ describe('DropdownRenderer', () => {
 
       // Verify all options are visible again
       trigger.click(); // Reopen
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
         (opt) => (opt as HTMLElement).style.display !== 'none'
       );
@@ -725,11 +783,11 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = '';
       searchInput.dispatchEvent(new Event('input'));
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const visibleOptions = Array.from(options).filter(
         (opt) => (opt as HTMLElement).style.display !== 'none'
       );
@@ -750,7 +808,7 @@ describe('DropdownRenderer', () => {
       const renderer = new DropdownRenderer({ options: groupedOptions });
       renderer.render(element, params);
 
-      const groupHeaders = element.querySelectorAll('.zg-dropdown-group-header');
+      const groupHeaders = getDropdownMenu(element).querySelectorAll('.zg-dropdown-group-header');
       expect(groupHeaders.length).toBe(2);
       expect(groupHeaders[0].textContent).toBe('Colors');
       expect(groupHeaders[1].textContent).toBe('Shapes');
@@ -759,7 +817,7 @@ describe('DropdownRenderer', () => {
     it('should not render group headers for ungrouped options', () => {
       renderer.render(element, params);
 
-      const groupHeaders = element.querySelectorAll('.zg-dropdown-group-header');
+      const groupHeaders = getDropdownMenu(element).querySelectorAll('.zg-dropdown-group-header');
       expect(groupHeaders.length).toBe(0);
     });
 
@@ -780,11 +838,11 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input') as HTMLInputElement;
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input') as HTMLInputElement;
       searchInput.value = 'red';
       searchInput.dispatchEvent(new Event('input'));
 
-      const groupHeaders = element.querySelectorAll('.zg-dropdown-group-header');
+      const groupHeaders = getDropdownMenu(element).querySelectorAll('.zg-dropdown-group-header');
       const visibleHeaders = Array.from(groupHeaders).filter(
         (header) => (header as HTMLElement).style.display !== 'none'
       );
@@ -798,7 +856,7 @@ describe('DropdownRenderer', () => {
     it('should open dropdown on Enter key', () => {
       renderer.render(element, params);
 
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       const wrapper = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
 
       const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -810,7 +868,7 @@ describe('DropdownRenderer', () => {
     it('should open dropdown on Space key', () => {
       renderer.render(element, params);
 
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       const wrapper = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
 
       const spaceEvent = new KeyboardEvent('keydown', { key: ' ' });
@@ -823,7 +881,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       const wrapper = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
 
       trigger.click(); // Open
@@ -837,7 +895,7 @@ describe('DropdownRenderer', () => {
     it('should open dropdown on ArrowDown when closed', () => {
       renderer.render(element, params);
 
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
       const wrapper = element.querySelector('.zg-dropdown-wrapper') as HTMLElement;
 
       const arrowDownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown' });
@@ -856,7 +914,7 @@ describe('DropdownRenderer', () => {
       const homeEvent = new KeyboardEvent('keydown', { key: 'Home' });
       wrapper.dispatchEvent(homeEvent);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       expect(document.activeElement).toBe(options[0]);
     });
 
@@ -870,7 +928,7 @@ describe('DropdownRenderer', () => {
       const endEvent = new KeyboardEvent('keydown', { key: 'End' });
       wrapper.dispatchEvent(endEvent);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       expect(document.activeElement).toBe(options[options.length - 1]);
     });
   });
@@ -886,7 +944,7 @@ describe('DropdownRenderer', () => {
       const renderer = new DropdownRenderer({ options: optionsWithDisabled });
       renderer.render(element, params);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       );
@@ -912,7 +970,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const inactiveOption = Array.from(options).find((opt) =>
         opt.getAttribute('data-value')?.includes('inactive')
       ) as HTMLElement;
@@ -938,7 +996,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       expect(options[0].textContent).toBe('Custom: Active');
       expect(options[0].classList.contains('custom-option')).toBe(true);
     });
@@ -983,7 +1041,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       const option2 = options[1] as HTMLElement;
       option2.click();
 
@@ -1005,7 +1063,7 @@ describe('DropdownRenderer', () => {
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
       trigger.click();
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       (options[1] as HTMLElement).click();
 
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -1021,7 +1079,7 @@ describe('DropdownRenderer', () => {
       const renderer = new DropdownRenderer({ options: manyOptions });
       renderer.render(element, params);
 
-      const options = element.querySelectorAll('.zg-dropdown-option');
+      const options = getDropdownMenu(element).querySelectorAll('.zg-dropdown-option');
       expect(options.length).toBe(1000);
     });
 
@@ -1029,7 +1087,7 @@ describe('DropdownRenderer', () => {
       renderer.render(element, params);
 
       const trigger = element.querySelector('.zg-dropdown-trigger') as HTMLElement;
-      const menu = element.querySelector('.zg-dropdown-menu') as HTMLElement;
+      const menu = getDropdownMenu(element);
 
       // Rapid clicks
       trigger.click();
@@ -1063,7 +1121,7 @@ describe('DropdownRenderer', () => {
       });
       renderer.render(element, params);
 
-      const searchInput = element.querySelector('.zg-dropdown-search-input');
+      const searchInput = getDropdownMenu(element).querySelector('.zg-dropdown-search-input');
       expect(searchInput).toBeTruthy();
     });
   });

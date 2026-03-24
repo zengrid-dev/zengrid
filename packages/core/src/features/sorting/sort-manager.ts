@@ -1,8 +1,10 @@
+import { timsortIndices } from '@zengrid/shared';
 import type { SortState, SortDirection, SortMode } from '../../types';
 import type { EventEmitter } from '../../events/event-emitter';
 import type { GridEvents } from '../../events/grid-events';
+import { createIndexMap, type IndexMap } from '../../data/index-map';
+import { normalizeSortState } from './sort-request';
 import { SingleColumnSorter } from './single-column-sorter';
-import type { IndexMap } from '../../data/index-map';
 
 /**
  * Sort manager options
@@ -99,7 +101,7 @@ export class SortManager {
     }
 
     if (options.initialSort) {
-      this.sortState = [...options.initialSort];
+      this.sortState = normalizeSortState(options.initialSort);
       this.executeSort();
     }
   }
@@ -156,6 +158,8 @@ export class SortManager {
       }
     }
 
+    this.sortState = normalizeSortState(this.sortState);
+
     // Execute sort
     this.executeSort();
 
@@ -174,7 +178,7 @@ export class SortManager {
    */
   setSortState(sortState: SortState[]): void {
     const previousState = [...this.sortState];
-    this.sortState = [...sortState];
+    this.sortState = normalizeSortState(sortState);
 
     this.executeSort();
 
@@ -301,41 +305,37 @@ export class SortManager {
     }
 
     // Frontend mode - execute sort in memory
-    // For now, support only single column sort
-    // TODO: Implement multi-column sort
-    const primarySort = this.sortState[0];
+    if (this.sortState.length === 1) {
+      const primarySort = this.sortState[0];
+      const sorter = new SingleColumnSorter();
 
-    const sorter = new SingleColumnSorter();
+      const accessor = {
+        getValue: this.getValue,
+        getRow: (row: number) => {
+          const values: [number, any][] = [];
+          values.push([primarySort.column, this.getValue(row, primarySort.column)]);
+          return values;
+        },
+        getColumn: (col: number) => {
+          const values: [number, any][] = [];
+          for (let row = 0; row < this.rowCount; row++) {
+            values.push([row, this.getValue(row, col)]);
+          }
+          return values;
+        },
+        rowCount: this.rowCount,
+        colCount: 1,
+        getColumnIds: () => [primarySort.column],
+      };
 
-    // Create data accessor
-    const accessor = {
-      getValue: this.getValue,
-      getRow: (row: number) => {
-        const values: [number, any][] = [];
-        for (let col = 0; col < 1; col++) {
-          // Only primary column for now
-          values.push([col, this.getValue(row, col)]);
-        }
-        return values;
-      },
-      getColumn: (col: number) => {
-        const values: [number, any][] = [];
-        for (let row = 0; row < this.rowCount; row++) {
-          values.push([row, this.getValue(row, col)]);
-        }
-        return values;
-      },
-      rowCount: this.rowCount,
-      colCount: 1,
-      getColumnIds: () => [0],
-    };
-
-    // Sort and get index map
-    this.indexMap = sorter.sort(accessor, primarySort.column, {
-      direction: primarySort.direction!,
-      nullPosition: 'last',
-      caseSensitive: true,
-    });
+      this.indexMap = sorter.sort(accessor, primarySort.column, {
+        direction: primarySort.direction!,
+        nullPosition: 'last',
+        caseSensitive: true,
+      });
+    } else {
+      this.indexMap = this.sortMultipleColumns(this.sortState);
+    }
 
     // Emit after-sort event
     if (this.events) {
@@ -344,6 +344,89 @@ export class SortManager {
         rowsAffected: this.rowCount,
       });
     }
+  }
+
+  private sortMultipleColumns(sortState: SortState[]): IndexMap {
+    const indices = Array.from({ length: this.rowCount }, (_, index) => index);
+
+    timsortIndices(indices, (row) => row, (rowA, rowB) => this.compareRows(rowA, rowB, sortState));
+
+    return createIndexMap(indices);
+  }
+
+  private compareRows(rowA: number, rowB: number, sortState: SortState[]): number {
+    for (const sort of sortState) {
+      if (!sort.direction) {
+        continue;
+      }
+
+      const valueA = this.getValue(rowA, sort.column);
+      const valueB = this.getValue(rowB, sort.column);
+      const comparison = this.compareValues(valueA, valueB, true);
+
+      if (comparison !== 0) {
+        return sort.direction === 'asc' ? comparison : -comparison;
+      }
+    }
+
+    return 0;
+  }
+
+  private compareValues(a: any, b: any, caseSensitive: boolean): number {
+    const isNullA = a === null || a === undefined;
+    const isNullB = b === null || b === undefined;
+
+    if (isNullA && isNullB) return 0;
+    if (isNullA) return 1;
+    if (isNullB) return -1;
+
+    const typeA = typeof a;
+    const typeB = typeof b;
+
+    if (typeA !== typeB) {
+      return this.compareStrings(String(a), String(b), caseSensitive);
+    }
+
+    if (typeA === 'number') {
+      return this.compareNumbers(a, b);
+    }
+
+    if (typeA === 'string') {
+      return this.compareStrings(a, b, caseSensitive);
+    }
+
+    if (typeA === 'boolean') {
+      return this.compareBooleans(a, b);
+    }
+
+    if (a instanceof Date && b instanceof Date) {
+      return this.compareDates(a, b);
+    }
+
+    return this.compareStrings(String(a), String(b), caseSensitive);
+  }
+
+  private compareNumbers(a: number, b: number): number {
+    if (isNaN(a) && isNaN(b)) return 0;
+    if (isNaN(a)) return 1;
+    if (isNaN(b)) return -1;
+    return a - b;
+  }
+
+  private compareStrings(a: string, b: string, caseSensitive: boolean): number {
+    if (!caseSensitive) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+    }
+    return a.localeCompare(b);
+  }
+
+  private compareBooleans(a: boolean, b: boolean): number {
+    return Number(a) - Number(b);
+  }
+
+  private compareDates(a: Date, b: Date): number {
+    return a.getTime() - b.getTime();
   }
 
   /**

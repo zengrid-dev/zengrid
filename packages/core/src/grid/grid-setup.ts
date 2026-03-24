@@ -16,6 +16,7 @@ import { createEditingPlugin } from '../plugins/editing';
 import { createUndoRedoPlugin } from '../plugins/undo-redo';
 import { createDomPlugin } from '../plugins/dom';
 import { createRenderingPlugin } from '../plugins/rendering';
+import { createDataPlugin } from '../plugins/data-plugin';
 import { createHeaderPlugin } from '../plugins/header';
 import { createPaginationPlugin } from '../plugins/pagination';
 import { createColumnPlugin } from '../plugins/column';
@@ -23,14 +24,16 @@ import { createFilterUIPlugin } from '../plugins/filter-ui';
 import { createInfiniteScrollPlugin } from '../plugins/infinite-scroll';
 import { createLifecyclePlugin } from '../plugins/lifecycle';
 import { ViewportModel } from '../features/viewport/viewport-model';
+import { resolveOperationMode } from '@zengrid/shared';
 import type { SlimGridContext } from './grid-context';
 
 export function createSlimContext(container: HTMLElement, options: GridOptions): SlimGridContext {
   if (!container) throw new Error('Container element is required');
   container.classList.add('zg-grid');
 
-  if (!options.rowCount || options.rowCount <= 0) options.rowCount = 0;
-  if (!options.colCount || options.colCount <= 0) options.colCount = 0;
+  const normalizedOptions: GridOptions = { ...options };
+  if (!normalizedOptions.rowCount || normalizedOptions.rowCount <= 0) normalizedOptions.rowCount = 0;
+  if (!normalizedOptions.colCount || normalizedOptions.colCount <= 0) normalizedOptions.colCount = 0;
 
   const events = new EventEmitter<GridEvents>();
   const state: GridState = {
@@ -52,7 +55,7 @@ export function createSlimContext(container: HTMLElement, options: GridOptions):
 
   return {
     container,
-    options,
+    options: normalizedOptions,
     state,
     events,
     store,
@@ -65,6 +68,36 @@ export function createSlimContext(container: HTMLElement, options: GridOptions):
 
 export function installAllPlugins(ctx: SlimGridContext): void {
   const { options, events, pluginHost, store } = ctx;
+  const resolvedDataMode = resolveOperationMode(
+    {
+      mode: options.dataMode,
+      callback: options.onDataRequest,
+    },
+    {
+      rowCount: options.rowCount,
+    }
+  );
+
+  const resolvedSortMode = resolveOperationMode(
+    {
+      mode: options.sortMode,
+      callback: options.onSortRequest,
+    },
+    {
+      rowCount: options.rowCount,
+    }
+  );
+  const resolvedFilterMode = resolveOperationMode(
+    {
+      mode: options.filterMode,
+      callback: options.onFilterRequest,
+    },
+    {
+      rowCount: options.rowCount,
+    }
+  );
+  const sortExecutionMode = resolvedDataMode === 'backend' ? 'backend' : resolvedSortMode;
+  const filterExecutionMode = resolvedDataMode === 'backend' ? 'backend' : resolvedFilterMode;
 
   // Phase 0: Core
   pluginHost.use(createCorePlugin());
@@ -73,14 +106,27 @@ export function installAllPlugins(ctx: SlimGridContext): void {
   pluginHost.use(createDomPlugin({ container: ctx.container, options }));
 
   // Phase 10: Sort
-  if (options.sortMode !== 'backend') {
-    pluginHost.use(createSortPlugin({ enableMultiSort: true }));
-  }
+  pluginHost.use(
+    createSortPlugin({
+      enableMultiSort: true,
+      sortMode: sortExecutionMode,
+      onSortRequest: options.onSortRequest,
+      columns: options.columns,
+      usePipeline: sortExecutionMode === 'frontend',
+    })
+  );
 
   // Phase 20: Filter
-  if (options.filterMode !== 'backend') {
-    pluginHost.use(createFilterPlugin({ colCount: options.colCount }));
-  }
+  pluginHost.use(
+    createFilterPlugin({
+      colCount: options.colCount,
+      columns: options.columns,
+      filterMode: filterExecutionMode,
+      onFilterRequest: options.onFilterRequest,
+      usePipeline: filterExecutionMode === 'frontend',
+      useRequestCallback: resolvedDataMode !== 'backend',
+    })
+  );
 
   // Phase 30: Rendering
   let columnModel: any = null;
@@ -95,6 +141,17 @@ export function installAllPlugins(ctx: SlimGridContext): void {
       getDataAccessor: () => dataAccessor,
       getColumnModel: () => columnModel,
       getSelectionChecker: () => selectionChecker,
+    })
+  );
+
+  // Phase 35: Data
+  pluginHost.use(
+    createDataPlugin({
+      options,
+      state: ctx.state,
+      container: ctx.container,
+      events,
+      setDataAccessor: (da) => { dataAccessor = da; },
     })
   );
 

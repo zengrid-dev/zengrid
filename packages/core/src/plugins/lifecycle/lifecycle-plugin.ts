@@ -14,6 +14,16 @@ export interface LifecyclePluginOptions {
   setColumnModel: (cm: ColumnModel | null) => void;
 }
 
+type HeaderSortInteraction = GridEvents['header:sort:click'];
+
+export function isAdditiveHeaderSortInteraction(event: HeaderSortInteraction): boolean {
+  if (typeof event.additive === 'boolean') {
+    return event.additive;
+  }
+
+  return !!(event.nativeEvent?.shiftKey || event.nativeEvent?.ctrlKey || event.nativeEvent?.metaKey);
+}
+
 export function createLifecyclePlugin(opts: LifecyclePluginOptions): GridPlugin {
   return {
     name: 'lifecycle',
@@ -108,13 +118,13 @@ export function createLifecyclePlugin(opts: LifecyclePluginOptions): GridPlugin 
 
             // Sort header click bridge
             eventUnsubs.push(
-              events.on('header:sort:click', (event: any) => {
+              events.on('header:sort:click', (event: HeaderSortInteraction) => {
                 let dataCol = event.columnIndex;
                 if (columnModel) {
                   const orderedColumns = columnModel.getVisibleColumnsInOrder();
                   if (orderedColumns[event.columnIndex]) dataCol = orderedColumns[event.columnIndex].dataIndex;
                 }
-                store.exec('sort:toggle', dataCol);
+                store.exec('sort:toggle', dataCol, isAdditiveHeaderSortInteraction(event));
                 syncAfterPipeline();
               })
             );
@@ -180,6 +190,11 @@ export function createLifecyclePlugin(opts: LifecyclePluginOptions): GridPlugin 
           // Update pagination
           if (api.getMethod('pagination', 'update')) {
             store.exec('pagination:update');
+          }
+
+          const ensureDataRange = api.getMethod('data', 'ensureVisibleRange');
+          if (ensureDataRange) {
+            void ensureDataRange('initial');
           }
         },
         'lifecycle'

@@ -60,6 +60,45 @@ describe('SortPlugin', () => {
     expect(sorted).toEqual([0, 2, 1]);
   });
 
+  it('sort:apply honors multiple sort keys and preserves stable ties', () => {
+    host.use(createCorePlugin({ initialData: [[1, 'b'], [1, 'a'], [2, 'a'], [1, 'a']] }));
+    host.use(createSortPlugin({ enableMultiSort: true }));
+
+    store.exec('sort:apply', [
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+
+    const state = store.get('sort.state') as any[];
+    expect(state).toEqual([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+
+    const sorted = store.get('pipeline.sort') as number[];
+    expect(sorted).toEqual([1, 3, 0, 2]);
+  });
+
+
+  it('sort:apply honors explicit sortIndex priority over array order', () => {
+    host.use(createCorePlugin({ initialData: [[1, 'b'], [1, 'a'], [2, 'a'], [1, 'a']] }));
+    host.use(createSortPlugin({ enableMultiSort: true }));
+
+    store.exec('sort:apply', [
+      { column: 1, direction: 'asc', sortIndex: 1 },
+      { column: 0, direction: 'asc', sortIndex: 0 },
+    ]);
+
+    const state = store.get('sort.state') as any[];
+    expect(state).toEqual([
+      { column: 0, direction: 'asc', sortIndex: 0 },
+      { column: 1, direction: 'asc', sortIndex: 1 },
+    ]);
+
+    const sorted = store.get('pipeline.sort') as number[];
+    expect(sorted).toEqual([1, 3, 0, 2]);
+  });
+
   it('sort:clear resets pipeline.sort to undefined', () => {
     host.use(createCorePlugin({ initialData: [[30], [10], [20]] }));
     host.use(createSortPlugin());

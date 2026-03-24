@@ -198,12 +198,17 @@ export class VirtualScroller implements IVirtualScroller {
     if (rowCount < 0) {
       throw new RangeError('Row count must be non-negative');
     }
+
+    const previousRowCount = this.rows;
     this.rows = rowCount;
 
     // If using UniformHeightProvider, we need to update its row count too
     if (this.heightProvider instanceof UniformHeightProvider) {
-      // UniformHeightProvider calculates total based on count, so we need to recreate it
-      const rowHeight = this.heightProvider.getHeight(0);
+      // Preserve the configured height even when the current row count is zero.
+      const uniformProvider = this.heightProvider as unknown as { rowHeight?: number };
+      const rowHeight = previousRowCount > 0
+        ? this.heightProvider.getHeight(0)
+        : uniformProvider.rowHeight ?? 30;
       this.heightProvider = new UniformHeightProvider(rowHeight, rowCount);
     }
   }
